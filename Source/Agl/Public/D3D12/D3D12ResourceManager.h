@@ -50,8 +50,8 @@ namespace agl
 		virtual DepthStencilState* CreateDepthStencilState( const DepthStencilStateTrait& trait ) const override;
 		virtual RasterizerState* CreateRasterizerState( const RasterizerStateTrait& trait ) const override;
 		virtual SamplerState* CreateSamplerState( const SamplerStateTrait& trait ) const override;
-		virtual GraphicsPipelineState* CreatePipelineState( const GraphicsPipelineStateInitializer& initializer ) override;
-		virtual ComputePipelineState* CreatePipelineState( const ComputePipelineStateInitializer& initializer ) override;
+		virtual GraphicsPipelineState* CreatePipelineState( const GraphicsPipelineStateDesc& desc ) override;
+		virtual ComputePipelineState* CreatePipelineState( const ComputePipelineStateDesc& desc ) override;
 
 		// Canvas
 		virtual Canvas* CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& clearColor ) const override;
@@ -95,8 +95,8 @@ namespace agl
 	private:
 		void UpdatePSOCache( size_t hash, ID3D12PipelineState* pipelineState );
 
-		std::map<GraphicsPipelineStateInitializer, RefHandle<GraphicsPipelineState>> m_graphicsPipelineStateCache;
-		std::map<ComputePipelineStateInitializer, RefHandle<ComputePipelineState>> m_computePipelineStateCache;
+		std::map<GraphicsPipelineStateDesc, RefHandle<GraphicsPipelineState>> m_graphicsPipelineStateCache;
+		std::map<ComputePipelineStateDesc, RefHandle<ComputePipelineState>> m_computePipelineStateCache;
 
 		std::shared_mutex m_d3d12PipelineMutex;
 		std::map<uint64, Microsoft::WRL::ComPtr<ID3D12PipelineState>> m_d3d12PipelineState;
@@ -123,5 +123,5 @@ namespace agl
 	};
 
 	Owner<IResourceManager*> CreateD3D12ResourceManager();
-	uint32 GetIndirectArgumentStride( agl::IndirectCommandType type );
+	uint32 GetIndirectArgumentStride( IndirectCommandType type );
 }

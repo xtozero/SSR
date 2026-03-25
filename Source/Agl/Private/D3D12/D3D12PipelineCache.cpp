@@ -36,8 +36,8 @@ namespace agl
 		std::memset( m_viewports, 0, sizeof( m_viewports ) );
 		m_numViewports = 0;
 
-		std::memset( m_siccorRects, 0, sizeof( m_siccorRects ) );
-		m_numSiccorRects = 0;
+		std::memset( m_scissorRects, 0, sizeof( m_scissorRects ) );
+		m_numScissorRects = 0;
 
 		std::memset( m_rtvs, 0, sizeof( m_rtvs ) );
 		m_dsv = nullptr;
@@ -121,14 +121,14 @@ namespace agl
 		commandList.IASetIndexBuffer( ( view.SizeInBytes == 0 ) ? nullptr : &view );
 	}
 
-	void D3D12PipelineCache::BindPipelineState( ID3D12GraphicsCommandList6& commandList, GraphicsPipelineState* pipelineState )
+	void D3D12PipelineCache::BindPipelineState( ID3D12GraphicsCommandList6& commandList, const GraphicsPipelineState* pipelineState )
 	{
 		if ( pipelineState == nullptr )
 		{
 			return;
 		}
 
-		auto d3d12GraphicsPipelineState = static_cast<D3D12GraphicsPipelineState*>( pipelineState );
+		auto d3d12GraphicsPipelineState = static_cast<const D3D12GraphicsPipelineState*>( pipelineState );
 		assert( d3d12GraphicsPipelineState != nullptr );
 
 		DXGI_FORMAT rtvFormats[D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT] = {};
@@ -160,14 +160,14 @@ namespace agl
 		commandList.SetGraphicsRootSignature( rootSignature );
 	}
 
-	void D3D12PipelineCache::BindPipelineState( ID3D12GraphicsCommandList6& commandList, ComputePipelineState* pipelineState )
+	void D3D12PipelineCache::BindPipelineState( ID3D12GraphicsCommandList6& commandList, const ComputePipelineState* pipelineState )
 	{
 		if ( pipelineState == nullptr )
 		{
 			return;
 		}
 
-		auto d3d12ComputePipelineState = static_cast<D3D12ComputePipelineState*>( pipelineState );
+		auto d3d12ComputePipelineState = static_cast<const D3D12ComputePipelineState*>( pipelineState );
 		assert( d3d12ComputePipelineState != nullptr );
 
 		auto& d3d12ResourceManager = *static_cast<D3D12ResourceManager*>( GetInterface<IResourceManager>() );
@@ -191,14 +191,14 @@ namespace agl
 		commandList.SetComputeRootSignature( rootSignature );
 	}
 
-	void D3D12PipelineCache::BindPipelineState( ID3D12GraphicsCommandList6& commandList, RaytracingPipelineState* pipelineState )
+	void D3D12PipelineCache::BindPipelineState( ID3D12GraphicsCommandList6& commandList, const RaytracingPipelineState* pipelineState )
 	{
 		if ( pipelineState == nullptr )
 		{
 			return;
 		}
 
-		auto d3d12RaytracingPipelineState = static_cast<D3D12RaytracingPipelineState*>( pipelineState );
+		auto d3d12RaytracingPipelineState = static_cast<const D3D12RaytracingPipelineState*>( pipelineState );
 		assert( d3d12RaytracingPipelineState != nullptr );
 
 		ID3D12StateObject* stateObject = d3d12RaytracingPipelineState->GetStateObject();
@@ -220,7 +220,7 @@ namespace agl
 		commandList.SetComputeRootSignature( rootSignature );
 	}
 
-	void D3D12PipelineCache::BindBindlessResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, GlobalConstantBuffers& globalConstantBuffers, ShaderBindings& shaderBindings )
+	void D3D12PipelineCache::BindBindlessResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, GlobalConstantBuffers& globalConstantBuffers, const ShaderBindings& shaderBindings )
 	{
 		for ( uint32 shaderType = 0; shaderType < NumShaderTypes<uint32>; ++shaderType )
 		{
@@ -432,7 +432,7 @@ namespace agl
 		}
 	}
 
-	void D3D12PipelineCache::BindShaderResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, GlobalConstantBuffers& globalConstantBuffers, ShaderBindings& shaderBindings )
+	void D3D12PipelineCache::BindShaderResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, GlobalConstantBuffers& globalConstantBuffers, const ShaderBindings& shaderBindings )
 	{
 		globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
 
@@ -687,7 +687,7 @@ namespace agl
 	void D3D12PipelineCache::SetScissorRects( ID3D12GraphicsCommandList6& commandList, uint32 count, const RectangleArea<int32>* area )
 	{
 		D3D12_RECT rects[D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE] = {};
-		static_assert( sizeof( rects ) == sizeof( m_siccorRects ) );
+		static_assert( sizeof( rects ) == sizeof( m_scissorRects ) );
 
 		for ( uint32 i = 0; i < count; ++i )
 		{
@@ -707,13 +707,13 @@ namespace agl
 				&& lhs.bottom == rhs.bottom;
 		};
 
-		if ( std::equal( std::begin( rects ), std::end( rects ), std::begin( m_siccorRects ), pred ) )
+		if ( std::equal( std::begin( rects ), std::end( rects ), std::begin( m_scissorRects ), pred ) )
 		{
 			return;
 		}
 
-		std::ranges::copy( rects, std::begin( m_siccorRects ) );
-		m_numSiccorRects = count;
+		std::ranges::copy( rects, std::begin( m_scissorRects ) );
+		m_numScissorRects = count;
 
 		commandList.RSSetScissorRects( count, rects );
 	}

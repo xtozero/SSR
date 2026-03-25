@@ -18,8 +18,8 @@ namespace agl
 	public:
 		void BindVertexBuffer( ID3D11DeviceContext& context, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets );
 		void BindIndexBuffer( ID3D11DeviceContext& context, Buffer* indexBuffer, uint32 indexOffset );
-		void BindPipelineState( ID3D11DeviceContext& context, GraphicsPipelineState* pipelineState );
-		void BindPipelineState( ID3D11DeviceContext& context, ComputePipelineState* pipelineState );
+		void BindPipelineState( ID3D11DeviceContext& context, const GraphicsPipelineState* pipelineState );
+		void BindPipelineState( ID3D11DeviceContext& context, const ComputePipelineState* pipelineState );
 		void BindShader( ID3D11DeviceContext& context, VertexShader* vs );
 		void BindShader( ID3D11DeviceContext& context, GeometryShader* gs );
 		void BindShader( ID3D11DeviceContext& context, PixelShader* ps );
@@ -68,6 +68,6 @@ namespace agl
 
 		D3D11_VIEWPORT m_viewports[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE] = {};
 
-		D3D11_RECT m_siccorRects[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE] = {};
+		D3D11_RECT m_scissorRects[D3D11_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE] = {};
 	};
 }

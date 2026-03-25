@@ -2,6 +2,65 @@
 
 namespace agl
 {
+    void D3D12BLAS::Build( IComputeCommandList& commandList )
+    {
+        BufferTrait scratchBufferTrait = {
+            .m_stride = 1,
+            .m_count = static_cast<uint32>( m_scratchDataSizeInBytes ),
+            .m_access = ResourceAccess::Default,
+            .m_bindType = ResourceBindType::RandomAccess,
+            .m_miscFlag = ResourceMisc::WithoutViews,
+            .m_format = ResourceFormat::Unknown,
+        };
+
+        auto scratchBuffer = RefStaticCast<D3D12Buffer>( Buffer::Create( scratchBufferTrait, "BLAS.Scratch", ResourceState::UnorderedAccess ) );
+        scratchBuffer->Init();
+
+        auto vertexBuffer = static_cast<D3D12Buffer*>( m_desc.m_vertexBuffer.Get() );
+        auto indexBuffer = static_cast<D3D12Buffer*>( m_desc.m_indexBuffer.Get() );
+
+        D3D12_RAYTRACING_GEOMETRY_DESC geometryDesc = {
+            .Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES,
+            .Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE,
+            .Triangles = {
+                .IndexFormat = indexBuffer ? indexBuffer->GetFormat() : DXGI_FORMAT_UNKNOWN,
+                .VertexFormat = vertexBuffer->GetFormat(),
+                .IndexCount = indexBuffer ? indexBuffer->GetTrait().m_count : 0,
+                .VertexCount = vertexBuffer->GetTrait().m_count,
+                .IndexBuffer = indexBuffer ? indexBuffer->Resource()->GetGPUVirtualAddress() : D3D12_GPU_VIRTUAL_ADDRESS(),
+                .VertexBuffer = {
+                    .StartAddress = vertexBuffer->Resource()->GetGPUVirtualAddress(),
+                    .StrideInBytes = vertexBuffer->GetTrait().m_stride,
+                },
+            }
+        };
+
+        D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc = {
+            .DestAccelerationStructureData = m_blas->Resource()->GetGPUVirtualAddress(),
+            .Inputs = {
+                .Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL,
+                .Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE,
+                .NumDescs = 1,
+                .DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY,
+                .pGeometryDescs = &geometryDesc,
+            },
+            .ScratchAccelerationStructureData = scratchBuffer->Resource()->GetGPUVirtualAddress(),
+        };
+
+        D3D12FrameResources().RegisterResource( m_blas.Get() );
+        D3D12FrameResources().RegisterResource( scratchBuffer.Get() );
+
+        auto& d3d12CommandList = static_cast<D3D12ComputeCommandList&>( commandList );
+        d3d12CommandList.BuildRaytracingAccelerationStructure( buildDesc );
+
+        UavBarrier uavBarrier = {
+            .m_pResource = m_blas->Resource()
+        };
+        d3d12CommandList.AddUavBarrier( uavBarrier );
+
+        m_blasBuilt = true;
+    }
+
     ID3D12Resource* D3D12BLAS::Resource()
     {
         return m_blas->Resource();
@@ -26,11 +85,6 @@ namespace agl
                 .VertexFormat = vertexBuffer->GetFormat(),
                 .IndexCount = indexBuffer ? indexBuffer->GetTrait().m_count : 0,
                 .VertexCount = vertexBuffer->GetTrait().m_count,
-                .IndexBuffer = indexBuffer ? indexBuffer->Resource()->GetGPUVirtualAddress() : D3D12_GPU_VIRTUAL_ADDRESS(),
-                .VertexBuffer = {
-                    .StartAddress = vertexBuffer->Resource()->GetGPUVirtualAddress(),
-                    .StrideInBytes = vertexBuffer->GetTrait().m_stride,
-                },
             }
         };
 
@@ -54,37 +108,10 @@ namespace agl
             .m_format = ResourceFormat::Unknown,
         };
 
-        m_blas = RefStaticCast<D3D12Buffer>( Buffer::Create( blasBufferTrait, "BLAS", ResourceState::RaytracingAccelerationStructure ) );
+        m_blas = RefStaticCast<D3D12Buffer>( Buffer::Create( blasBufferTrait, m_debugName.CStr(), ResourceState::RaytracingAccelerationStructure ) );
         m_blas->Init();
 
-        BufferTrait scratchBufferTrait = {
-            .m_stride = 1,
-            .m_count = static_cast<uint32>( prebuildInfo.ScratchDataSizeInBytes ),
-            .m_access = ResourceAccess::Default,
-            .m_bindType = ResourceBindType::RandomAccess,
-            .m_miscFlag = ResourceMisc::WithoutViews,
-            .m_format = ResourceFormat::Unknown,
-        };
-
-        auto scratchBuffer = RefStaticCast<D3D12Buffer>( Buffer::Create( scratchBufferTrait, "BLAS.Scratch", ResourceState::UnorderedAccess ) );
-        scratchBuffer->Init();
-
-        D3D12FrameResources().RegisterResource( m_blas.Get() );
-        D3D12FrameResources().RegisterResource( scratchBuffer.Get() );
-
-        D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc = {
-            .DestAccelerationStructureData = m_blas->Resource()->GetGPUVirtualAddress(),
-            .Inputs = accelerationStructureInputs,
-            .ScratchAccelerationStructureData = scratchBuffer->Resource()->GetGPUVirtualAddress(),
-        };
-
-        auto& d3d12CommandList = static_cast<ID3D12CommandListEX&>( *GetInterface<IAgl>()->GetCommandList() );
-        d3d12CommandList.BuildRaytracingAccelerationStructure( buildDesc );
-
-        UavBarrier uavBarrier = {
-            .m_pResource = m_blas->Resource()
-        };
-        d3d12CommandList.AddUavBarrier( uavBarrier );
+        m_scratchDataSizeInBytes = prebuildInfo.ScratchDataSizeInBytes;
     }
 
     void D3D12BLAS::FreeResource()
@@ -92,19 +119,20 @@ namespace agl
         m_blas = nullptr;
     }
 
-    Buffer* D3D12TLAS::Resource() const
+    void D3D12TLAS::Build( IComputeCommandList& commandList )
     {
-        return m_tlas.Get();
-    }
+        BufferTrait scratchBufferTrait = {
+            .m_stride = 1,
+            .m_count = static_cast<uint32>( m_scratchDataSizeInBytes ),
+            .m_access = ResourceAccess::Default,
+            .m_bindType = ResourceBindType::RandomAccess,
+            .m_miscFlag = ResourceMisc::WithoutViews,
+            .m_format = ResourceFormat::Unknown,
+        };
 
-    D3D12TLAS::D3D12TLAS( const TLASDesc& desc, const char* debugName )
-        : m_desc( desc )
-    {
-        m_debugName = Name( debugName );
-    }
+        auto scratchBuffer = RefStaticCast<D3D12Buffer>( Buffer::Create( scratchBufferTrait, "TLAS.Scratch" ) );
+        scratchBuffer->Init();
 
-    void D3D12TLAS::InitResource()
-    {
         auto numInstances = static_cast<uint32>( m_desc.instanceDescs.size() );
 
         BufferTrait instanceDescBufferTrait = {
@@ -133,12 +161,51 @@ namespace agl
             dest[i].AccelerationStructure = d3d12BLAS->Resource()->GetGPUVirtualAddress();
         }
 
+        D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc = {
+            .DestAccelerationStructureData = m_tlas->Resource()->GetGPUVirtualAddress(),
+            .Inputs = {
+                .Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL,
+                .Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE,
+                .NumDescs = numInstances,
+                .DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY,
+                .InstanceDescs = instanceDescBuffer->Resource()->GetGPUVirtualAddress()
+            },
+            .ScratchAccelerationStructureData = scratchBuffer->Resource()->GetGPUVirtualAddress(),
+        };
+
+        D3D12FrameResources().RegisterResource( instanceDescBuffer.Get() );
+        D3D12FrameResources().RegisterResource( m_tlas.Get() );
+        D3D12FrameResources().RegisterResource( scratchBuffer.Get() );
+
+        auto& d3d12CommandList = static_cast<D3D12ComputeCommandList&>( commandList );
+        d3d12CommandList.BuildRaytracingAccelerationStructure( buildDesc );
+
+        UavBarrier uavBarrier = {
+            .m_pResource = m_tlas->Resource()
+        };
+        d3d12CommandList.AddUavBarrier( uavBarrier );
+    }
+
+    Buffer* D3D12TLAS::Resource() const
+    {
+        return m_tlas.Get();
+    }
+
+    D3D12TLAS::D3D12TLAS( const TLASDesc& desc, const char* debugName )
+        : m_desc( desc )
+    {
+        m_debugName = Name( debugName );
+    }
+
+    void D3D12TLAS::InitResource()
+    {
+        auto numInstances = static_cast<uint32>( m_desc.instanceDescs.size() );
+
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS accelerationStructureInputs = {
             .Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL,
             .Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE,
             .NumDescs = numInstances,
             .DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY,
-            .InstanceDescs = instanceDescBuffer->Resource()->GetGPUVirtualAddress()
         };
 
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuildInfo = {};
@@ -153,39 +220,11 @@ namespace agl
             .m_format = ResourceFormat::Unknown,
         };
 
-        m_tlas = RefStaticCast<D3D12Buffer>( Buffer::Create( tlasBufferTrait, "TLAS", ResourceState::RaytracingAccelerationStructure ) );
+        m_tlas = RefStaticCast<D3D12Buffer>( Buffer::Create( tlasBufferTrait, m_debugName.CStr(), ResourceState::RaytracingAccelerationStructure ) );
         m_tlas->Init();
         m_tlas->CreateShaderResource();
 
-        BufferTrait scratchBufferTrait = {
-            .m_stride = 1,
-            .m_count = static_cast<uint32>( prebuildInfo.ScratchDataSizeInBytes ),
-            .m_access = ResourceAccess::Default,
-            .m_bindType = ResourceBindType::RandomAccess,
-            .m_miscFlag = ResourceMisc::WithoutViews,
-            .m_format = ResourceFormat::Unknown,
-        };
-
-        auto scratchBuffer = RefStaticCast<D3D12Buffer>( Buffer::Create( scratchBufferTrait, "TLAS.Scratch" ) );
-        scratchBuffer->Init();
-
-        D3D12FrameResources().RegisterResource( instanceDescBuffer.Get() );
-        D3D12FrameResources().RegisterResource( m_tlas.Get() );
-        D3D12FrameResources().RegisterResource( scratchBuffer.Get() );
-
-        D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc = {
-            .DestAccelerationStructureData = m_tlas->Resource()->GetGPUVirtualAddress(),
-            .Inputs = accelerationStructureInputs,
-            .ScratchAccelerationStructureData = scratchBuffer->Resource()->GetGPUVirtualAddress(),
-        };
-
-        auto& d3d12CommandList = static_cast<ID3D12CommandListEX&>( *GetInterface<IAgl>()->GetCommandList() );
-        d3d12CommandList.BuildRaytracingAccelerationStructure( buildDesc );
-
-        UavBarrier uavBarrier = {
-            .m_pResource = m_tlas->Resource()
-        };
-        d3d12CommandList.AddUavBarrier( uavBarrier );
+        m_scratchDataSizeInBytes = prebuildInfo.ScratchDataSizeInBytes;
     }
 
     void D3D12TLAS::FreeResource()

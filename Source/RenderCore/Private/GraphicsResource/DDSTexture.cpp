@@ -28,23 +28,23 @@ namespace rendercore
 	}
 
 	REGISTER_ASSET( DDSTexture );
-	DDSTexture::DDSTexture( const DDSTextureInitializer& initializer )
+	DDSTexture::DDSTexture( const DDSTextureDesc& desc )
 	{
-		m_width = initializer.m_width;
-		m_height = initializer.m_height;
-		m_depth = initializer.m_depth;
-		m_arraySize = initializer.m_arraySize;
-		m_mipLevels = initializer.m_mipLevels;
+		m_width = desc.m_width;
+		m_height = desc.m_height;
+		m_depth = desc.m_depth;
+		m_arraySize = desc.m_arraySize;
+		m_mipLevels = desc.m_mipLevels;
 
-		m_isCubeMap = initializer.m_isCubeMap;
-		m_demension = initializer.m_demension;
+		m_isCubeMap = desc.m_isCubeMap;
+		m_demension = desc.m_demension;
 
-		m_format = initializer.m_format;
+		m_format = desc.m_format;
 
-		std::construct_at( &m_memory, initializer.m_size );
-		std::memcpy( m_memory.Data(), initializer.m_memory, initializer.m_size );
+		std::construct_at( &m_memory, desc.m_size );
+		std::memcpy( m_memory.Data(), desc.m_memory, desc.m_size );
 
-		m_sections = initializer.m_sections;
+		m_sections = desc.m_sections;
 	}
 
 	void DDSTexture::PostLoadImpl()

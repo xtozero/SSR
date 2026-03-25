@@ -6,11 +6,11 @@ namespace rendercore
 {
 	RefHandle<agl::ComputePipelineState> PrepareComputePipelineState( ComputeShader* computeShader )
 	{
-		agl::ComputePipelineStateInitializer initializer{
+		agl::ComputePipelineStateDesc desc{
 			.m_computeShader = computeShader->Resource()
 		};
 
-		return agl::ComputePipelineState::Create( initializer );
+		return agl::ComputePipelineState::Create( desc );
 	}
 
 	agl::ShaderBindingsInitializer CreateShaderBindingsInitializer( const ComputeShader* computeShader )

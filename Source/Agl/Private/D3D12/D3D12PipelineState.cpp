@@ -5,7 +5,7 @@
 
 namespace agl
 {
-	const GraphicsPipelineStateDesc& D3D12GraphicsPipelineState::GetDesc() const
+	const D3D12GraphicsPipelineStateDesc& D3D12GraphicsPipelineState::GetDesc() const
 	{
 		return m_desc;
 	}
@@ -20,20 +20,20 @@ namespace agl
 		return ConvertPrimToD3D12Prim( m_desc.m_primitiveType );
 	}
 
-	D3D12GraphicsPipelineState::D3D12GraphicsPipelineState( const GraphicsPipelineStateInitializer& initializer )
+	D3D12GraphicsPipelineState::D3D12GraphicsPipelineState( const GraphicsPipelineStateDesc& desc )
 	{
 		m_desc = {
-			.m_rootSignature = new D3D12RootSignature( initializer ),
-			.m_vertexShader = static_cast<D3D12VertexShader*>( initializer.m_vertexShader ),
-			.m_geometryShader = static_cast<D3D12GeometryShader*>( initializer.m_geometryShader ),
-			.m_pixelShader = static_cast<D3D12PixelShader*>( initializer.m_piexlShader ),
-			.m_meshShader = static_cast<D3D12MeshShader*>( initializer.m_meshShader ),
-			.m_amplificationShader = static_cast<D3D12AmplificationShader*>( initializer.m_amplificationShader ),
-			.m_blendState = static_cast<D3D12BlendState*>( initializer.m_blendState ),
-			.m_rasterizerState = static_cast<D3D12RasterizerState*>( initializer.m_rasterizerState ),
-			.m_depthStencilState = static_cast<D3D12DepthStencilState*>( initializer.m_depthStencilState ),
-			.m_vertexLayout = static_cast<D3D12VertexLayout*>( initializer.m_vertexLayout ),
-			.m_primitiveType = initializer.m_primitiveType,
+			.m_rootSignature = new D3D12RootSignature( desc ),
+			.m_vertexShader = static_cast<D3D12VertexShader*>( desc.m_vertexShader ),
+			.m_geometryShader = static_cast<D3D12GeometryShader*>( desc.m_geometryShader ),
+			.m_pixelShader = static_cast<D3D12PixelShader*>( desc.m_piexlShader ),
+			.m_meshShader = static_cast<D3D12MeshShader*>( desc.m_meshShader ),
+			.m_amplificationShader = static_cast<D3D12AmplificationShader*>( desc.m_amplificationShader ),
+			.m_blendState = static_cast<D3D12BlendState*>( desc.m_blendState ),
+			.m_rasterizerState = static_cast<D3D12RasterizerState*>( desc.m_rasterizerState ),
+			.m_depthStencilState = static_cast<D3D12DepthStencilState*>( desc.m_depthStencilState ),
+			.m_vertexLayout = static_cast<D3D12VertexLayout*>( desc.m_vertexLayout ),
+			.m_primitiveType = desc.m_primitiveType,
 		};
 	}
 
@@ -57,10 +57,10 @@ namespace agl
 		return m_computeShader.Get();
 	}
 
-	D3D12ComputePipelineState::D3D12ComputePipelineState( const ComputePipelineStateInitializer& initializer )
-		: m_computeShader( static_cast<D3D12ComputeShader*>( initializer.m_computeShader ) )
+	D3D12ComputePipelineState::D3D12ComputePipelineState( const ComputePipelineStateDesc& desc )
+		: m_computeShader( static_cast<D3D12ComputeShader*>( desc.m_computeShader ) )
 	{
-		m_rootSignature = new D3D12RootSignature( initializer );
+		m_rootSignature = new D3D12RootSignature( desc );
 	}
 
 	void D3D12ComputePipelineState::InitResource()

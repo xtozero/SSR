@@ -15,21 +15,21 @@ namespace agl
 	{
 		switch ( shaderType )
 		{
-		case agl::ShaderType::Vertex:
+		case ShaderType::Vertex:
 			return D3D12_SHADER_VISIBILITY_VERTEX;
-		case agl::ShaderType::Hull:
+		case ShaderType::Hull:
 			return D3D12_SHADER_VISIBILITY_HULL;
-		case agl::ShaderType::Domain:
+		case ShaderType::Domain:
 			return D3D12_SHADER_VISIBILITY_DOMAIN;
-		case agl::ShaderType::Geometry:
+		case ShaderType::Geometry:
 			return D3D12_SHADER_VISIBILITY_GEOMETRY;
-		case agl::ShaderType::Pixel:
+		case ShaderType::Pixel:
 			return D3D12_SHADER_VISIBILITY_PIXEL;
-		case agl::ShaderType::Compute:
+		case ShaderType::Compute:
 			return D3D12_SHADER_VISIBILITY_ALL;
-		case agl::ShaderType::Mesh:
+		case ShaderType::Mesh:
 			return D3D12_SHADER_VISIBILITY_MESH;
-		case agl::ShaderType::Amplification:
+		case ShaderType::Amplification:
 			return D3D12_SHADER_VISIBILITY_AMPLIFICATION;
 		default:
 			break;
@@ -54,35 +54,35 @@ namespace agl
 		return SurveyShaderParamInfo( paramInfo );
 	}
 
-	ResourceStatistics SurveyPipeline( const GraphicsPipelineStateInitializer& initializer )
+	ResourceStatistics SurveyPipeline( const GraphicsPipelineStateDesc& desc )
 	{
 		ResourceStatistics statistics;
 
-		auto vertexShader = static_cast<D3D12VertexShader*>( initializer.m_vertexShader );
+		auto vertexShader = static_cast<D3D12VertexShader*>( desc.m_vertexShader );
 		if ( vertexShader )
 		{
 			statistics += SurveyShader( *vertexShader );
 		}
 
-		auto geometryShader = static_cast<D3D12GeometryShader*>( initializer.m_geometryShader );
+		auto geometryShader = static_cast<D3D12GeometryShader*>( desc.m_geometryShader );
 		if ( geometryShader )
 		{
 			statistics += SurveyShader( *geometryShader );
 		}
 
-		auto pixelShader = static_cast<D3D12PixelShader*>( initializer.m_piexlShader );
+		auto pixelShader = static_cast<D3D12PixelShader*>( desc.m_piexlShader );
 		if ( pixelShader )
 		{
 			statistics += SurveyShader( *pixelShader );
 		}
 
-		auto meshShader = static_cast<D3D12MeshShader*>( initializer.m_meshShader );
+		auto meshShader = static_cast<D3D12MeshShader*>( desc.m_meshShader );
 		if ( meshShader )
 		{
 			statistics += SurveyShader( *meshShader );
 		}
 
-		auto amplificationShader = static_cast<D3D12AmplificationShader*>( initializer.m_amplificationShader );
+		auto amplificationShader = static_cast<D3D12AmplificationShader*>( desc.m_amplificationShader );
 		if ( amplificationShader )
 		{
 			statistics += SurveyShader( *amplificationShader );
@@ -91,9 +91,9 @@ namespace agl
 		return statistics;
 	}
 
-	ResourceStatistics SurveyPipeline( const ComputePipelineStateInitializer& initializer )
+	ResourceStatistics SurveyPipeline( const ComputePipelineStateDesc& desc )
 	{
-		auto computeShader = static_cast<D3D12ComputeShader*>( initializer.m_computeShader );
+		auto computeShader = static_cast<D3D12ComputeShader*>( desc.m_computeShader );
 		if ( computeShader )
 		{
 			return SurveyShader( *computeShader );
@@ -107,36 +107,36 @@ namespace agl
 		return m_rootSignature;
 	}
 
-	D3D12RootSignature::D3D12RootSignature( const GraphicsPipelineStateInitializer& initializer )
+	D3D12RootSignature::D3D12RootSignature( const GraphicsPipelineStateDesc& desc )
 	{
 		ShaderParameterInfoArray paramInfoArray;
 
-		if ( initializer.m_vertexShader )
+		if ( desc.m_vertexShader )
 		{
-			paramInfoArray.emplace_back( ShaderType::Vertex, &initializer.m_vertexShader->GetParameterInfo() );
+			paramInfoArray.emplace_back( ShaderType::Vertex, &desc.m_vertexShader->GetParameterInfo() );
 		}
 
-		if ( initializer.m_geometryShader )
+		if ( desc.m_geometryShader )
 		{
-			paramInfoArray.emplace_back( ShaderType::Geometry, &initializer.m_geometryShader->GetParameterInfo() );
+			paramInfoArray.emplace_back( ShaderType::Geometry, &desc.m_geometryShader->GetParameterInfo() );
 		}
 
-		if ( initializer.m_piexlShader )
+		if ( desc.m_piexlShader )
 		{
-			paramInfoArray.emplace_back( ShaderType::Pixel, &initializer.m_piexlShader->GetParameterInfo() );
+			paramInfoArray.emplace_back( ShaderType::Pixel, &desc.m_piexlShader->GetParameterInfo() );
 		}
 
-		if ( initializer.m_meshShader )
+		if ( desc.m_meshShader )
 		{
-			paramInfoArray.emplace_back( ShaderType::Mesh, &initializer.m_meshShader->GetParameterInfo() );
+			paramInfoArray.emplace_back( ShaderType::Mesh, &desc.m_meshShader->GetParameterInfo() );
 		}
 
-		if ( initializer.m_amplificationShader )
+		if ( desc.m_amplificationShader )
 		{
-			paramInfoArray.emplace_back( ShaderType::Amplification, &initializer.m_amplificationShader->GetParameterInfo() );
+			paramInfoArray.emplace_back( ShaderType::Amplification, &desc.m_amplificationShader->GetParameterInfo() );
 		}
 
-		ResourceStatistics statistics = SurveyPipeline( initializer );
+		ResourceStatistics statistics = SurveyPipeline( desc );
 
 		bool hasBindless = statistics.NumBindless() > 0;
 		m_parameters.reserve( hasBindless ? ( statistics.TotalBinding() + 2 ) : statistics.NumResourceCategory() );
@@ -176,15 +176,15 @@ namespace agl
 		m_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 	}
 
-	D3D12RootSignature::D3D12RootSignature( const ComputePipelineStateInitializer& initializer )
+	D3D12RootSignature::D3D12RootSignature( const ComputePipelineStateDesc& desc )
 	{
-		auto computeShader = static_cast<D3D12ComputeShader*>( initializer.m_computeShader );
+		auto computeShader = static_cast<D3D12ComputeShader*>( desc.m_computeShader );
 		if ( computeShader == nullptr )
 		{
 			return;
 		}
 
-		ResourceStatistics statistics = SurveyPipeline( initializer );
+		ResourceStatistics statistics = SurveyPipeline( desc );
 
 		bool hasBindless = statistics.NumBindless() > 0;
 		m_parameters.reserve( hasBindless ? ( statistics.TotalBinding() + 2 ) : statistics.NumResourceCategory() );

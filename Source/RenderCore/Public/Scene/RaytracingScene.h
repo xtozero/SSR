@@ -28,5 +28,7 @@ namespace rendercore
 
         bool m_needsUpdate = false;
         RefHandle<agl::TLAS> m_tlas;
+
+        std::set<RefHandle<agl::BLAS>> m_blasToBuild;
     };
 }

@@ -68,7 +68,7 @@ namespace rendercore
 		RefHandle<agl::Texture> m_texture;
 	};
 
-	struct DDSTextureInitializer;
+	struct DDSTextureDesc;
 
 	class DDSTexture final : public Texture
 	{
@@ -77,13 +77,13 @@ namespace rendercore
 
 	public:
 		DDSTexture() = default;
-		RENDERCORE_DLL explicit DDSTexture( const DDSTextureInitializer& initializer );
+		RENDERCORE_DLL explicit DDSTexture( const DDSTextureDesc& desc );
 
 	protected:
 		RENDERCORE_DLL virtual void PostLoadImpl() override;
 	};
 
-	struct DDSTextureInitializer
+	struct DDSTextureDesc
 	{
 		uint32 m_width = 0;
 		uint32 m_height = 0;

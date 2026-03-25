@@ -10,7 +10,7 @@ namespace agl
     class D3D12FrameResourceCollection
     {
     public:
-        void RegisterResource( GraphicsApiResource* resource );
+        void RegisterResource( const GraphicsApiResource* resource );
         void RegisterResource( IUnknown* resource );
 
         void ReleaseResources();

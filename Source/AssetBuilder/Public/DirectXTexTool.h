@@ -2,4 +2,4 @@
 
 #include "DDSTexture.h"
 
-rendercore::DDSTextureInitializer ConvertToBCTextureInitializer( const DirectX::ScratchImage& image );
+rendercore::DDSTextureDesc ConvertToBCTextureDesc( const DirectX::ScratchImage& image );

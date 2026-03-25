@@ -23,6 +23,6 @@ namespace agl
 		virtual std::pair<uint32, uint32> Size() const = 0;
 		virtual void Resize( uint32 width, uint32 height ) = 0;
 
-		virtual agl::Texture* Texture() = 0;
+		virtual Texture* Texture() = 0;
 	};
 }

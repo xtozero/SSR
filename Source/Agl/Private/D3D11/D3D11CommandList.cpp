@@ -25,7 +25,7 @@ namespace
 	using ::agl::TextureBase;
 	using ::agl::TextureTrait;
 
-	void UpdateSubresource( ID3D11DeviceContext& context, agl::Buffer* dest, const void* src, uint32 destOffset, uint32 numByte )
+	void UpdateSubresource( ID3D11DeviceContext& context, Buffer* dest, const void* src, uint32 destOffset, uint32 numByte )
 	{
 		auto destBuffer = static_cast<D3D11Buffer*>( dest );
 		if ( destBuffer == nullptr )
@@ -57,7 +57,7 @@ namespace
 
 		std::memcpy( lockedResource.pData, src, numByte );
 
-		context.Unmap( static_cast<ID3D11Resource*>( intermediate->Resource() ), 0 );
+		context.Unmap( intermediate->Resource(), 0 );
 
 		D3D11_BOX srcRange = {
 			.left = 0,
@@ -80,7 +80,7 @@ namespace
 		);
 	}
 
-	void UpdateSubresource( ID3D11DeviceContext& context, agl::Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* pDestArea, uint32 subresource )
+	void UpdateSubresource( ID3D11DeviceContext& context, Texture* dest, const void* src, uint32 srcRowSize, const CubeArea<uint32>* pDestArea, uint32 subresource )
 	{
 		auto destTexture = static_cast<TextureBase*>( dest );
 		if ( destTexture == nullptr )
@@ -303,22 +303,22 @@ namespace agl
 		}
 	}
 
-	void D3D11CommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, [[maybe_unused]] bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
+	void D3D11CommandList::UpdateSubresource( Texture* dest, const void* src, uint32 srcRowSize, [[maybe_unused]] bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
 	{
 		::UpdateSubresource( D3D11Context(), dest, src, srcRowSize, destArea, subresource );
 	}
 
-	void D3D11CommandList::UpdateSubresource( agl::Buffer* dest, const void* src, [[maybe_unused]] bool bAsync, uint32 destOffset, uint32 numByte )
+	void D3D11CommandList::UpdateSubresource( Buffer* dest, const void* src, [[maybe_unused]] bool bAsync, uint32 destOffset, uint32 numByte )
 	{
 		::UpdateSubresource( D3D11Context(), dest, src, destOffset, numByte );
 	}
 
-	void D3D11CommandList::BindPipelineState( ComputePipelineState* pipelineState )
+	void D3D11CommandList::BindPipelineState( const ComputePipelineState* pipelineState )
 	{
 		m_stateCache.BindPipelineState( D3D11Context(), pipelineState );
 	}
 
-	void D3D11CommandList::BindShaderResources( ShaderBindings& shaderBindings )
+	void D3D11CommandList::BindShaderResources( const ShaderBindings& shaderBindings )
 	{
 		m_globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
 		m_stateCache.BindShaderResources( D3D11Context(), shaderBindings );
@@ -336,7 +336,7 @@ namespace agl
 		m_globalConstantBuffers.Reset( true );
 	}
 
-	void D3D11CommandList::DispatchRays( [[maybe_unused]] RaytracingPipelineState* pipelineState, [[maybe_unused]] ShaderBindings& shaderBindings, [[maybe_unused]] uint32 width, [[maybe_unused]] uint32 height, [[maybe_unused]] uint32 depth )
+	void D3D11CommandList::DispatchRays( [[maybe_unused]] const RaytracingPipelineState* pipelineState, [[maybe_unused]] const ShaderBindings& shaderBindings, [[maybe_unused]] uint32 width, [[maybe_unused]] uint32 height, [[maybe_unused]] uint32 depth )
 	{
 		assert( false && "Unsupported feature in d3d11" );
 	}
@@ -412,7 +412,7 @@ namespace agl
 		m_stateCache.BindIndexBuffer( D3D11Context(), indexBuffer, indexOffset );
 	}
 
-	void D3D11CommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
+	void D3D11CommandList::BindPipelineState( const GraphicsPipelineState* pipelineState )
 	{
 		m_stateCache.BindPipelineState( D3D11Context(), pipelineState );
 	}
@@ -449,7 +449,7 @@ namespace agl
 		D3D11Context().ClearDepthStencilView( d3d11DSV->Resource(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthClearValue, stencilClearValue );
 	}
 
-	bool D3D11CommandList::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult )
+	bool D3D11CommandList::CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult )
 	{
 		if ( texture == nullptr )
 		{
@@ -638,22 +638,22 @@ namespace agl
 		}
 	}
 
-	void D3D11ParallelCommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, [[maybe_unused]] bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
+	void D3D11ParallelCommandList::UpdateSubresource( Texture* dest, const void* src, uint32 srcRowSize, [[maybe_unused]] bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
 	{
 		::UpdateSubresource( *m_pContext.Get(), dest, src, srcRowSize, destArea, subresource);
 	}
 
-	void D3D11ParallelCommandList::UpdateSubresource( agl::Buffer* dest, const void* src, [[maybe_unused]] bool bAsync, uint32 destOffset, uint32 numByte )
+	void D3D11ParallelCommandList::UpdateSubresource( Buffer* dest, const void* src, [[maybe_unused]] bool bAsync, uint32 destOffset, uint32 numByte )
 	{
 		::UpdateSubresource( *m_pContext.Get(), dest, src, destOffset, numByte );
 	}
 
-	void D3D11ParallelCommandList::BindPipelineState( ComputePipelineState* pipelineState )
+	void D3D11ParallelCommandList::BindPipelineState( const ComputePipelineState* pipelineState )
 	{
 		m_stateCache.BindPipelineState( *m_pContext.Get(), pipelineState );
 	}
 
-	void D3D11ParallelCommandList::BindShaderResources( ShaderBindings& shaderBindings )
+	void D3D11ParallelCommandList::BindShaderResources( const ShaderBindings& shaderBindings )
 	{
 		m_globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
 		m_stateCache.BindShaderResources( *m_pContext.Get(), shaderBindings );
@@ -671,7 +671,7 @@ namespace agl
 		m_globalConstantBuffers.Reset( true );
 	}
 
-	void D3D11ParallelCommandList::DispatchRays( [[maybe_unused]] RaytracingPipelineState* pipelineState, [[maybe_unused]] ShaderBindings& shaderBindings, [[maybe_unused]] uint32 width, [[maybe_unused]] uint32 height, [[maybe_unused]] uint32 depth )
+	void D3D11ParallelCommandList::DispatchRays( [[maybe_unused]] const RaytracingPipelineState* pipelineState, [[maybe_unused]] const ShaderBindings& shaderBindings, [[maybe_unused]] uint32 width, [[maybe_unused]] uint32 height, [[maybe_unused]] uint32 depth )
 	{
 		assert( false && "Unsupported feature in d3d11" );
 	}
@@ -747,7 +747,7 @@ namespace agl
 		m_stateCache.BindIndexBuffer( *m_pContext.Get(), indexBuffer, indexOffset );
 	}
 
-	void D3D11ParallelCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
+	void D3D11ParallelCommandList::BindPipelineState( const GraphicsPipelineState* pipelineState )
 	{
 		m_stateCache.BindPipelineState( *m_pContext.Get(), pipelineState );
 	}
@@ -790,7 +790,7 @@ namespace agl
 		m_pContext->ClearDepthStencilView( d3d11DSV->Resource(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthClearValue, stencilClearValue );
 	}
 
-	bool D3D11ParallelCommandList::CaptureTexture( [[maybe_unused]] agl::Texture* texture, [[maybe_unused]]  DirectX::ScratchImage& outResult )
+	bool D3D11ParallelCommandList::CaptureTexture( [[maybe_unused]] Texture* texture, [[maybe_unused]]  DirectX::ScratchImage& outResult )
 	{
 		assert( false && "Not Implemented" );
 		return false;

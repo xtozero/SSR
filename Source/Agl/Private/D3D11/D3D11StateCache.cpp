@@ -74,7 +74,7 @@ namespace agl
 		context.IASetIndexBuffer( buffer, format, indexOffset );
 	}
 
-	void D3D11PipelineCache::BindPipelineState( ID3D11DeviceContext& context, GraphicsPipelineState* pipelineState )
+	void D3D11PipelineCache::BindPipelineState( ID3D11DeviceContext& context, const GraphicsPipelineState* pipelineState )
 	{
 		ID3D11InputLayout* inputLayout = nullptr;
 		D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_UNDEFINED;
@@ -86,7 +86,7 @@ namespace agl
 		ID3D11RasterizerState* rasterizerState = nullptr;
 		ID3D11DepthStencilState* depthStencilState = nullptr;
 
-		if ( auto d3d11PipelineState = static_cast<D3D11GraphicsPipelineState*>( pipelineState ) )
+		if ( auto d3d11PipelineState = static_cast<const D3D11GraphicsPipelineState*>( pipelineState ) )
 		{
 			inputLayout = d3d11PipelineState->InputLayout();
 			topology = d3d11PipelineState->GetPrimitiveTopology();
@@ -151,11 +151,11 @@ namespace agl
 		}
 	}
 
-	void D3D11PipelineCache::BindPipelineState( ID3D11DeviceContext& context, ComputePipelineState* pipelineState )
+	void D3D11PipelineCache::BindPipelineState( ID3D11DeviceContext& context, const ComputePipelineState* pipelineState )
 	{
 		ID3D11ComputeShader* computeShader = nullptr;
 
-		if ( auto d3d11PipelineState = static_cast<D3D11ComputePipelineState*>( pipelineState ) )
+		if ( auto d3d11PipelineState = static_cast<const D3D11ComputePipelineState*>( pipelineState ) )
 		{
 			computeShader = d3d11PipelineState->ComputeShader();
 		}
@@ -304,13 +304,13 @@ namespace agl
 			};
 		}
 
-		static_assert( sizeof( rects ) == sizeof( m_siccorRects ) );
-		if ( std::equal( std::begin( rects ), std::end( rects ), std::begin( m_siccorRects ) ) )
+		static_assert( sizeof( rects ) == sizeof( m_scissorRects ) );
+		if ( std::equal( std::begin( rects ), std::end( rects ), std::begin( m_scissorRects ) ) )
 		{
 			return;
 		}
 
-		std::ranges::copy( rects, std::begin( m_siccorRects ) );
+		std::ranges::copy( rects, std::begin( m_scissorRects ) );
 		context.RSSetScissorRects( count, rects );
 	}
 

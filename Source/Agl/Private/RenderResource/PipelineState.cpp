@@ -49,9 +49,9 @@ namespace agl
 		return layout;
 	}
 
-	size_t GraphicsPipelineStateInitializer::GetHash() const
+	size_t GraphicsPipelineStateDesc::GetHash() const
 	{
-		size_t typeHash = typeid( GraphicsPipelineStateInitializer ).hash_code();
+		size_t typeHash = typeid( GraphicsPipelineStateDesc ).hash_code();
 		size_t hash = typeHash;
 
 		HashCombine( hash, m_vertexShader );
@@ -68,9 +68,9 @@ namespace agl
 		return hash;
 	}
 
-	size_t ComputePipelineStateInitializer::GetHash() const
+	size_t ComputePipelineStateDesc::GetHash() const
 	{
-		static size_t typeHash = typeid( ComputePipelineStateInitializer ).hash_code();
+		static size_t typeHash = typeid( ComputePipelineStateDesc ).hash_code();
 		size_t hash = typeHash;
 
 		HashCombine( hash, m_computeShader );
@@ -78,18 +78,18 @@ namespace agl
 		return hash;
 	}
 
-	RefHandle<GraphicsPipelineState> GraphicsPipelineState::Create( const GraphicsPipelineStateInitializer& initializer )
+	RefHandle<GraphicsPipelineState> GraphicsPipelineState::Create( const GraphicsPipelineStateDesc& desc )
 	{
-		auto state = GetInterface<IResourceManager>()->CreatePipelineState( initializer );
-		state->SetHash( initializer.GetHash() );
+		auto state = GetInterface<IResourceManager>()->CreatePipelineState( desc );
+		state->SetHash( desc.GetHash() );
 
 		return state;
 	}
 
-	RefHandle<ComputePipelineState> ComputePipelineState::Create( const ComputePipelineStateInitializer& initializer )
+	RefHandle<ComputePipelineState> ComputePipelineState::Create( const ComputePipelineStateDesc& desc )
 	{
-		auto state = GetInterface<IResourceManager>()->CreatePipelineState( initializer );
-		state->SetHash( initializer.GetHash() );
+		auto state = GetInterface<IResourceManager>()->CreatePipelineState( desc );
+		state->SetHash( desc.GetHash() );
 
 		return state;
 	}

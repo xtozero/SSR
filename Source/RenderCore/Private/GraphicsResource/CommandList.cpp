@@ -1,6 +1,7 @@
 #include "CommandList.h"
 
 #include "AbstractGraphicsInterface.h"
+#include "AccelerationStructure.h"
 #include "InterfaceFactories.h"
 #include "Query.h"
 
@@ -36,12 +37,12 @@ namespace rendercore
 		return static_cast<agl::ICopyCommandList&>( m_impl );
 	}
 
-	void ComputeCommandList::BindPipelineState( agl::ComputePipelineState* pipelineState ) const
+	void ComputeCommandList::BindPipelineState( const agl::ComputePipelineState* pipelineState ) const
 	{
 		GetImpl().BindPipelineState( pipelineState );
 	}
 
-	void ComputeCommandList::BindShaderResources( agl::ShaderBindings& shaderBindings ) const
+	void ComputeCommandList::BindShaderResources( const agl::ShaderBindings& shaderBindings ) const
 	{
 		GetImpl().BindShaderResources( shaderBindings );
 	}
@@ -57,12 +58,12 @@ namespace rendercore
 		BindPipelineState( nullptr );
 	}
 
-	void ComputeCommandList::DispatchRays( agl::RaytracingPipelineState* pipelineState, agl::ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth ) const
+	void ComputeCommandList::DispatchRays( const agl::RaytracingPipelineState* pipelineState, const agl::ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth ) const
 	{
 		GetImpl().DispatchRays( pipelineState, shaderBindings, width, height, depth );
 	}
 
-	void ComputeCommandList::ExecuteIndirect( agl::IndirectCommandType type, agl::Buffer* argument, uint64 argumentOffset )
+	void ComputeCommandList::ExecuteIndirect( agl::IndirectCommandType type, agl::Buffer* argument, uint64 argumentOffset ) const
 	{
 		GetImpl().ExecuteIndirect( type, argument, argumentOffset );
 		if ( type == agl::IndirectCommandType::Dispatch )
@@ -101,6 +102,22 @@ namespace rendercore
 		m_impl.EndEvent();
 	}
 
+	void ComputeCommandList::BuildBLAS( const RefHandle<agl::BLAS>& blas ) const
+	{
+		if ( blas.Get() )
+		{
+			blas->Build( GetImpl() );
+		}
+	}
+
+	void ComputeCommandList::BuildTLAS( const RefHandle<agl::TLAS>& tlas ) const
+	{
+		if ( tlas.Get() )
+		{
+			tlas->Build( GetImpl() );
+		}
+	}
+
 	agl::IComputeCommandList& ComputeCommandList::GetImpl() const
 	{
 		return static_cast<agl::IComputeCommandList&>( m_impl );
@@ -116,7 +133,7 @@ namespace rendercore
 		GetImpl().BindIndexBuffer( indexBuffer, indexOffset );
 	}
 
-	void CommandList::BindPipelineState( agl::GraphicsPipelineState* pipelineState ) const
+	void CommandList::BindPipelineState( const agl::GraphicsPipelineState* pipelineState ) const
 	{
 		GetImpl().BindPipelineState( pipelineState );
 	}

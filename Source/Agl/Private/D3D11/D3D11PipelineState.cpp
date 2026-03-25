@@ -4,72 +4,37 @@
 
 namespace agl
 {
-	ID3D11VertexShader* D3D11GraphicsPipelineState::VertexShader()
+	ID3D11VertexShader* D3D11GraphicsPipelineState::VertexShader() const
 	{
 		return m_vertexShader.Get() ? m_vertexShader->Resource() : nullptr;
 	}
 
-	const ID3D11VertexShader* D3D11GraphicsPipelineState::VertexShader() const
-	{
-		return m_vertexShader.Get() ? m_vertexShader->Resource() : nullptr;
-	}
-
-	ID3D11GeometryShader* D3D11GraphicsPipelineState::GeometryShader()
+	ID3D11GeometryShader* D3D11GraphicsPipelineState::GeometryShader() const
 	{
 		return m_geometryShader.Get() ? m_geometryShader->Resource() : nullptr;
 	}
 
-	const ID3D11GeometryShader* D3D11GraphicsPipelineState::GeometryShader() const
-	{
-		return m_geometryShader.Get() ? m_geometryShader->Resource() : nullptr;
-	}
-
-	ID3D11PixelShader* D3D11GraphicsPipelineState::PixelShader()
+	ID3D11PixelShader* D3D11GraphicsPipelineState::PixelShader() const
 	{
 		return m_pixelShader.Get() ? m_pixelShader->Resource() : nullptr;
 	}
 
-	const ID3D11PixelShader* D3D11GraphicsPipelineState::PixelShader() const
-	{
-		return m_pixelShader.Get() ? m_pixelShader->Resource() : nullptr;
-	}
-
-	ID3D11BlendState* D3D11GraphicsPipelineState::BlendState()
+	ID3D11BlendState* D3D11GraphicsPipelineState::BlendState() const
 	{
 		return m_blendState.Get() ? m_blendState->Resource() : nullptr;
 	}
 
-	const ID3D11BlendState* D3D11GraphicsPipelineState::BlendState() const
-	{
-		return m_blendState.Get() ? m_blendState->Resource() : nullptr;
-	}
-
-	ID3D11RasterizerState* D3D11GraphicsPipelineState::RasterizerState()
+	ID3D11RasterizerState* D3D11GraphicsPipelineState::RasterizerState() const
 	{
 		return m_rasterizerState.Get() ? m_rasterizerState->Resource() : nullptr;
 	}
 
-	const ID3D11RasterizerState* D3D11GraphicsPipelineState::RasterizerState() const
-	{
-		return m_rasterizerState.Get() ? m_rasterizerState->Resource() : nullptr;
-	}
-
-	ID3D11DepthStencilState* D3D11GraphicsPipelineState::DepthStencilState()
+	ID3D11DepthStencilState* D3D11GraphicsPipelineState::DepthStencilState() const
 	{
 		return m_depthStencilState.Get() ? m_depthStencilState->Resource() : nullptr;
 	}
 
-	const ID3D11DepthStencilState* D3D11GraphicsPipelineState::DepthStencilState() const
-	{
-		return m_depthStencilState.Get() ? m_depthStencilState->Resource() : nullptr;
-	}
-
-	ID3D11InputLayout* D3D11GraphicsPipelineState::InputLayout()
-	{
-		return m_inputLayout.Get() ? m_inputLayout->Resource() : nullptr;
-	}
-
-	const ID3D11InputLayout* D3D11GraphicsPipelineState::InputLayout() const
+	ID3D11InputLayout* D3D11GraphicsPipelineState::InputLayout() const
 	{
 		return m_inputLayout.Get() ? m_inputLayout->Resource() : nullptr;
 	}
@@ -84,15 +49,15 @@ namespace agl
 		return m_sampleMask;
 	}
 
-	D3D11GraphicsPipelineState::D3D11GraphicsPipelineState( const GraphicsPipelineStateInitializer& initializer ) : m_primitiveTopology( ConvertPrimToD3D11Prim( initializer.m_primitiveType ) )
+	D3D11GraphicsPipelineState::D3D11GraphicsPipelineState( const GraphicsPipelineStateDesc& desc ) : m_primitiveTopology( ConvertPrimToD3D11Prim( desc.m_primitiveType ) )
 	{
-		m_vertexShader =  static_cast<D3D11VertexShader*>( initializer.m_vertexShader );
-		m_geometryShader = static_cast<D3D11GeometryShader*>( initializer.m_geometryShader );
-		m_pixelShader = static_cast<D3D11PixelShader*>( initializer.m_piexlShader );
-		m_blendState = static_cast<D3D11BlendState*>( initializer.m_blendState );
-		m_rasterizerState = static_cast<D3D11RasterizerState*>( initializer.m_rasterizerState );
-		m_depthStencilState = static_cast<D3D11DepthStencilState*>( initializer.m_depthStencilState );
-		m_inputLayout = static_cast<D3D11VertexLayout*>( initializer.m_vertexLayout );
+		m_vertexShader =  static_cast<D3D11VertexShader*>( desc.m_vertexShader );
+		m_geometryShader = static_cast<D3D11GeometryShader*>( desc.m_geometryShader );
+		m_pixelShader = static_cast<D3D11PixelShader*>( desc.m_piexlShader );
+		m_blendState = static_cast<D3D11BlendState*>( desc.m_blendState );
+		m_rasterizerState = static_cast<D3D11RasterizerState*>( desc.m_rasterizerState );
+		m_depthStencilState = static_cast<D3D11DepthStencilState*>( desc.m_depthStencilState );
+		m_inputLayout = static_cast<D3D11VertexLayout*>( desc.m_vertexLayout );
 	}
 
 	void D3D11GraphicsPipelineState::FreeResource()
@@ -106,19 +71,14 @@ namespace agl
 		m_inputLayout = nullptr;
 	}
 
-	ID3D11ComputeShader* D3D11ComputePipelineState::ComputeShader()
+	ID3D11ComputeShader* D3D11ComputePipelineState::ComputeShader() const
 	{
 		return m_computeShader.Get() ? m_computeShader->Resource() : nullptr;
 	}
 
-	const ID3D11ComputeShader* D3D11ComputePipelineState::ComputeShader() const
+	D3D11ComputePipelineState::D3D11ComputePipelineState( const ComputePipelineStateDesc& desc )
 	{
-		return m_computeShader.Get() ? m_computeShader->Resource() : nullptr;
-	}
-
-	D3D11ComputePipelineState::D3D11ComputePipelineState( const ComputePipelineStateInitializer& initializer )
-	{
-		if ( auto cs = static_cast<D3D11ComputeShader*>( initializer.m_computeShader ) )
+		if ( auto cs = static_cast<D3D11ComputeShader*>( desc.m_computeShader ) )
 		{
 			m_computeShader = cs;
 		}

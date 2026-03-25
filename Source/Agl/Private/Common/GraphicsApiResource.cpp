@@ -15,7 +15,7 @@ namespace agl
 		return static_cast<unsigned char>( colorWriteEnable );
 	}
 
-	size_t agl::BufferTrait::GetHash() const
+	size_t BufferTrait::GetHash() const
 	{
 		static size_t typeHash = typeid( BufferTrait ).hash_code();
 		size_t hash = typeHash;

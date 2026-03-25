@@ -28,12 +28,12 @@ namespace agl
 		void BindVertexBuffer( ID3D12GraphicsCommandList6& commandList, Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets );
 		void BindIndexBuffer( ID3D12GraphicsCommandList6& commandList, Buffer* indexBuffer, uint32 indexOffset );
 
-		void BindPipelineState( ID3D12GraphicsCommandList6& commandList, GraphicsPipelineState* pipelineState );
-		void BindPipelineState( ID3D12GraphicsCommandList6& commandList, ComputePipelineState* pipelineState );
-		void BindPipelineState( ID3D12GraphicsCommandList6& commandList, RaytracingPipelineState* pipelineState );
+		void BindPipelineState( ID3D12GraphicsCommandList6& commandList, const GraphicsPipelineState* pipelineState );
+		void BindPipelineState( ID3D12GraphicsCommandList6& commandList, const ComputePipelineState* pipelineState );
+		void BindPipelineState( ID3D12GraphicsCommandList6& commandList, const RaytracingPipelineState* pipelineState );
 
-		void BindBindlessResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, GlobalConstantBuffers& globalConstantBuffers, ShaderBindings& shaderBindings );
-		void BindShaderResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, GlobalConstantBuffers& globalConstantBuffers, ShaderBindings& shaderBindings );
+		void BindBindlessResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, GlobalConstantBuffers& globalConstantBuffers, const ShaderBindings& shaderBindings );
+		void BindShaderResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, GlobalConstantBuffers& globalConstantBuffers, const ShaderBindings& shaderBindings );
 
 		void SetViewports( ID3D12GraphicsCommandList6& commandList, uint32 count, const CubeArea<float>* area );
 		void SetScissorRects( ID3D12GraphicsCommandList6& commandList, uint32 count, const RectangleArea<int32>* area );
@@ -58,8 +58,8 @@ namespace agl
 		D3D12_VIEWPORT m_viewports[D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE] = {};
 		uint32 m_numViewports = 0;
 
-		D3D12_RECT m_siccorRects[D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE] = {};
-		uint32 m_numSiccorRects = 0;
+		D3D12_RECT m_scissorRects[D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE] = {};
+		uint32 m_numScissorRects = 0;
 
 		RenderTargetView* m_rtvs[D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT] = {};
 		DepthStencilView* m_dsv = nullptr;

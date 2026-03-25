@@ -273,7 +273,7 @@ namespace agl
 		}
 	}
 
-	void D3D12CopyCommandListImpl::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
+	void D3D12CopyCommandListImpl::UpdateSubresource( Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
 	{
 		auto d3d12Texture = static_cast<D3D12Texture*>( dest );
 		if ( d3d12Texture == nullptr )
@@ -319,7 +319,7 @@ namespace agl
 		}
 	}
 
-	void D3D12CopyCommandListImpl::UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
+	void D3D12CopyCommandListImpl::UpdateSubresource( Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
 	{
 		auto d3d12Buffer = static_cast<D3D12Buffer*>( dest );
 		if ( d3d12Buffer == nullptr )
@@ -441,17 +441,12 @@ namespace agl
 		m_globalDescriptorHeap.Prepare();
 	}
 
-	void D3D12ComputeCommandListImpl::BindComputePipelineState( ComputePipelineState* pipelineState )
+	void D3D12ComputeCommandListImpl::BindComputePipelineState( const ComputePipelineState* pipelineState )
 	{
 		m_stateCache.BindPipelineState( CommandList(), pipelineState );
 	}
 
-	void D3D12ComputeCommandListImpl::BindPipelineState( RaytracingPipelineState* pipelineState )
-	{
-		m_stateCache.BindPipelineState( CommandList(), pipelineState );
-	}
-
-	void D3D12ComputeCommandListImpl::BindShaderResources( ShaderBindings& shaderBindings )
+	void D3D12ComputeCommandListImpl::BindShaderResources( const ShaderBindings& shaderBindings )
 	{
 		if ( shaderBindings.HasBindless() )
 		{
@@ -478,15 +473,15 @@ namespace agl
 		OnCommandRecorded();
 	}
 
-	void D3D12ComputeCommandListImpl::DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth )
+	void D3D12ComputeCommandListImpl::DispatchRays( const RaytracingPipelineState* pipelineState, const ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth )
 	{
 		m_barrierBatcher.Commit( *this );
 		m_globalConstantBuffers.CommitShaderValue( true );
 
-		BindPipelineState( pipelineState );
+		m_stateCache.BindPipelineState( CommandList(), pipelineState );
 		BindShaderResources( shaderBindings );
 
-		auto d3d12RaytracingPipelineState = static_cast<D3D12RaytracingPipelineState*>( pipelineState );
+		auto d3d12RaytracingPipelineState = static_cast<const D3D12RaytracingPipelineState*>( pipelineState );
 		assert( d3d12RaytracingPipelineState != nullptr );
 
 		D3D12_DISPATCH_RAYS_DESC desc = d3d12RaytracingPipelineState->GetDispatchRaysDesc( width, height, depth );
@@ -547,7 +542,7 @@ namespace agl
 		m_stateCache.BindIndexBuffer( CommandList(), indexBuffer, indexOffset );
 	}
 
-	void D3D12CommandListImpl::BindGraphicsPipelineState( GraphicsPipelineState* pipelineState )
+	void D3D12CommandListImpl::BindGraphicsPipelineState( const GraphicsPipelineState* pipelineState )
 	{
 		m_stateCache.BindPipelineState( CommandList(), pipelineState );
 	}
@@ -633,7 +628,7 @@ namespace agl
 		OnCommandRecorded();
 	}
 
-	bool D3D12CommandListImpl::CaptureTexture( const agl::Texture* texture, DirectX::ScratchImage& outResult ) const
+	bool D3D12CommandListImpl::CaptureTexture( const Texture* texture, DirectX::ScratchImage& outResult ) const
 	{
 		if ( texture == nullptr )
 		{
@@ -716,24 +711,22 @@ namespace agl
 		m_impl.CopyResource( dest, src, bAsync, numByte );
 	}
 
-	void D3D12ComputeCommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize,
-	                                                 bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
+	void D3D12ComputeCommandList::UpdateSubresource( Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
 	{
 		m_impl.UpdateSubresource( dest, src, srcRowSize, bAsync, destArea, subresource );
 	}
 
-	void D3D12ComputeCommandList::UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset,
-	                                                 uint32 numByte )
+	void D3D12ComputeCommandList::UpdateSubresource( Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
 	{
 		m_impl.UpdateSubresource( dest, src, bAsync, destOffset, numByte );
 	}
 
-	void D3D12ComputeCommandList::BindPipelineState( ComputePipelineState* pipelineState )
+	void D3D12ComputeCommandList::BindPipelineState( const ComputePipelineState* pipelineState )
 	{
 		m_impl.BindComputePipelineState( pipelineState );
 	}
 
-	void D3D12ComputeCommandList::BindShaderResources( ShaderBindings& shaderBindings )
+	void D3D12ComputeCommandList::BindShaderResources( const ShaderBindings& shaderBindings )
 	{
 		m_impl.BindShaderResources( shaderBindings );
 	}
@@ -748,7 +741,7 @@ namespace agl
 		m_impl.Dispatch( x, y, z );
 	}
 
-	void D3D12ComputeCommandList::DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth )
+	void D3D12ComputeCommandList::DispatchRays( const RaytracingPipelineState* pipelineState, const ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth )
 	{
 		m_impl.DispatchRays( pipelineState, shaderBindings, width, height, depth );
 	}
@@ -756,6 +749,11 @@ namespace agl
 	void D3D12ComputeCommandList::ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset )
 	{
 		m_impl.ExecuteIndirect( type, argument, argumentOffset );
+	}
+
+	void D3D12ComputeCommandList::BuildRaytracingAccelerationStructure( const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& desc )
+	{
+		m_impl.BuildRaytracingAccelerationStructure( desc );
 	}
 
 	void D3D12ComputeCommandList::Initialize()
@@ -874,22 +872,22 @@ namespace agl
 		m_impl.CopyResource( dest, src, bAsync, numByte );
 	}
 
-	void D3D12CommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
+	void D3D12CommandList::UpdateSubresource( Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
 	{
 		m_impl.UpdateSubresource( dest, src, srcRowSize, bAsync, destArea, subresource );
 	}
 
-	void D3D12CommandList::UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
+	void D3D12CommandList::UpdateSubresource( Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
 	{
 		m_impl.UpdateSubresource( dest, src, bAsync, destOffset, numByte );
 	}
 
-	void D3D12CommandList::BindPipelineState( ComputePipelineState* pipelineState )
+	void D3D12CommandList::BindPipelineState( const ComputePipelineState* pipelineState )
     {
     	m_impl.BindComputePipelineState( pipelineState );
     }
 
-    void D3D12CommandList::BindShaderResources( ShaderBindings& shaderBindings )
+    void D3D12CommandList::BindShaderResources( const ShaderBindings& shaderBindings )
     {
     	m_impl.BindShaderResources( shaderBindings );
     }
@@ -904,7 +902,7 @@ namespace agl
 		m_impl.Dispatch( x, y, z );
 	}
 
-	void D3D12CommandList::DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth )
+	void D3D12CommandList::DispatchRays( const RaytracingPipelineState* pipelineState, const ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth )
 	{
 		m_impl.DispatchRays( pipelineState, shaderBindings, width, height, depth );
 	}
@@ -949,7 +947,7 @@ namespace agl
 		m_impl.BindIndexBuffer( indexBuffer, indexOffset );
 	}
 
-	void D3D12CommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
+	void D3D12CommandList::BindPipelineState( const GraphicsPipelineState* pipelineState )
 	{
 		m_impl.BindGraphicsPipelineState( pipelineState );
 	}
@@ -969,7 +967,7 @@ namespace agl
 		m_impl.ClearDepthStencil( depthStencil );
 	}
 
-	bool D3D12CommandList::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult )
+	bool D3D12CommandList::CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult )
 	{
 		return m_impl.CaptureTexture( texture, outResult );
 	}
@@ -982,11 +980,6 @@ namespace agl
 	void D3D12CommandList::Signal( ID3D12Fence* fence, uint64 fenceValue )
 	{
 		m_impl.Signal( fence, fenceValue );
-	}
-
-	void D3D12CommandList::BuildRaytracingAccelerationStructure( const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& desc )
-	{
-		m_impl.BuildRaytracingAccelerationStructure( desc );
 	}
 
 	void D3D12CommandList::Initialize()
@@ -1084,22 +1077,22 @@ namespace agl
 		m_impl.CopyResource( dest, src, bAsync, numByte );
 	}
 
-	void D3D12ParallelCommandList::UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
+	void D3D12ParallelCommandList::UpdateSubresource( Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
 	{
 		m_impl.UpdateSubresource( dest, src, srcRowSize, bAsync, destArea, subresource );
 	}
 
-	void D3D12ParallelCommandList::UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
+	void D3D12ParallelCommandList::UpdateSubresource( Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
 	{
 		m_impl.UpdateSubresource( dest, src, bAsync, destOffset, numByte );
 	}
 
-	void D3D12ParallelCommandList::BindPipelineState( ComputePipelineState* pipelineState )
+	void D3D12ParallelCommandList::BindPipelineState( const ComputePipelineState* pipelineState )
 	{
 		m_impl.BindComputePipelineState( pipelineState );
 	}
 
-	void D3D12ParallelCommandList::BindShaderResources( ShaderBindings& shaderBindings )
+	void D3D12ParallelCommandList::BindShaderResources( const ShaderBindings& shaderBindings )
 	{
 		m_impl.BindShaderResources( shaderBindings );
 	}
@@ -1114,7 +1107,7 @@ namespace agl
 		m_impl.Dispatch( x, y, z );
 	}
 
-	void D3D12ParallelCommandList::DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth )
+	void D3D12ParallelCommandList::DispatchRays( const RaytracingPipelineState* pipelineState, const ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth )
 	{
 		m_impl.DispatchRays( pipelineState, shaderBindings, width, height, depth );
 	}
@@ -1159,7 +1152,7 @@ namespace agl
 		m_impl.BindIndexBuffer( indexBuffer, indexOffset );
 	}
 
-	void D3D12ParallelCommandList::BindPipelineState( GraphicsPipelineState* pipelineState )
+	void D3D12ParallelCommandList::BindPipelineState( const GraphicsPipelineState* pipelineState )
 	{
 		m_impl.BindGraphicsPipelineState( pipelineState );
 	}
@@ -1179,7 +1172,7 @@ namespace agl
 		m_impl.ClearDepthStencil( depthStencil );
 	}
 
-	bool D3D12ParallelCommandList::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult )
+	bool D3D12ParallelCommandList::CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult )
 	{
 		return m_impl.CaptureTexture( texture, outResult );
 	}
@@ -1192,11 +1185,6 @@ namespace agl
 	void D3D12ParallelCommandList::Signal( ID3D12Fence* fence, uint64 fenceValue )
 	{
 		m_impl.Signal( fence, fenceValue );
-	}
-
-	void D3D12ParallelCommandList::BuildRaytracingAccelerationStructure( const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& desc )
-	{
-		m_impl.BuildRaytracingAccelerationStructure( desc );
 	}
 
 	void D3D12ParallelCommandList::Close()

@@ -13,7 +13,7 @@
 
 namespace agl
 {
-	struct GraphicsPipelineStateDesc
+	struct D3D12GraphicsPipelineStateDesc
 	{
 		RefHandle<D3D12RootSignature> m_rootSignature;
 		RefHandle<D3D12VertexShader> m_vertexShader;
@@ -34,11 +34,11 @@ namespace agl
 	class D3D12GraphicsPipelineState final : public GraphicsPipelineState
 	{
 	public:
-		const GraphicsPipelineStateDesc& GetDesc() const;
+		const D3D12GraphicsPipelineStateDesc& GetDesc() const;
 		D3D12RootSignature* GetRootSignature() const;
 		D3D12_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() const;
 
-		explicit D3D12GraphicsPipelineState( const GraphicsPipelineStateInitializer& initializer );
+		explicit D3D12GraphicsPipelineState( const GraphicsPipelineStateDesc& desc );
 		D3D12GraphicsPipelineState( const D3D12GraphicsPipelineState& ) = delete;
 		D3D12GraphicsPipelineState( D3D12GraphicsPipelineState&& ) = delete;
 		D3D12GraphicsPipelineState& operator=( const D3D12GraphicsPipelineState& ) = delete;
@@ -48,7 +48,7 @@ namespace agl
 		virtual void InitResource() override;
 		virtual void FreeResource() override;
 
-		GraphicsPipelineStateDesc m_desc = {};
+		D3D12GraphicsPipelineStateDesc m_desc = {};
 	};
 
 	class D3D12ComputePipelineState final : public ComputePipelineState
@@ -57,7 +57,7 @@ namespace agl
 		D3D12RootSignature* GetRootSignature() const;
 		D3D12ComputeShader* GetComputeShader() const;
 
-		D3D12ComputePipelineState( const ComputePipelineStateInitializer& initializer );
+		D3D12ComputePipelineState( const ComputePipelineStateDesc& desc );
 		D3D12ComputePipelineState( const D3D12ComputePipelineState& ) = delete;
 		D3D12ComputePipelineState( D3D12ComputePipelineState&& ) = delete;
 		D3D12ComputePipelineState& operator=( const D3D12ComputePipelineState& ) = delete;

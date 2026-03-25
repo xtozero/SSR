@@ -88,7 +88,7 @@ namespace agl
 		}
 	}
 
-	agl::Texture* D3D12Viewport::Texture()
+	Texture* D3D12Viewport::Texture()
 	{
 		return ( m_swapchain.Get() != nullptr )
 			? m_swapchain->Texture()
@@ -145,7 +145,7 @@ namespace agl
 			.m_access = ResourceAccess::Default,
 			.m_bindType = ResourceBindType::RenderTarget | ResourceBindType::ShaderResource,
 			.m_miscFlag = ResourceMisc::WithoutViews,
-			.m_clearValue = agl::ResourceClearValue{
+			.m_clearValue = ResourceClearValue{
 				.m_format = orignalFormat,
 				.m_color = { m_clearColor[0], m_clearColor[1], m_clearColor[2], m_clearColor[3] }
 			}
@@ -163,7 +163,7 @@ namespace agl
 		EnqueueRenderTask(
 			[this, orignalFormat]()
 			{
-				GetInterface<agl::IAgl>()->WaitGPU();
+				GetInterface<IAgl>()->WaitGPU();
 
 				m_frameBuffer->Free();
 				m_frameBuffer->Init();

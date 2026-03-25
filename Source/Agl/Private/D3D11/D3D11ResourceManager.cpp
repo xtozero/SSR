@@ -168,30 +168,30 @@ namespace agl
 		return samplerState;
 	}
 
-	GraphicsPipelineState* D3D11ResourceManager::CreatePipelineState( const GraphicsPipelineStateInitializer& initializer )
+	GraphicsPipelineState* D3D11ResourceManager::CreatePipelineState( const GraphicsPipelineStateDesc& desc )
 	{
-		auto cached = m_graphicsPipelineStateCache.find( initializer );
+		auto cached = m_graphicsPipelineStateCache.find( desc );
 		if ( cached != std::end( m_graphicsPipelineStateCache ) )
 		{
 			return cached->second.Get();
 		}
 
-		auto pipelineState = new D3D11GraphicsPipelineState( initializer );
-		m_graphicsPipelineStateCache.emplace( initializer, pipelineState );
+		auto pipelineState = new D3D11GraphicsPipelineState( desc );
+		m_graphicsPipelineStateCache.emplace( desc, pipelineState );
 
 		return pipelineState;
 	}
 
-	ComputePipelineState* D3D11ResourceManager::CreatePipelineState( const ComputePipelineStateInitializer& initializer )
+	ComputePipelineState* D3D11ResourceManager::CreatePipelineState( const ComputePipelineStateDesc& desc )
 	{
-		auto cached = m_computePipelineStateCache.find( initializer );
+		auto cached = m_computePipelineStateCache.find( desc );
 		if ( cached != std::end( m_computePipelineStateCache ) )
 		{
 			return cached->second.Get();
 		}
 
-		auto pipelineState = new D3D11ComputePipelineState( initializer );
-		m_computePipelineStateCache.emplace( initializer, pipelineState );
+		auto pipelineState = new D3D11ComputePipelineState( desc );
+		m_computePipelineStateCache.emplace( desc, pipelineState );
 
 		return pipelineState;
 	}
@@ -260,7 +260,7 @@ namespace agl
 		return nullptr;
 	}
 
-	RaytracingPipelineState* D3D11ResourceManager::CreateRaytracingPipelineState( const RaytracingPipelineStateDesc& desc )
+	RaytracingPipelineState* D3D11ResourceManager::CreateRaytracingPipelineState( [[maybe_unused]] const RaytracingPipelineStateDesc& desc )
 	{
 		// DXR is not supported in direct3D 11
 		return nullptr;

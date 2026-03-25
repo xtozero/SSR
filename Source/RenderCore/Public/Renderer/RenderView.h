@@ -60,7 +60,7 @@ namespace rendercore
 		RenderViewState* m_state = nullptr;
 	};
 
-	struct RenderViewGroupInitializer final
+	struct RenderViewGroupDesc final
 	{
 		IScene& m_scene;
 		Canvas& m_cavas;
@@ -73,16 +73,16 @@ namespace rendercore
 	class RenderViewGroup final
 	{
 	public:
-		RENDERCORE_DLL explicit RenderViewGroup( RenderViewGroupInitializer& initializer )
-			: m_scene( initializer.m_scene )
-			, m_canvas( initializer.m_cavas )
-			, m_viewport( initializer.m_viewport )
-			, m_elapsedTime( initializer.m_elapsedTime )
-			, m_totalTime( initializer.m_totalTime )
+		RENDERCORE_DLL explicit RenderViewGroup( RenderViewGroupDesc& desc )
+			: m_scene( desc.m_scene )
+			, m_canvas( desc.m_cavas )
+			, m_viewport( desc.m_viewport )
+			, m_elapsedTime( desc.m_elapsedTime )
+			, m_totalTime( desc.m_totalTime )
 		{
-			if ( initializer.m_showFlags )
+			if ( desc.m_showFlags )
 			{
-				m_showFlags = *initializer.m_showFlags;
+				m_showFlags = *desc.m_showFlags;
 			}
 		}
 

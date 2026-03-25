@@ -165,16 +165,16 @@ namespace agl
 		return new D3D12SamplerState( trait );
 	}
 
-	GraphicsPipelineState* D3D12ResourceManager::CreatePipelineState( const GraphicsPipelineStateInitializer& initializer )
+	GraphicsPipelineState* D3D12ResourceManager::CreatePipelineState( const GraphicsPipelineStateDesc& desc )
 	{
-		auto cached = m_graphicsPipelineStateCache.find( initializer );
+		auto cached = m_graphicsPipelineStateCache.find( desc );
 		if ( cached != std::end( m_graphicsPipelineStateCache ) )
 		{
 			return cached->second.Get();
 		}
 
-		auto pipelineState = new D3D12GraphicsPipelineState( initializer );
-		m_graphicsPipelineStateCache.emplace( initializer, pipelineState );
+		auto pipelineState = new D3D12GraphicsPipelineState( desc );
+		m_graphicsPipelineStateCache.emplace( desc, pipelineState );
 
 		EnqueueRenderTask(
 			[state = pipelineState]()
@@ -185,16 +185,16 @@ namespace agl
 		return pipelineState;
 	}
 
-	ComputePipelineState* D3D12ResourceManager::CreatePipelineState( const ComputePipelineStateInitializer& initializer )
+	ComputePipelineState* D3D12ResourceManager::CreatePipelineState( const ComputePipelineStateDesc& desc )
 	{
-		auto cached = m_computePipelineStateCache.find( initializer );
+		auto cached = m_computePipelineStateCache.find( desc );
 		if ( cached != std::end( m_computePipelineStateCache ) )
 		{
 			return cached->second.Get();
 		}
 
-		auto pipelineState = new D3D12ComputePipelineState( initializer );
-		m_computePipelineStateCache.emplace( initializer, pipelineState );
+		auto pipelineState = new D3D12ComputePipelineState( desc );
+		m_computePipelineStateCache.emplace( desc, pipelineState );
 
 		EnqueueRenderTask(
 			[state = pipelineState]()
@@ -510,7 +510,7 @@ namespace agl
 
 			CD3DX12_PIPELINE_STATE_STREAM2 subobjectStream;
 			Microsoft::WRL::ComPtr<ID3D12PipelineState> newPipelineState;
-			const GraphicsPipelineStateDesc& desc = pipelineState->GetDesc();
+			const D3D12GraphicsPipelineStateDesc& desc = pipelineState->GetDesc();
 			if ( desc.m_meshShader.Get() )
 			{
 				D3DX12_MESH_SHADER_PIPELINE_STATE_DESC meshShaderPipelineStateDesc = {
@@ -851,17 +851,17 @@ namespace agl
 		return new D3D12ResourceManager();
 	}
 
-	uint32 GetIndirectArgumentStride( agl::IndirectCommandType type )
+	uint32 GetIndirectArgumentStride( IndirectCommandType type )
 	{
 		switch ( type )
 		{
-		case agl::IndirectCommandType::Draw:
+		case IndirectCommandType::Draw:
 			return sizeof( D3D12_DRAW_ARGUMENTS );
-		case agl::IndirectCommandType::DrawIndexed:
+		case IndirectCommandType::DrawIndexed:
 			return sizeof( D3D12_DRAW_INDEXED_ARGUMENTS );
-		case agl::IndirectCommandType::Dispatch:
+		case IndirectCommandType::Dispatch:
 			return sizeof( D3D12_DISPATCH_ARGUMENTS );
-		case agl::IndirectCommandType::DispatchMesh:
+		case IndirectCommandType::DispatchMesh:
 			return sizeof( D3D12_DISPATCH_MESH_ARGUMENTS );
 		}
 

@@ -14,32 +14,25 @@ namespace agl
 	class D3D11GraphicsPipelineState final : public GraphicsPipelineState
 	{
 	public:
-		ID3D11VertexShader* VertexShader();
-		const ID3D11VertexShader* VertexShader() const;
+		ID3D11VertexShader* VertexShader() const;
 
-		ID3D11GeometryShader* GeometryShader();
-		const ID3D11GeometryShader* GeometryShader() const;
+		ID3D11GeometryShader* GeometryShader() const;
 
-		ID3D11PixelShader* PixelShader();
-		const ID3D11PixelShader* PixelShader() const;
+		ID3D11PixelShader* PixelShader() const;
 
-		ID3D11BlendState* BlendState();
-		const ID3D11BlendState* BlendState() const;
+		ID3D11BlendState* BlendState() const;
 
-		ID3D11RasterizerState* RasterizerState();
-		const ID3D11RasterizerState* RasterizerState() const;
+		ID3D11RasterizerState* RasterizerState() const;
 
-		ID3D11DepthStencilState* DepthStencilState();
-		const ID3D11DepthStencilState* DepthStencilState() const;
+		ID3D11DepthStencilState* DepthStencilState() const;
 
-		ID3D11InputLayout* InputLayout();
-		const ID3D11InputLayout* InputLayout() const;
+		ID3D11InputLayout* InputLayout() const;
 
 		D3D11_PRIMITIVE_TOPOLOGY GetPrimitiveTopology() const;
 
 		uint32 SampleMask() const;
 
-		explicit D3D11GraphicsPipelineState( const GraphicsPipelineStateInitializer& initializer );
+		explicit D3D11GraphicsPipelineState( const GraphicsPipelineStateDesc& desc );
 		D3D11GraphicsPipelineState( const D3D11GraphicsPipelineState& ) = delete;
 		D3D11GraphicsPipelineState( D3D11GraphicsPipelineState&& ) = delete;
 		D3D11GraphicsPipelineState& operator=( const D3D11GraphicsPipelineState& ) = delete;
@@ -63,10 +56,9 @@ namespace agl
 	class D3D11ComputePipelineState final : public ComputePipelineState
 	{
 	public:
-		ID3D11ComputeShader* ComputeShader();
-		const ID3D11ComputeShader* ComputeShader() const;
+		ID3D11ComputeShader* ComputeShader() const;
 
-		explicit D3D11ComputePipelineState( const ComputePipelineStateInitializer& initializer );
+		explicit D3D11ComputePipelineState( const ComputePipelineStateDesc& desc );
 		D3D11ComputePipelineState( const D3D11ComputePipelineState& ) = delete;
 		D3D11ComputePipelineState( D3D11ComputePipelineState&& ) = delete;
 		D3D11ComputePipelineState& operator=( const D3D11ComputePipelineState& ) = delete;

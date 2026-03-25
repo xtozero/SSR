@@ -28,11 +28,11 @@ namespace agl
 				return;
 			}
 
-			agl::ResourceTransition transition
+			ResourceTransition transition
 			{
 				.m_pResource = backBuffer->Resource(),
 				.m_pTransitionable = backBuffer,
-				.m_subResource = agl::AllSubResource,
+				.m_subResource = AllSubResource,
 				.m_state = ResourceState::RenderTarget
 			};
 
@@ -48,11 +48,11 @@ namespace agl
 				return;
 			}
 
-			agl::ResourceTransition transition
+			ResourceTransition transition
 			{
 				.m_pResource = backBuffer->Resource(),
 				.m_pTransitionable = backBuffer,
-				.m_subResource = agl::AllSubResource,
+				.m_subResource = AllSubResource,
 				.m_state = ResourceState::Present
 			};
 
@@ -111,7 +111,7 @@ namespace agl
 			TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>(
 				[]()
 				{
-					GetInterface<agl::IAgl>()->WaitGPU();
+					GetInterface<IAgl>()->WaitGPU();
 				} );
 			GetInterface<ITaskScheduler>()->Wait( handle );
 

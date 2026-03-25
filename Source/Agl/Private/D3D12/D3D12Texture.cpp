@@ -655,7 +655,7 @@ namespace agl
 		uint64 rowSize = 0;
 		uint64 totalSize = 0;
 
-		agl::D3D12Device().GetCopyableFootprints( &m_desc, 0, 1, 0, &layout, &numRows, &rowSize, &totalSize );
+		D3D12Device().GetCopyableFootprints( &m_desc, 0, 1, 0, &layout, &numRows, &rowSize, &totalSize );
 
 		return {
 			.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,

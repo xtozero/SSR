@@ -5,6 +5,8 @@
 #include "StackMemoryAllocator.h"
 
 #include <cassert>
+#include <map>
+#include <set>
 #include <vector>
 
 class TransientAllocators
@@ -66,6 +68,9 @@ using RenderFrameArray = std::vector<T, TransientAllocator<T, ThreadType::Render
 
 template <typename K, typename V, typename P = std::less<K>>
 using RenderFrameMap = std::map<K, V, P, TransientAllocator<std::pair<const K, V>, ThreadType::RenderThread>>;
+
+template <typename K, typename P = std::less<K>>
+using RenderFrameSet = std::set<K, P, TransientAllocator<K, ThreadType::RenderThread>>;
 
 template <typename T, ThreadType LocalThreadType>
 class ResetTransientContainerScope

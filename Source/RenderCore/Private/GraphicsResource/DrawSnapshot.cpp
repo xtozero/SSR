@@ -148,7 +148,7 @@ namespace rendercore
 		auto& pipelineState = snapshot.m_pipelineState;
 		auto& shaderState = pipelineState.m_shaderState;
 
-		agl::GraphicsPipelineStateInitializer initializer
+		agl::GraphicsPipelineStateDesc desc
 		{
 			.m_vertexShader = shaderState.m_vertexShader ? shaderState.m_vertexShader->Resource() : nullptr,
 			.m_geometryShader = shaderState.m_geometryShader ? shaderState.m_geometryShader->Resource() : nullptr,
@@ -162,7 +162,7 @@ namespace rendercore
 			.m_primitiveType = pipelineState.m_primitive,
 		};
 
-		pipelineState.m_pso = agl::GraphicsPipelineState::Create( initializer );
+		pipelineState.m_pso = agl::GraphicsPipelineState::Create( desc );
 	}
 
 	void SortDrawSnapshots( RenderFrameArray<VisibleDrawSnapshot>& outSnapshots )

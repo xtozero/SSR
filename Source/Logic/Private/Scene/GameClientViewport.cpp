@@ -46,7 +46,7 @@ namespace logic
 		world.SendRenderStateUpdate();
 
 		const auto& timer = world.GetTimer();
-		rendercore::RenderViewGroupInitializer initializer = {
+		rendercore::RenderViewGroupDesc desc = {
 			.m_scene = *world.Scene(),
 			.m_cavas = canvas,
 			.m_viewport = *GetViewport(),
@@ -55,7 +55,7 @@ namespace logic
 			.m_showFlags = showFlags
 		};
 
-		rendercore::RenderViewGroup renderViewGroup( initializer );
+		rendercore::RenderViewGroup renderViewGroup( desc );
 
 		InitView( renderViewGroup );
 

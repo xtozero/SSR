@@ -5,6 +5,8 @@
 
 namespace agl
 {
+    class IComputeCommandList;
+
     struct BLASDesc
     {
         RefHandle<Buffer> m_vertexBuffer;
@@ -16,8 +18,13 @@ namespace agl
     public:
         AGL_DLL static RefHandle<BLAS> Create( const BLASDesc& desc, const char* debugName );
 
+        virtual void Build( IComputeCommandList& commandList ) = 0;
+
+        AGL_DLL bool IsBuilt() const;
+
     protected:
         BLASDesc m_desc = {};
+        bool m_blasBuilt = false;
     };
 
     struct RaytracingInstanceDesc
@@ -37,6 +44,7 @@ namespace agl
     public:
         AGL_DLL static RefHandle<TLAS> Create( const TLASDesc& desc, const char* debugName );
 
+        virtual void Build( IComputeCommandList& commandList ) = 0;
         virtual Buffer* Resource() const = 0;
     };
 }

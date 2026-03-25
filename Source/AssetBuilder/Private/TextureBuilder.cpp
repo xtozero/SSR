@@ -61,9 +61,9 @@ std::optional<Products> TextureBuilder::Build( [[maybe_unused]] const PathEnviro
 		return {};
 	}
 
-	rendercore::DDSTextureInitializer initializer = ConvertToBCTextureInitializer( image );
+	rendercore::DDSTextureDesc desc = ConvertToBCTextureDesc( image );
 
-	auto asset = std::make_unique<rendercore::DDSTexture>( initializer );
+	auto asset = std::make_unique<rendercore::DDSTexture>( desc );
 
 	Products products;
 	products.emplace_back( path.filename(), std::move( asset ) );

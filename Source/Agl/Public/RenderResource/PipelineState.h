@@ -37,10 +37,10 @@ namespace agl
 		AGL_DLL static RefHandle<VertexLayout> Create( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size );
 	};
 
-	class GraphicsPipelineStateInitializer final
+	class GraphicsPipelineStateDesc final
 	{
 	public:
-		friend bool operator<( const GraphicsPipelineStateInitializer& lhs, const GraphicsPipelineStateInitializer& rhs )
+		friend bool operator<( const GraphicsPipelineStateDesc& lhs, const GraphicsPipelineStateDesc& rhs )
 		{
 			auto lVariable = std::tie( lhs.m_vertexShader, lhs.m_geometryShader, lhs.m_piexlShader, lhs.m_meshShader, lhs.m_amplificationShader, lhs.m_blendState, lhs.m_rasterizerState, lhs.m_depthStencilState, lhs.m_vertexLayout, lhs.m_primitiveType );
 			auto rVariable = std::tie( rhs.m_vertexShader, rhs.m_geometryShader, rhs.m_piexlShader, rhs.m_meshShader, rhs.m_amplificationShader, rhs.m_blendState, rhs.m_rasterizerState, rhs.m_depthStencilState, rhs.m_vertexLayout, rhs.m_primitiveType );
@@ -62,10 +62,10 @@ namespace agl
 		ResourcePrimitive m_primitiveType = ResourcePrimitive::Undefined;
 	};
 
-	class ComputePipelineStateInitializer final
+	class ComputePipelineStateDesc final
 	{
 	public:
-		friend bool operator<( const ComputePipelineStateInitializer& lhs, const ComputePipelineStateInitializer& rhs )
+		friend bool operator<( const ComputePipelineStateDesc& lhs, const ComputePipelineStateDesc& rhs )
 		{
 			auto lVariable = std::tie( lhs.m_computeShader );
 			auto rVariable = std::tie( rhs.m_computeShader );
@@ -81,12 +81,12 @@ namespace agl
 	class GraphicsPipelineState : public GraphicsApiResource
 	{
 	public:
-		AGL_DLL static RefHandle<GraphicsPipelineState> Create( const GraphicsPipelineStateInitializer& initializer );
+		AGL_DLL static RefHandle<GraphicsPipelineState> Create( const GraphicsPipelineStateDesc& desc );
 	};
 
 	class ComputePipelineState : public GraphicsApiResource
 	{
 	public:
-		AGL_DLL static RefHandle<ComputePipelineState> Create( const ComputePipelineStateInitializer& initializer );
+		AGL_DLL static RefHandle<ComputePipelineState> Create( const ComputePipelineStateDesc& desc );
 	};
 }

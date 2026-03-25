@@ -2,7 +2,7 @@
 
 namespace agl
 {
-    void D3D12FrameResourceCollection::RegisterResource( GraphicsApiResource* resource )
+    void D3D12FrameResourceCollection::RegisterResource( const GraphicsApiResource* resource )
     {
         if ( resource == nullptr )
         {
@@ -13,12 +13,12 @@ namespace agl
 
         if ( resource->IsBuffer() )
         {
-            auto d3d12Buffer = static_cast<D3D12Buffer*>( resource );
+            auto d3d12Buffer = static_cast<const D3D12Buffer*>( resource );
             resourceInfo = &d3d12Buffer->GetResourceInfo();
         }
         else if ( resource->IsTexture() )
         {
-            auto d3d12Texture = static_cast<D3D12Texture*>( resource );
+            auto d3d12Texture = static_cast<const D3D12Texture*>( resource );
             resourceInfo = &d3d12Texture->GetResourceInfo();
         }
 

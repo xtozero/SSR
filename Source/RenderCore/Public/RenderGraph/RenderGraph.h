@@ -119,12 +119,12 @@ namespace rendercore
 		void Compile();
 		void CleanUp();
 
-		using IntegerVector = std::vector<int32, StackAllcatorAdapter<int32>>;
-		using AdjacencyLists = std::vector<IntegerVector, StackAllcatorAdapter<IntegerVector>>;
+		using IntegerVector = std::vector<int32, StackAllocatorAdapter<int32>>;
+		using AdjacencyLists = std::vector<IntegerVector, StackAllocatorAdapter<IntegerVector>>;
 
 		AdjacencyLists BuildPassAdjacencyLists();
 
-		using RenderPassList = std::vector<RenderGraphPass*, StackAllcatorAdapter<RenderGraphPass*>>;
+		using RenderPassList = std::vector<RenderGraphPass*, StackAllocatorAdapter<RenderGraphPass*>>;
 		void SortPasses( const AdjacencyLists& adjacencyLists );
 
 		void CompilePassEvent();
@@ -138,14 +138,14 @@ namespace rendercore
 
 		RenderPassList m_passes{ m_allocator };
 
-		using ExternalTextures = std::map<agl::Texture*, RenderGraphTexture*, std::less<agl::Texture*>, StackAllcatorAdapter<std::pair<agl::Texture* const, RenderGraphTexture*>>>;
+		using ExternalTextures = std::map<agl::Texture*, RenderGraphTexture*, std::less<agl::Texture*>, StackAllocatorAdapter<std::pair<agl::Texture* const, RenderGraphTexture*>>>;
 		ExternalTextures m_externalTextures{ m_allocator };
 
-		using ExternalBuffers = std::map<agl::Buffer*, RenderGraphBuffer*, std::less<agl::Buffer*>, StackAllcatorAdapter<std::pair<agl::Buffer* const, RenderGraphBuffer*>>>;
+		using ExternalBuffers = std::map<agl::Buffer*, RenderGraphBuffer*, std::less<agl::Buffer*>, StackAllocatorAdapter<std::pair<agl::Buffer* const, RenderGraphBuffer*>>>;
 		ExternalBuffers m_externalBuffers{ m_allocator };
 
-		std::vector<RenderGraphTexture*, StackAllcatorAdapter<RenderGraphTexture*>> m_textures{ m_allocator };
-		std::vector<RenderGraphBuffer*, StackAllcatorAdapter<RenderGraphBuffer*>> m_buffers{ m_allocator };
+		std::vector<RenderGraphTexture*, StackAllocatorAdapter<RenderGraphTexture*>> m_textures{ m_allocator };
+		std::vector<RenderGraphBuffer*, StackAllocatorAdapter<RenderGraphBuffer*>> m_buffers{ m_allocator };
 
 		GpuProfileRenderGraphEvent* m_curGPUProfileEvent = nullptr;
 		PipelineStateRenderGraphEvent* m_curPipelineStatEvent = nullptr;

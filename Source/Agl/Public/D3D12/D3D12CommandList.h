@@ -80,8 +80,8 @@ namespace agl
 		void CopyResource( Texture* dest, Texture* src, bool bAsync );
 		void CopyResource( Buffer* dest, Buffer* src, bool bAsync, uint32 numByte );
 
-		void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource );
-		void UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte );
+		void UpdateSubresource( Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource );
+		void UpdateSubresource( Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte );
 
 		void AddTransition( const ResourceTransition& transition );
 		void AddUavBarrier( const UavBarrier& uavBarrier );
@@ -110,13 +110,12 @@ namespace agl
 
 		void Prepare();
 
-		void BindComputePipelineState( ComputePipelineState* pipelineState );
-		void BindPipelineState( RaytracingPipelineState* pipelineState );
-		void BindShaderResources( ShaderBindings& shaderBindings );
+		void BindComputePipelineState( const ComputePipelineState* pipelineState );
+		void BindShaderResources( const ShaderBindings& shaderBindings );
 		void SetShaderValue( const ShaderParameter& parameter, const void* value );
 
 		void Dispatch( uint32 x, uint32 y, uint32 z = 1 );
-		void DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth );
+		void DispatchRays( const RaytracingPipelineState* pipelineState, const ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth );
 
 		void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 );
 
@@ -140,7 +139,7 @@ namespace agl
 	public:
 		void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets );
 		void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset );
-		void BindGraphicsPipelineState( GraphicsPipelineState* pipelineState );
+		void BindGraphicsPipelineState( const GraphicsPipelineState* pipelineState );
 		void BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil );
 
 		void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation );
@@ -153,7 +152,7 @@ namespace agl
 		void ClearRenderTarget( RenderTargetView* renderTarget );
 		void ClearDepthStencil( DepthStencilView* depthStencil );
 
-		bool CaptureTexture( const agl::Texture* texture, DirectX::ScratchImage& outResult ) const;
+		bool CaptureTexture( const Texture* texture, DirectX::ScratchImage& outResult ) const;
 
 		D3D12CommandListImpl() : D3D12ComputeCommandListImpl( D3D12_COMMAND_LIST_TYPE_DIRECT ) {}
 
@@ -180,19 +179,19 @@ namespace agl
 		virtual void CopyResource( Texture* dest, Texture* src, bool bAsync ) override;
 		virtual void CopyResource( Buffer* dest, Buffer* src, bool bAsync, uint32 numByte ) override;
 
-		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync,
-			const CubeArea<uint32>* destArea, uint32 subresource ) override;
-		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync, uint32 destOffset,
-			uint32 numByte ) override;
+		virtual void UpdateSubresource( Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource ) override;
+		virtual void UpdateSubresource( Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte ) override;
 
-		virtual void BindPipelineState( ComputePipelineState* pipelineState ) override;
-		virtual void BindShaderResources( ShaderBindings& shaderBindings ) override;
+		virtual void BindPipelineState( const ComputePipelineState* pipelineState ) override;
+		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) override;
 		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) override;
 
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z ) override;
-		virtual void DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth ) override;
+		virtual void DispatchRays( const RaytracingPipelineState* pipelineState, const ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth ) override;
 
 		virtual void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 ) override;
+
+		void BuildRaytracingAccelerationStructure( const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& desc );
 
 		void Initialize();
 
@@ -217,8 +216,6 @@ namespace agl
 		virtual void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries ) = 0;
 
 		virtual void Signal( ID3D12Fence* fence, uint64 fenceValue ) = 0;
-
-		virtual void BuildRaytracingAccelerationStructure( const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& desc ) = 0;
 	};
 
 	class D3D12CommandList final : public ID3D12CommandListEX
@@ -240,15 +237,15 @@ namespace agl
 		virtual void CopyResource( Texture* dest, Texture* src, bool bAsync = true ) override;
 		virtual void CopyResource( Buffer* dest, Buffer* src, bool bAsync = true, uint32 numByte = 0 ) override;
 
-		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync = true, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
-		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync = true, uint32 destOffset = 0, uint32 numByte = 0 ) override;
+		virtual void UpdateSubresource( Texture* dest, const void* src, uint32 srcRowSize, bool bAsync = true, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
+		virtual void UpdateSubresource( Buffer* dest, const void* src, bool bAsync = true, uint32 destOffset = 0, uint32 numByte = 0 ) override;
 
-		virtual void BindPipelineState( ComputePipelineState* pipelineState ) override;
-		virtual void BindShaderResources( ShaderBindings& shaderBindings ) override;
+		virtual void BindPipelineState( const ComputePipelineState* pipelineState ) override;
+		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) override;
 		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) override;
 
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
-		virtual void DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth ) override;
+		virtual void DispatchRays( const RaytracingPipelineState* pipelineState, const ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth ) override;
 
 		virtual void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 ) override;
 
@@ -261,19 +258,17 @@ namespace agl
 
 		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets ) override;
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) override;
-		virtual void BindPipelineState( GraphicsPipelineState* pipelineState ) override;
+		virtual void BindPipelineState( const GraphicsPipelineState* pipelineState ) override;
 		virtual void BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil ) override;
 
 		virtual void ClearRenderTarget( RenderTargetView* renderTarget ) override;
 		virtual void ClearDepthStencil( DepthStencilView* depthStencil ) override;
 
-		virtual bool CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult ) override;
+		virtual bool CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult ) override;
 
 		virtual void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries ) override;
 
 		virtual void Signal( ID3D12Fence* fence, uint64 fenceValue ) override;
-
-		virtual void BuildRaytracingAccelerationStructure( const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& desc ) override;
 
 		void Initialize();
 
@@ -314,15 +309,15 @@ namespace agl
 		virtual void CopyResource( Texture* dest, Texture* src, bool bAsync = true ) override;
 		virtual void CopyResource( Buffer* dest, Buffer* src, bool bAsync = true, uint32 numByte = 0 ) override;
 
-		virtual void UpdateSubresource( agl::Texture* dest, const void* src, uint32 srcRowSize, bool bAsync = true, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
-		virtual void UpdateSubresource( agl::Buffer* dest, const void* src, bool bAsync = true, uint32 destOffset = 0, uint32 numByte = 0 ) override;
+		virtual void UpdateSubresource( Texture* dest, const void* src, uint32 srcRowSize, bool bAsync = true, const CubeArea<uint32>* destArea = nullptr, uint32 subresource = 0 ) override;
+		virtual void UpdateSubresource( Buffer* dest, const void* src, bool bAsync = true, uint32 destOffset = 0, uint32 numByte = 0 ) override;
 
-		virtual void BindPipelineState( ComputePipelineState* pipelineState ) override;
-		virtual void BindShaderResources( ShaderBindings& shaderBindings ) override;
+		virtual void BindPipelineState( const ComputePipelineState* pipelineState ) override;
+		virtual void BindShaderResources( const ShaderBindings& shaderBindings ) override;
 		virtual void SetShaderValue( const ShaderParameter& parameter, const void* value ) override;
 
 		virtual void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) override;
-		virtual void DispatchRays( RaytracingPipelineState* pipelineState, ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth ) override;
+		virtual void DispatchRays( const RaytracingPipelineState* pipelineState, const ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth ) override;
 
 		virtual void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset = 0 ) override;
 
@@ -335,19 +330,17 @@ namespace agl
 
 		virtual void BindVertexBuffer( Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets ) override;
 		virtual void BindIndexBuffer( Buffer* indexBuffer, uint32 indexOffset ) override;
-		virtual void BindPipelineState( GraphicsPipelineState* pipelineState ) override;
+		virtual void BindPipelineState( const GraphicsPipelineState* pipelineState ) override;
 		virtual void BindRenderTargets( RenderTargetView** pRenderTargets, uint32 renderTargetCount, DepthStencilView* depthStencil ) override;
 
 		virtual void ClearRenderTarget( RenderTargetView* renderTarget ) override;
 		virtual void ClearDepthStencil( DepthStencilView* depthStencil ) override;
 
-		virtual bool CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult ) override;
+		virtual bool CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult ) override;
 
 		virtual void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries ) override;
 
 		virtual void Signal( ID3D12Fence* fence, uint64 fenceValue ) override;
-
-		virtual void BuildRaytracingAccelerationStructure( const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& desc ) override;
 
 		void Close();
 

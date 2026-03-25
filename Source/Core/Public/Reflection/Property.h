@@ -309,7 +309,7 @@ public:
 		if constexpr ( std::is_member_pointer_v<TPtr> )
 		{
 			static PropertyHandler<TClass, T> handler( ptr );
-			static PropertyInitializer intializer = {
+			static PropertyInitializer initializer = {
 			.m_name = name,
 			.m_type = TypeInfo::GetStaticTypeInfo<T>(),
 			.m_handler = handler,
@@ -345,12 +345,12 @@ public:
 					}
 				}
 			};
-			static Property property( typeInfo, intializer );
+			static Property property( typeInfo, initializer );
 		}
 		else
 		{
 			static StaticPropertyHandler<TClass, T> handler( ptr );
-			static PropertyInitializer intializer = {
+			static PropertyInitializer initializer = {
 			.m_name = name,
 			.m_type = TypeInfo::GetStaticTypeInfo<T>(),
 			.m_handler = handler,
@@ -386,7 +386,7 @@ public:
 					}
 				}
 			};
-			static Property property( typeInfo, intializer );
+			static Property property( typeInfo, initializer );
 		}
 	}
 };

@@ -128,7 +128,7 @@ private:
 };
 
 template <typename T>
-class StackAllcatorAdapter
+class StackAllocatorAdapter
 {
 public:
 	using value_type = T;
@@ -143,29 +143,34 @@ public:
 
 	void deallocate( [[maybe_unused]] T* p, [[maybe_unused]] size_t n ) { /*Do Nothing*/ }
 
+	template<typename Other>
+	struct rebind {
+		using other = StackAllocatorAdapter<Other>;
+	};
+
 	StackAllocator* GetStackAllocator() const
 	{
 		return m_allocator;
 	}
 
-	constexpr StackAllcatorAdapter( StackAllocator& allocator )
+	constexpr StackAllocatorAdapter( StackAllocator& allocator )
 		: m_allocator( &allocator )
 	{
 	}
 	
-	constexpr StackAllcatorAdapter( const StackAllcatorAdapter& ) = default;
-	constexpr StackAllcatorAdapter( StackAllcatorAdapter&& ) = default;
+	constexpr StackAllocatorAdapter( const StackAllocatorAdapter& ) = default;
+	constexpr StackAllocatorAdapter( StackAllocatorAdapter&& ) = default;
 	template <class Other>
-	constexpr StackAllcatorAdapter( const StackAllcatorAdapter<Other>& other ) noexcept
+	constexpr StackAllocatorAdapter( const StackAllocatorAdapter<Other>& other ) noexcept
 		: m_allocator( other.GetStackAllocator() )
 	{
 	}
 
-	~StackAllcatorAdapter() = default;
-	StackAllcatorAdapter& operator=( const StackAllcatorAdapter& ) = default;
-	StackAllcatorAdapter& operator=( StackAllcatorAdapter&& ) = default;
+	~StackAllocatorAdapter() = default;
+	StackAllocatorAdapter& operator=( const StackAllocatorAdapter& ) = default;
+	StackAllocatorAdapter& operator=( StackAllocatorAdapter&& ) = default;
 
-	friend bool operator==( const StackAllcatorAdapter& lhs, const StackAllcatorAdapter& rhs )
+	friend bool operator==( const StackAllocatorAdapter& lhs, const StackAllocatorAdapter& rhs )
 	{
 		return &lhs == &rhs;
 	}

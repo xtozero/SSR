@@ -227,7 +227,7 @@ namespace agl
 		virtual ICommandList* GetParallelCommandList() override;
 		virtual IComputeCommandList* GetComputeCommandList() override;
 
-		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type, const char* entryPoint ) const override;
+		virtual BinaryChunk CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, ShaderType type, const char* entryPoint ) const override;
 		virtual bool BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const override;
 
 		virtual std::filesystem::path GetShaderCacheFilePath() const override;
@@ -516,7 +516,7 @@ namespace agl
 		return &m_computeCommandList[m_frameIndex];
 	}
 
-	BinaryChunk Direct3D12::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, agl::ShaderType type, const char* entryPoint ) const
+	BinaryChunk Direct3D12::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, ShaderType type, const char* entryPoint ) const
 	{
 		DxcBuffer buffer = {
 			.Ptr = source.Data(),

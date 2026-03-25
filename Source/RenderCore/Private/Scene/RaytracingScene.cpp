@@ -1,6 +1,7 @@
 #include "Scene/RaytracingScene.h"
 
 #include "PrimitiveProxy.h"
+#include "RenderGraph.h"
 #include "RenderResource/AccelerationStructure.h"
 #include "Scene/PrimitiveSceneInfo.h"
 
@@ -11,6 +12,26 @@ namespace rendercore
         if ( m_needsUpdate == false )
         {
             return;
+        }
+
+        if ( m_blasToBuild.empty() == false )
+        {
+            RenderFrameArray<RefHandle<agl::BLAS>> blasList;
+            blasList.reserve( m_blasToBuild.size() );
+            for ( const RefHandle<agl::BLAS>& blas : m_blasToBuild )
+            {
+                blasList.emplace_back( blas );
+            }
+            m_blasToBuild.clear();
+
+            renderGraph.AddPass(
+                [blasToBuild = std::move( blasList )]( ComputeCommandList& commandList )
+                {
+                    for ( const RefHandle<agl::BLAS>& blas : blasToBuild )
+                    {
+                        commandList.BuildBLAS( blas );
+                    }
+                } );
         }
 
         if ( m_instances.Size() > 0 )
@@ -29,6 +50,12 @@ namespace rendercore
 
             m_tlas = agl::TLAS::Create( desc, "RaytracingScene" );
             m_tlas->Init();
+
+            renderGraph.AddPass(
+                [tlas = m_tlas]( ComputeCommandList& commandList )
+                {
+                    commandList.BuildTLAS( tlas );
+                } );
         }
         else
         {
@@ -43,6 +70,11 @@ namespace rendercore
         if ( blas.Get() == nullptr )
         {
             return;
+        }
+
+        if ( blas->IsBuilt() == false )
+        {
+            m_blasToBuild.emplace( blas );
         }
 
         agl::RaytracingInstanceDesc instanceDesc = {

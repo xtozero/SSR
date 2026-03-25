@@ -6,7 +6,12 @@
 
 namespace agl
 {
+	class BLAS;
+	class TLAS;
 	class Query;
+
+	struct BLASDesc;
+	struct TLASDesc;
 }
 
 namespace rendercore
@@ -35,13 +40,13 @@ namespace rendercore
 	class ComputeCommandList : public CopyCommandList
 	{
 	public:
-		void BindPipelineState( agl::ComputePipelineState* pipelineState ) const;
-		void BindShaderResources( agl::ShaderBindings& shaderBindings ) const;
+		void BindPipelineState( const agl::ComputePipelineState* pipelineState ) const;
+		void BindShaderResources( const agl::ShaderBindings& shaderBindings ) const;
 		void SetShaderValue( const agl::ShaderParameter& parameter, const void* value ) const;
 
 		void Dispatch( uint32 x, uint32 y, uint32 z = 1 ) const;
-		void DispatchRays( agl::RaytracingPipelineState* pipelineState, agl::ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth = 1 ) const;
-		void ExecuteIndirect( agl::IndirectCommandType type, agl::Buffer* argument, uint64 argumentOffset = 0 );
+		void DispatchRays( const agl::RaytracingPipelineState* pipelineState, const agl::ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth = 1 ) const;
+		void ExecuteIndirect( agl::IndirectCommandType type, agl::Buffer* argument, uint64 argumentOffset = 0 ) const;
 
 		void AddTransition( const agl::ResourceTransition& transition ) const;
 		void AddUavBarrier( const agl::UavBarrier& uavBarrier ) const;
@@ -51,6 +56,9 @@ namespace rendercore
 
 		void BeginEvent( const char* eventName ) const;
 		void EndEvent() const;
+
+		void BuildBLAS( const RefHandle<agl::BLAS>& blas ) const;
+		void BuildTLAS( const RefHandle<agl::TLAS>& tlas ) const;
 
 		explicit ComputeCommandList( agl::IComputeCommandList& impl )
 			: CopyCommandList( impl ) {}
@@ -66,7 +74,7 @@ namespace rendercore
 
 		void BindVertexBuffer( agl::Buffer* const* vertexBuffers, uint32 startSlot, uint32 numBuffers, const uint32* strides, const uint32* pOffsets ) const;
 		void BindIndexBuffer( agl::Buffer* indexBuffer, uint32 indexOffset ) const;
-		void BindPipelineState( agl::GraphicsPipelineState* pipelineState ) const;
+		void BindPipelineState( const agl::GraphicsPipelineState* pipelineState ) const;
 		void BindRenderTargets( agl::RenderTargetView** pRenderTargets, uint32 renderTargetCount, agl::DepthStencilView* depthStencil ) const;
 
 		void DrawInstanced( uint32 vertexCount, uint32 numInstance, uint32 baseVertexLocation ) const;

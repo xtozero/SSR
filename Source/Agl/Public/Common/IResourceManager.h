@@ -13,12 +13,12 @@ namespace agl
 	class Buffer;
 	class Canvas;
 	class ComputePipelineState;
-	class ComputePipelineStateInitializer;
+	class ComputePipelineStateDesc;
 	class ComputeShader;
 	class DepthStencilState;
 	class GeometryShader;
 	class GraphicsPipelineState;
-	class GraphicsPipelineStateInitializer;
+	class GraphicsPipelineStateDesc;
 	class MeshShader;
 	class OcclusionQuery;
 	class PipelineStatistics;
@@ -66,8 +66,8 @@ namespace agl
 		virtual DepthStencilState* CreateDepthStencilState( const DepthStencilStateTrait& trait ) const = 0;
 		virtual RasterizerState* CreateRasterizerState( const RasterizerStateTrait& trait ) const = 0;
 		virtual SamplerState* CreateSamplerState( const SamplerStateTrait& trait ) const = 0;
-		virtual GraphicsPipelineState* CreatePipelineState( const GraphicsPipelineStateInitializer& initializer ) = 0;
-		virtual ComputePipelineState* CreatePipelineState( const ComputePipelineStateInitializer& initializer ) = 0;
+		virtual GraphicsPipelineState* CreatePipelineState( const GraphicsPipelineStateDesc& desc ) = 0;
+		virtual ComputePipelineState* CreatePipelineState( const ComputePipelineStateDesc& desc ) = 0;
 
 		virtual Canvas* CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& clearColor ) const = 0;
 

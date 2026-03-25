@@ -8,9 +8,9 @@
 
 namespace agl
 {
-	class ComputePipelineStateInitializer;
+	class ComputePipelineStateDesc;
 	class D3D12RaytracingShaderTable;
-	class GraphicsPipelineStateInitializer;
+	class GraphicsPipelineStateDesc;
 	class Shader;
 	class ShaderParameterInfo;
 
@@ -103,8 +103,8 @@ namespace agl
 	public:
 		ID3D12RootSignature* Resource() const;
 
-		explicit D3D12RootSignature( const GraphicsPipelineStateInitializer& initializer );
-		explicit D3D12RootSignature( const ComputePipelineStateInitializer& initializer );
+		explicit D3D12RootSignature( const GraphicsPipelineStateDesc& desc );
+		explicit D3D12RootSignature( const ComputePipelineStateDesc& desc );
 		explicit D3D12RootSignature( const D3D12RaytracingShaderTable& shaderTable );
 
 	private:

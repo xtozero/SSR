@@ -51,9 +51,9 @@ void EngineDefaultBuilder::CreateBRDFLookUpTexture( std::set<std::filesystem::pa
 	);
 	GetInterface<ITaskScheduler>()->Wait( handle );
 
-	rendercore::DDSTextureInitializer initializer = ConvertToBCTextureInitializer( image );
+	rendercore::DDSTextureDesc desc = ConvertToBCTextureDesc( image );
 
-	rendercore::DDSTexture asset( initializer );
+	rendercore::DDSTexture asset( desc );
 
 	asset.SetLastWriteTime( std::chrono::file_clock::now() );
 	asset.SetFileHash( ( std::numeric_limits<uint64>::max )() );
