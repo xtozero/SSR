@@ -21,6 +21,8 @@ TextureCube IrradianceMap : register( t6 );
 TextureCube PrefilterMap : register( t7 );
 Texture2D BrdfLUT : register( t8 );
 
+Texture2D AmbientOcclusion : register( t9 );
+
 struct ForwardLightData
 {
 	uint	m_type;
@@ -290,6 +292,10 @@ LIGHTCOLOR CalcLight( GeometryProperty geometry )
 	cColor.m_diffuse.rgb += MoveLinearSpace( IndirectIllumination.SampleLevel( LinearSampler, geometry.screenUV, 0 ) ).rgb;
 #endif
 
+	float ao = AmbientOcclusion.SampleLevel( LinearSampler, geometry.screenUV, 0 );
+	cColor.m_diffuse.rgb *= ao;
+	cColor.m_specular.rgb *= ao;
+
 	return cColor;
 }
 
@@ -334,6 +340,10 @@ LIGHTCOLOR CalcPhysicallyBasedLight( GeometryProperty geometry, SurfaceProperty 
 	float2 brdf = BrdfLUT.SampleLevel( LinearSampler, float2( ndotv, surface.roughness ), 0 ).rg;
 
 	cColor.m_specular.rgb += prefilteredColor * ( F * brdf.x + brdf.y );
+
+	float ao = AmbientOcclusion.SampleLevel( LinearSampler, geometry.screenUV, 0 ).r;
+	cColor.m_diffuse.rgb *= ao;
+	cColor.m_specular.rgb *= ao;
 
 	return cColor;
 }

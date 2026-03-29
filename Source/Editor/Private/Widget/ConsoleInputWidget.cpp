@@ -73,7 +73,9 @@ namespace editor
             {
                 int32 actualBufferLen = std::max( 0, data->BufTextLen - static_cast<int32>( BufferStartOffset ) );
                 data->DeleteChars( BufferStartOffset, actualBufferLen );
-                data->InsertChars( BufferStartOffset, thisWidget.m_autoCompletionList[0].c_str() );
+
+                int32 index = std::clamp<int32>( thisWidget.m_autoCompletionCursor, 0, thisWidget.m_autoCompletionList.size() );
+                data->InsertChars( BufferStartOffset, thisWidget.m_autoCompletionList[index].c_str() );
 
                 thisWidget.ClearAutoCompletion();
             }

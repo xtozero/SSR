@@ -15,58 +15,58 @@ namespace rendercore
 {
 	SceneViewParameters GetViewParameters( const PreviousFrameContext* prevFrameContext, const RenderViewGroup& renderViewGroup, size_t viewIndex )
 	{
-		SceneViewParameters param = {};
+		SceneViewParameters params = {};
 
 		const RenderView& view = renderViewGroup.GetRenderView( viewIndex );
 
 		auto viewMatrix = LookFromMatrix( view.m_viewOrigin,
 			view.m_viewAxis[2],
 			view.m_viewAxis[1] );
-		param.ViewMatrix = viewMatrix.GetTrasposed();
+		params.ViewMatrix = viewMatrix.GetTrasposed();
 
 		auto projMatrix = PerspectiveMatrix( view.m_fov,
 			view.m_aspect,
 			view.m_nearPlaneDistance,
 			view.m_farPlaneDistance );
-		param.ProjMatrix = projMatrix.GetTrasposed();
+		params.ProjMatrix = projMatrix.GetTrasposed();
 
 		auto viewProjMatrix = viewMatrix * projMatrix;
-		param.ViewProjMatrix = viewProjMatrix.GetTrasposed();
+		params.ViewProjMatrix = viewProjMatrix.GetTrasposed();
 
 		auto invViewMatrix = viewMatrix.Inverse();
-		param.InvViewMatrix = invViewMatrix.GetTrasposed();
+		params.InvViewMatrix = invViewMatrix.GetTrasposed();
 
 		auto invProjMatrix = projMatrix.Inverse();
-		param.InvProjMatrix = invProjMatrix.GetTrasposed();
+		params.InvProjMatrix = invProjMatrix.GetTrasposed();
 
 		auto invViewProjMatrix = viewProjMatrix.Inverse();
-		param.InvViewProjMatrix = invViewProjMatrix.GetTrasposed();
+		params.InvViewProjMatrix = invViewProjMatrix.GetTrasposed();
 
 		if ( prevFrameContext )
 		{
-			param.PrevViewMatrix = prevFrameContext->m_viewMatrix.GetTrasposed();
-			param.PrevProjMatrix = prevFrameContext->m_projMatrix.GetTrasposed();
-			param.PrevViewProjMatrix = prevFrameContext->m_viewProjMatrix.GetTrasposed();
+			params.PrevViewMatrix = prevFrameContext->m_viewMatrix.GetTrasposed();
+			params.PrevProjMatrix = prevFrameContext->m_projMatrix.GetTrasposed();
+			params.PrevViewProjMatrix = prevFrameContext->m_viewProjMatrix.GetTrasposed();
 		}
 		else
 		{
-			param.PrevViewMatrix = param.ViewMatrix;
-			param.PrevProjMatrix = param.ProjMatrix;
-			param.PrevViewProjMatrix = param.ViewProjMatrix;
+			params.PrevViewMatrix = params.ViewMatrix;
+			params.PrevProjMatrix = params.ProjMatrix;
+			params.PrevViewProjMatrix = params.ViewProjMatrix;
 		}
 
-		param.NearPlaneDist = view.m_nearPlaneDistance;
-		param.FarPlaneDist = view.m_farPlaneDistance;
+		params.NearPlaneDist = view.m_nearPlaneDistance;
+		params.FarPlaneDist = view.m_farPlaneDistance;
 
-		param.ElapsedTime = renderViewGroup.GetElapsedTime();
-		param.TotalTime = renderViewGroup.GetTotalTime();
-		param.CameraPos = view.m_viewOrigin;
-		param.FrameCount = static_cast<uint32>( renderViewGroup.Scene().GetNumFrame() );
+		params.ElapsedTime = renderViewGroup.GetElapsedTime();
+		params.TotalTime = renderViewGroup.GetTotalTime();
+		params.CameraPos = view.m_viewOrigin;
+		params.FrameCount = static_cast<uint32>( renderViewGroup.Scene().GetNumFrame() );
 
 		auto wh = renderViewGroup.GetViewport().Size();
-		param.ViewportDimensions = Vector2( static_cast<float>( wh.first ), static_cast<float>( wh.second ) );
+		params.ViewportDimensions = Vector2( static_cast<float>( wh.first ), static_cast<float>( wh.second ) );
 
-		return param;
+		return params;
 	}
 
 	PrimitiveSceneData::PrimitiveSceneData( const Scene& scene, uint32 primitiveId )

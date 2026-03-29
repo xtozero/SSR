@@ -12,6 +12,7 @@
 #include "ReflectiveShadowMapRendering.h"
 #include "RenderGraphResource.h"
 #include "RenderView.h"
+#include "RTAORendering.h"
 #include "Scene/SceneConstantBuffers.h"
 #include "Scene/ShadowInfo.h"
 #include "SSGIRendering.h"
@@ -74,6 +75,7 @@ namespace rendercore
 		
 		RefHandle<agl::Texture> m_indirectIllumination;
 		RefHandle<agl::Texture> m_ssgi;
+		RefHandle<agl::Texture> m_ambientOcclusion;
 	};
 
 	class ResourceBinder final
@@ -192,13 +194,15 @@ namespace rendercore
 
 		GlobalDynamicVertexBuffer m_dynamicVertexBuffer;
 
+		RTAORenderPass m_rtaoPass;
+
 	private:
 		void ResetFrameData();
 
 		LightPropagationVolume m_lpv;
-		RSMsRenderer m_rsms;
-		SSGIRenderer m_ssgi;
-		TAARenderer m_taa;
+		RSMRenderPass m_rsmPass;
+		SSGIRenderPass m_ssgiPass;
+		TAARenderPass m_taaPass;
 	};
 
 	void AddSingleDrawPass( CommandList& commandList, DrawSnapshot& snapshot );

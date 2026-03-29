@@ -9,7 +9,7 @@ namespace rendercore
 	class RenderGraph;
 	class RenderViewGroup;
 
-	struct SSGIRenderParam
+	struct SSGIRenderParams
 	{
 		RefHandle<agl::Buffer> m_viewShaderArguments;
 
@@ -28,10 +28,10 @@ namespace rendercore
 		int32 m_denoiseKernelRadius = 1;
 	};
 
-	class SSGIRenderer
+	class SSGIRenderPass
 	{
 	public:
-		RefHandle<agl::Texture> Render( RenderGraph& renderGraph, const SSGIRenderParam& param );
+		RefHandle<agl::Texture> Render( RenderGraph& renderGraph, const SSGIRenderParams& param );
 
 	private:
 		RefHandle<agl::Texture> m_prevSSGI = BlackTexture;

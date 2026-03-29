@@ -1,5 +1,6 @@
 static const float EPSILON = 1e-9;
 static const float FLT_MAX = 3.402823466e+38;
+static const float GoldenRatioConjugate = 0.6180339887f;
 
 static const int MAX_HALTON_SEQUENCE = 16;
 

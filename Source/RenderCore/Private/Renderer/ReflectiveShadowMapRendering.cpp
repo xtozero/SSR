@@ -57,7 +57,7 @@ namespace rendercore
 		return passShader;
 	}
 
-	void RSMsRenderer::PreRender( const RenderViewGroup& renderViewGroup )
+	void RSMRenderPass::PreRender( const RenderViewGroup& renderViewGroup )
 	{
 		std::pair<uint32, uint32> curRtSize = renderViewGroup.GetViewport().Size();
 		if ( m_indirectIllumination == nullptr )
@@ -81,7 +81,7 @@ namespace rendercore
 		}
 	}
 
-	RefHandle<agl::Texture> RSMsRenderer::Render( RenderGraph& renderGraph, const RSMsRenderingParam& param, const ResourceBinder& resourceBinder )
+	RefHandle<agl::Texture> RSMRenderPass::Render( RenderGraph& renderGraph, const RSMsRenderingParam& param, const ResourceBinder& resourceBinder )
 	{
 		auto renderTarget = m_indirectIllumination.Get();
 		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
@@ -169,12 +169,12 @@ namespace rendercore
 		return m_indirectIllumination;
 	}
 
-	RSMsRenderer::RSMsRenderer()
+	RSMRenderPass::RSMRenderPass()
 	{
 		m_shaderArguments = RSMsParameters::CreateShaderArguments();
 	}
 
-	void RSMsRenderer::AllocTextureForIndirectIllumination( const std::pair<uint32, uint32>& renderTargetSize )
+	void RSMRenderPass::AllocTextureForIndirectIllumination( const std::pair<uint32, uint32>& renderTargetSize )
 	{
 		agl::TextureTrait trait = {
 			.m_width = renderTargetSize.first,
@@ -203,7 +203,7 @@ namespace rendercore
 			, Color( 0, 0, 0, 255 )>::Get();
 	}
 
-	void RSMsRenderer::CreateSamplingPattern()
+	void RSMRenderPass::CreateSamplingPattern()
 	{
 		constexpr uint32 MaxNumSamplingPattern = 400;
 		uint32 numSamplingPattern = std::min( MaxNumSamplingPattern, DefaultRenderCore::RSMsNumSampling() );

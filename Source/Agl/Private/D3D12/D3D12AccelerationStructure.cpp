@@ -160,6 +160,7 @@ namespace agl
             dest[i].Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
             dest[i].AccelerationStructure = d3d12BLAS->Resource()->GetGPUVirtualAddress();
         }
+        GetInterface<IAgl>()->UnLock( instanceDescBuffer.Get() );
 
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc = {
             .DestAccelerationStructureData = m_tlas->Resource()->GetGPUVirtualAddress(),

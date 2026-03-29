@@ -11,6 +11,7 @@
 #include "Proxies/TexturedSkyProxy.h"
 #include "RenderGraph.h"
 #include "RenderView.h"
+#include "RTAORendering.h"
 #include "Scene/LightSceneInfo.h"
 #include "Scene/Scene.h"
 #include "Scene/SceneConstantBuffers.h"
@@ -375,6 +376,8 @@ namespace rendercore
 			
 			RenderOcclusionTest( renderGraph, renderViewGroup, i );
 
+			RenderAmbientOcclusion( renderGraph, renderViewGroup );
+
 			RenderIndirectIllumination( renderGraph, renderViewGroup, i );
 			
 			RenderDefaultPass( renderGraph, renderViewGroup, i );
@@ -430,6 +433,7 @@ namespace rendercore
 		GPU_PROFILE_EVENT( renderGraph, Default );
 		PIPELINE_STAT_EVENT( renderGraph, Default );
 
+		m_resourceBinder.Add( StaticName( "AmbientOcclusion" ), m_resourceCollection.m_ambientOcclusion->SRV() );
 		m_resourceBinder.Add( StaticName( "IndirectIllumination" ), m_resourceCollection.m_indirectIllumination->SRV() );
 
 		if ( DefaultRenderCore::SupportsVisibilityRendering() )
@@ -447,12 +451,15 @@ namespace rendercore
 			UpdatePrimitiveIDs( snapshots, primitiveIds );
 
 			BEGIN_RG_RESOURCE_STRUCT( DefaultPassResource )
+				DECLARE_RG_TEXTURE_PIXEL_SRV( ambientOcclusion )
 				DECLARE_RG_TEXTURE_PIXEL_SRV( indirectIllumination )
 			END_RG_RESOURCE_STRUCT();
 
+			auto rgAmbientOcclusion = renderGraph.RegisterExternalResource( m_resourceCollection.m_ambientOcclusion.Get() );
 			auto rgIndirectIllumination = renderGraph.RegisterExternalResource( m_resourceCollection.m_indirectIllumination.Get() );
 
 			DefaultPassResource passResource = {
+				.m_ambientOcclusion = rgAmbientOcclusion,
 				.m_indirectIllumination = rgIndirectIllumination
 			};
 
@@ -704,6 +711,7 @@ namespace rendercore
 
 		BEGIN_RG_RESOURCE_STRUCT( DefaultPassResource )
 			DECLARE_RG_BUFFER_INDRIECT_ARG( indirectArgs )
+			DECLARE_RG_TEXTURE_NONPIXEL_SRV( ambientOcclusion )
 			DECLARE_RG_TEXTURE_NONPIXEL_SRV( indirectIllumination )
 			DECLARE_RG_TEXTURE_NONPIXEL_SRV( visibility )
 			DECLARE_RG_BUFFER_NONPIXEL_SRV( counter )
@@ -713,12 +721,14 @@ namespace rendercore
 			DECLARE_RG_TEXTURE_UAV( sceneColor )
 		END_RG_RESOURCE_STRUCT();
 
+		auto rgAmbientOcclusion = renderGraph.RegisterExternalResource( m_resourceCollection.m_ambientOcclusion.Get() );
 		auto rgIndirectIllumination = renderGraph.RegisterExternalResource( m_resourceCollection.m_indirectIllumination.Get() );
 		auto rgPrimitiveIds = renderGraph.RegisterExternalResource( primitiveIds.Get() );
 		auto rgSceneColor = renderGraph.RegisterExternalResource( m_renderTargets.GetSceneColor() );
 
 		DefaultPassResource passResource = {
 			.m_indirectArgs = countDrawCallIdOutput.m_indirectArgs,
+			.m_ambientOcclusion = rgAmbientOcclusion,
 			.m_indirectIllumination = rgIndirectIllumination,
 			.m_visibility = rgVisibility,
 			.m_counter = countDrawCallIdOutput.m_counter,
@@ -777,6 +787,32 @@ namespace rendercore
 				}
 			} );
 		}
+	}
+
+	void ForwardRenderer::RenderAmbientOcclusion( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
+	{
+		IScene& scene = renderViewGroup.Scene();
+
+		RaytracingScene* raytracingScene = scene.GetRaytracingScene();
+		if ( raytracingScene == nullptr )
+		{
+			return;
+		}
+
+		auto [width, height] = renderViewGroup.GetViewport().Size();
+
+		RTAORenderParams params = {
+			.m_viewShaderArguments = scene.GetViewShaderArguments().Resource(),
+			.m_raytracingScene = raytracingScene->GetTLAS(),
+			.m_prevViewSpaceDistance = GetRenderTargets().GetPrevViewSpaceDistance(),
+			.m_viewSpaceDistance = GetRenderTargets().GetViewSpaceDistance(),
+			.m_worldNormal = GetRenderTargets().GetWorldNormal(),
+			.m_velocity = GetRenderTargets().GetVelocity(),
+			.m_screenWidth = width,
+			.m_screenHeight = height,
+		};
+
+		m_resourceCollection.m_ambientOcclusion = m_rtaoPass.Render( renderGraph, params );
 	}
 
 	void ForwardRenderer::UpdateLightResource( IScene& scene )

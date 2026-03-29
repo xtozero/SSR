@@ -64,8 +64,7 @@ namespace rendercore
 		}
 	}
 
-	inline void BindResource( agl::ShaderBindings& bindings,
-		const agl::ShaderParameter& parameter, SamplerState& samplerState )
+	inline void BindResource( agl::ShaderBindings& bindings, const agl::ShaderParameter& parameter, SamplerState& samplerState )
 	{
 		agl::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( parameter.m_shader );
 

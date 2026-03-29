@@ -8,12 +8,12 @@
 
 namespace rendercore
 {
+	class RenderGraph;
+	class RenderGraphTexture;
+
 	class FullScreenQuadVS final : public GlobalShaderBase<VertexShader, FullScreenQuadVS>
 	{
 		using GlobalShaderBase::GlobalShaderBase;
-
-	public:
-		FullScreenQuadVS() = default;
 	};
 
 	class DefaultAS final : public GlobalShaderBase<AmplificationShader, DefaultAS>
@@ -39,6 +39,22 @@ namespace rendercore
 	};
 
 	RENDERCORE_DLL RefHandle<agl::Texture> CreateBRDFLookUpTexture();
+
+	struct DenoisePassParams
+	{
+		RenderGraphTexture* m_prevImage = nullptr;
+		RenderGraphTexture* m_image = nullptr;
+		RenderGraphTexture* m_prevViewSpaceDistance = nullptr;
+		RenderGraphTexture* m_viewSpaceDistance = nullptr;
+		RenderGraphTexture* m_velocity = nullptr;
+
+		int32 m_kernelRadius = 0;
+		Vector2 m_screenSize = Vector2::ZeroVector;
+
+		bool IsValid() const;
+	};
+
+	RefHandle<agl::Texture> AddDenoisePass( RenderGraph& renderGraph, const DenoisePassParams& params );
 
 	extern RefHandle<agl::Texture> BlackTexture;
 	extern RefHandle<agl::Texture> WhiteTexture;

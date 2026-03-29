@@ -43,7 +43,7 @@ namespace rendercore
 		return passShader;
 	}
 
-	void TAARenderer::Render( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )
+	void TAARenderPass::Render( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )
 	{
 		agl::Texture* sceneTex = renderTargets.GetSceneColor();
 		agl::Texture* historyTex = renderTargets.GetTAAHistory();
@@ -91,7 +91,7 @@ namespace rendercore
 		}
 	}
 
-	void TAARenderer::Resovle( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )
+	void TAARenderPass::Resovle( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )
 	{
 		agl::Texture* historyTex = renderTargets.GetTAAHistory();
 		agl::Texture* resolveTex = renderTargets.GetTAAResolve();
@@ -168,7 +168,7 @@ namespace rendercore
 			});
 	}
 
-	void TAARenderer::UpdateHistory( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )
+	void TAARenderPass::UpdateHistory( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup )
 	{
 		agl::Texture* historyTex = renderTargets.GetTAAHistory();
 		agl::Texture* sceneTex = renderTargets.GetSceneColor();
@@ -203,7 +203,7 @@ namespace rendercore
 			} );
 	}
 
-	TAARenderer::TAARenderer()
+	TAARenderPass::TAARenderPass()
 	{
 		m_shaderArguments = TAAParameters::CreateShaderArguments();
 		m_parameters.BlendWeight = 0.9f;

@@ -475,11 +475,11 @@ namespace agl
 
 	void D3D12ComputeCommandListImpl::DispatchRays( const RaytracingPipelineState* pipelineState, const ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth )
 	{
-		m_barrierBatcher.Commit( *this );
-		m_globalConstantBuffers.CommitShaderValue( true );
-
 		m_stateCache.BindPipelineState( CommandList(), pipelineState );
 		BindShaderResources( shaderBindings );
+
+		m_barrierBatcher.Commit( *this );
+		m_globalConstantBuffers.CommitShaderValue( true );
 
 		auto d3d12RaytracingPipelineState = static_cast<const D3D12RaytracingPipelineState*>( pipelineState );
 		assert( d3d12RaytracingPipelineState != nullptr );
@@ -521,6 +521,7 @@ namespace agl
 
 	void D3D12ComputeCommandListImpl::BuildRaytracingAccelerationStructure( const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC& desc )
 	{
+		m_barrierBatcher.Commit( *this );
 		CommandList().BuildRaytracingAccelerationStructure( &desc, 0, nullptr );
 
 		OnCommandRecorded();

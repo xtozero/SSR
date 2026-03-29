@@ -33,23 +33,6 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( ColorIntensity );
 	};
 
-	class SSGIDenoiseCS final : public GlobalShaderBase<ComputeShader, SSGIDenoiseCS>
-	{
-		DEFINE_SHADER_PARAM( PrevSSGI );
-		DEFINE_SHADER_PARAM( SSGI );
-		DEFINE_SHADER_PARAM( PrevViewSpaceDistance );
-		DEFINE_SHADER_PARAM( ViewSpaceDistance );
-		DEFINE_SHADER_PARAM( VelocityTex );
-
-		DEFINE_SHADER_PARAM( BlackBorderSampler );
-
-		DEFINE_SHADER_PARAM( DenoisedSSGI );
-
-		DEFINE_SHADER_PARAM( KernelRadius );
-		DEFINE_SHADER_PARAM( ScreenSize );
-		DEFINE_SHADER_PARAM( InvScreenSize );
-	};
-
 	class SSGICompositeVS final : public GlobalShaderBase<VertexShader, SSGICompositeVS>
 	{
 		using GlobalShaderBase::GlobalShaderBase;
@@ -61,7 +44,6 @@ namespace rendercore
 	};
 
 	REGISTER_GLOBAL_SHADER( SSGIPassCS, "SSGI/CS_SSGI.fx", "main" );
-	REGISTER_GLOBAL_SHADER( SSGIDenoiseCS, "SSGI/CS_DenoiseSSGI.fx", "main" );
 	REGISTER_GLOBAL_SHADER( SSGICompositeVS, "SSGI/VS_SSGIComposite.fx", "main" );
 	REGISTER_GLOBAL_SHADER( SSGICompositePS, "SSGI/PS_SSGIComposite.fx", "main" );
 
@@ -140,7 +122,7 @@ namespace rendercore
 
 	PassProcessorRegister RegisterForwardRendererCompositeSSGIPass( RenderPassType::CompositeSSGI, &CreateForwardRendererCompositeSSGIPassProcessor );
 
-	RefHandle<agl::Texture> SSGIRenderer::Render( RenderGraph& renderGraph, const SSGIRenderParam& param )
+	RefHandle<agl::Texture> SSGIRenderPass::Render( RenderGraph& renderGraph, const SSGIRenderParams& param )
 	{
 		CPU_PROFILE( SSGI );
 		GPU_PROFILE_EVENT( renderGraph, SSGI );
@@ -164,7 +146,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::None,
 		};
 
-		auto rgSSGITex = renderGraph.CreateTexture( ssgiTrait, "SSGITex" );
+		auto rgSSGI = renderGraph.CreateTexture( ssgiTrait, "SSGITex" );
 
 		BEGIN_RG_RESOURCE_STRUCT( SSGIPassResource )
 			DECLARE_RG_TEXTURE_NONPIXEL_SRV( sceneColor )
@@ -177,7 +159,7 @@ namespace rendercore
 			.m_sceneColor = rgSceneColor,
 			.m_viewSpaceDistance = rgViewSpaceDistance,
 			.m_worldNormal = rgWorldNormal,
-			.m_ssgi = rgSSGITex
+			.m_ssgi = rgSSGI
 		};
 
 		Vector2 screenSize = {
@@ -227,71 +209,23 @@ namespace rendercore
 				commandList.Dispatch( numThreadGroupX, numThreadGroupY, 1 );
 			} );
 
-		BEGIN_RG_RESOURCE_STRUCT( SSGIDenoiseResource )
-			DECLARE_RG_TEXTURE_NONPIXEL_SRV( prevSSGI )
-			DECLARE_RG_TEXTURE_NONPIXEL_SRV( ssgi )
-			DECLARE_RG_TEXTURE_NONPIXEL_SRV( prevViewSpaceDistance )
-			DECLARE_RG_TEXTURE_NONPIXEL_SRV( viewSpeaceDistance )
-			DECLARE_RG_TEXTURE_NONPIXEL_SRV( velocity )
-			DECLARE_RG_TEXTURE_UAV( denoisedSSGI )
-		END_RG_RESOURCE_STRUCT();
+		auto rgPrevSSGI = renderGraph.RegisterExternalResource( m_prevSSGI.Get() );
+		auto rgVelocity = renderGraph.RegisterExternalResource( param.m_velocity.Get() );
+		auto rgPrevViewSpaceDistance = renderGraph.RegisterExternalResource( param.m_prevViewSpaceDistance.Get() );
 
-		auto rgPrevSSGITex = renderGraph.RegisterExternalResource( m_prevSSGI.Get() );
-		auto rgVelocityTex = renderGraph.RegisterExternalResource( param.m_velocity.Get() );
-		auto rgPrevViewSpaceDistanceTex = renderGraph.RegisterExternalResource( param.m_prevViewSpaceDistance.Get() );
-		auto rgViewSpaceDistanceTex = renderGraph.RegisterExternalResource( param.m_viewSpaceDistance.Get() );
-		auto denoisedSSGITex = GraphicsResourcePool::GetInstance().FindFreeTexture( ssgiTrait, "DenoisedSSGITex" );
-		auto rgDenoisedSSGITex = renderGraph.RegisterExternalResource( denoisedSSGITex.Get() );
-
-		SSGIDenoiseResource ssgiDenoiseResource = {
-			.m_prevSSGI = rgPrevSSGITex,
-			.m_ssgi = rgSSGITex,
-			.m_prevViewSpaceDistance = rgPrevViewSpaceDistanceTex,
-			.m_viewSpeaceDistance = rgViewSpaceDistanceTex,
-			.m_velocity = rgVelocityTex,
-			.m_denoisedSSGI = rgDenoisedSSGITex
+		DenoisePassParams denoiseParams = {
+			.m_prevImage = rgPrevSSGI,
+			.m_image = rgSSGI,
+			.m_prevViewSpaceDistance = rgPrevViewSpaceDistance,
+			.m_viewSpaceDistance = rgViewSpaceDistance,
+			.m_velocity = rgVelocity,
+			.m_kernelRadius = param.m_denoiseKernelRadius,
+			.m_screenSize = screenSize,
 		};
 
-		int32 kernelRadius = param.m_denoiseKernelRadius;
+		RefHandle<agl::Texture> denoisedSSGI = AddDenoisePass( renderGraph, denoiseParams );
+		m_prevSSGI = denoisedSSGI;
 
-		renderGraph.AddPass( ssgiDenoiseResource,
-			[ssgiDenoiseResource, kernelRadius, screenSize]( ComputeCommandList& commandList )
-			{
-				SSGIDenoiseCS ssgiDenoiseCS;
-
-				RefHandle<agl::ComputePipelineState> ssgiDenoisePSO = PrepareComputePipelineState( ssgiDenoiseCS );
-				commandList.BindPipelineState( ssgiDenoisePSO.Get() );
-
-				agl::ShaderBindings shaderBindings = CreateShaderBindings( ssgiDenoiseCS );
-
-				BindResource( shaderBindings, ssgiDenoiseCS.PrevSSGI(), ssgiDenoiseResource.m_prevSSGI->Get() );
-				BindResource( shaderBindings, ssgiDenoiseCS.SSGI(), ssgiDenoiseResource.m_ssgi->Get() );
-				BindResource( shaderBindings, ssgiDenoiseCS.PrevViewSpaceDistance(), ssgiDenoiseResource.m_prevViewSpaceDistance->Get() );
-				BindResource( shaderBindings, ssgiDenoiseCS.ViewSpaceDistance(), ssgiDenoiseResource.m_viewSpeaceDistance->Get() );
-				BindResource( shaderBindings, ssgiDenoiseCS.VelocityTex(), ssgiDenoiseResource.m_velocity->Get() );
-				BindResource( shaderBindings, ssgiDenoiseCS.DenoisedSSGI(), ssgiDenoiseResource.m_denoisedSSGI->Get() );
-
-				SamplerState blackBorderSampler = StaticSamplerState<agl::TextureFilter::MinMagMipLinear
-					, agl::TextureAddressMode::Border
-					, agl::TextureAddressMode::Border
-					, agl::TextureAddressMode::Border
-					, 0.f
-					, agl::ComparisonFunc::Never
-					, Color( 0, 0, 0, 255 )>::Get();
-				BindResource( shaderBindings, ssgiDenoiseCS.BlackBorderSampler(), blackBorderSampler );
-
-				SetShaderValue( commandList, ssgiDenoiseCS.KernelRadius(), kernelRadius );
-				SetShaderValue( commandList, ssgiDenoiseCS.ScreenSize(), screenSize );
-				SetShaderValue( commandList, ssgiDenoiseCS.InvScreenSize(), Vector2::OneVector / screenSize );
-
-				commandList.BindShaderResources( shaderBindings );
-
-				auto numThreadGroupX = static_cast<uint32>( std::ceilf( screenSize.x / 8 ) );
-				auto numThreadGroupY = static_cast<uint32>( std::ceilf( screenSize.y / 8 ) );
-				commandList.Dispatch( numThreadGroupX, numThreadGroupY, 1 );
-			} );
-
-		m_prevSSGI = denoisedSSGITex;
-		return denoisedSSGITex;
+		return denoisedSSGI;
 	}
 }

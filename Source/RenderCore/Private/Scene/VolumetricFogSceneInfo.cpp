@@ -157,14 +157,14 @@ namespace rendercore
 	{
 		if ( m_needUpdateParameter )
 		{
-			VolumetricFogParameters param = {
+			VolumetricFogParameters params = {
 			   .Exposure = 0.4f,
 			   .DepthPackExponent = m_volumetricFogProxy->DepthPackExponent(),
 			   .NearPlaneDist = m_volumetricFogProxy->NearPlaneDist(),
 			   .FarPlaneDist = m_volumetricFogProxy->FarPlaneDist()
 			};
 
-			m_shaderArguments->Update( param );
+			m_shaderArguments->Update( params );
 
 			m_needUpdateParameter = false;
 		}

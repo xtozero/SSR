@@ -51,24 +51,24 @@ namespace rendercore
 
 		proxy->m_primitiveSceneInfo = primitiveSceneInfo;
 
-		struct AddPrimitiveSceneInfoParam
+		struct AddPrimitiveSceneInfoParams
 		{
 			Matrix m_worldTransform;
 			BoxSphereBounds m_worldBounds;
 			BoxSphereBounds m_localBounds;
 		};
-		AddPrimitiveSceneInfoParam param = {
+		AddPrimitiveSceneInfoParams params = {
 			.m_worldTransform = primitive->GetRenderMatrix(),
 			.m_worldBounds = primitive->Bounds(),
 			.m_localBounds = primitive->CalcBounds( Matrix::Identity ),
 		};
 
 		EnqueueRenderTask(
-			[this, param, primitiveSceneInfo]()
+			[this, params, primitiveSceneInfo]()
 			{
 				PrimitiveProxy* proxy = primitiveSceneInfo->Proxy();
 
-				proxy->UpdateTransformAndBounds( param.m_worldTransform, param.m_worldBounds, param.m_localBounds );
+				proxy->UpdateTransformAndBounds( params.m_worldTransform, params.m_worldBounds, params.m_localBounds );
 				proxy->CreateRenderData();
 
 				AddPrimitiveSceneInfo( primitiveSceneInfo );
@@ -98,24 +98,24 @@ namespace rendercore
 
 		if ( proxy )
 		{
-			struct PrimitiveUpdateParam
+			struct PrimitiveUpdateParams
 			{
 				Matrix m_worldTransform;
 				BoxSphereBounds m_worldBounds;
 				BoxSphereBounds m_localBounds;
 			};
-			PrimitiveUpdateParam param = {
+			PrimitiveUpdateParams params = {
 				.m_worldTransform = primitive->GetRenderMatrix(),
 				.m_worldBounds = primitive->Bounds(),
 				.m_localBounds = primitive->CalcBounds( Matrix::Identity ),
 			};
 
 			EnqueueRenderTask(
-				[this, param, proxy]()
+				[this, params, proxy]()
 				{
-					m_velocityData.UpdateTransform( GetNumFrame(), proxy->PrimitiveId(), param.m_worldTransform, proxy->WorldTransform() );
+					m_velocityData.UpdateTransform( GetNumFrame(), proxy->PrimitiveId(), params.m_worldTransform, proxy->WorldTransform() );
 
-					proxy->UpdateTransformAndBounds( param.m_worldTransform, param.m_worldBounds, param.m_localBounds );
+					proxy->UpdateTransformAndBounds( params.m_worldTransform, params.m_worldBounds, params.m_localBounds );
 					m_raytracingScene.UpdateInstance( *proxy->m_primitiveSceneInfo );
 
 					AddPrimitiveToUpdate( proxy->PrimitiveId() );

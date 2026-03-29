@@ -1,12 +1,12 @@
-Texture2D<float4> PrevSSGI : register( t0 );
-Texture2D<float4> SSGI : register( t1 );
-Texture2D<float> PrevViewSpaceDistance : register( t2 );
-Texture2D<float> ViewSpaceDistance : register( t3 );
-Texture2D<float2> VelocityTex : register( t4 );
+Texture2D<float4> PrevImage;
+Texture2D<float4> Image;
+Texture2D<float> PrevViewSpaceDistance;
+Texture2D<float> ViewSpaceDistance;
+Texture2D<float2> Velocity;
 
-SamplerState BlackBorderSampler : register( s0 );
+SamplerState Sampler;
 
-RWTexture2D<float4> DenoisedSSGI : register( u0 );
+RWTexture2D<float4> Denoised;
 
 int KernelRadius;
 float2 ScreenSize;
@@ -34,8 +34,8 @@ void main( uint3 DTid : SV_DispatchThreadID )
 
         float sigma = 0.5f * float( KernelRadius );
 
-        float3 color = SSGI.SampleLevel( BlackBorderSampler, uv, 0 ).rgb;
-        float linearDepth = ViewSpaceDistance.SampleLevel( BlackBorderSampler, uv, 0 ).x;
+        float3 color = Image.SampleLevel( Sampler, uv, 0 ).rgb;
+        float linearDepth = ViewSpaceDistance.SampleLevel( Sampler, uv, 0 ).x;
 
         // Apply bilateral filter
         [loop]
@@ -51,12 +51,12 @@ void main( uint3 DTid : SV_DispatchThreadID )
 
                 float2 sampleUV = ( DTid.xy + float2( x, y ) + 0.5f ) * InvScreenSize;
 
-                float sampleLinearDepth = ViewSpaceDistance.SampleLevel( BlackBorderSampler, sampleUV, 0 ).x;
+                float sampleLinearDepth = ViewSpaceDistance.SampleLevel( Sampler, sampleUV, 0 ).x;
                 float depthWeight = max( 0.f, 1.f - abs( sampleLinearDepth - linearDepth ) );
 
                 float w = Gaussian( x, sigma ) * Gaussian( y, sigma ) * depthWeight;
 
-                float3 sampleColor = SSGI.SampleLevel( BlackBorderSampler, sampleUV, 0 ).rgb;
+                float3 sampleColor = Image.SampleLevel( Sampler, sampleUV, 0 ).rgb;
                 
                 color += sampleColor * w;
                 totalWeight += w;
@@ -66,16 +66,19 @@ void main( uint3 DTid : SV_DispatchThreadID )
         color /= totalWeight;
 
         // Apply temporal filter
-        float2 velocity = VelocityTex.SampleLevel( BlackBorderSampler, uv, 0 );
-        float2 previousUV = uv - velocity;
+        float2 velocity = Velocity.SampleLevel( Sampler, uv, 0 );
+        float2 prevUV = uv - velocity;
 
-        float3 prevColor = PrevSSGI.SampleLevel( BlackBorderSampler, previousUV, 0 ).rgb;
+        if ( all( 0 <= prevUV ) && all( prevUV <= 1 ) )
+        {
+            float3 prevColor = PrevImage.SampleLevel( Sampler, prevUV, 0 ).rgb;
 
-        float prevLinearDepth = PrevViewSpaceDistance.SampleLevel( BlackBorderSampler, previousUV, 0 ).x;
-        float w = exp( -abs( prevLinearDepth - linearDepth ) / 10 );
+            float prevLinearDepth = PrevViewSpaceDistance.SampleLevel( Sampler, prevUV, 0 ).x;
+            float w = exp( -abs( prevLinearDepth - linearDepth ) / 10 );
 
-        color = lerp( color, prevColor, 0.9 * w );
+            color = lerp( color, prevColor, 0.9 * w );
+        }
 
-        DenoisedSSGI[DTid.xy] = float4( color, 1.f );
+        Denoised[DTid.xy] = float4( color, 1.f );
     }
 }

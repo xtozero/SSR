@@ -49,8 +49,8 @@ namespace rendercore
 		TraitType m_trait = {};
 	};
 
-	using RenderGraphTexture = TypedRenderGraphResource<agl::Texture>;
-	using RenderGraphBuffer = TypedRenderGraphResource<agl::Buffer>;
+	class RenderGraphTexture : public TypedRenderGraphResource<agl::Texture> {};
+	class RenderGraphBuffer : public TypedRenderGraphResource<agl::Buffer> {};
 
 	enum class RenderGraphResourceFlag : uint16
 	{

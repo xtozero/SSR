@@ -1174,12 +1174,12 @@ namespace rendercore
 				LightProperty lightProperty = skyAtmosphereLight->Proxy()->GetLightProperty();
 
 				auto& skyAtmosphereRenderParameter = info->GetShaderArguments();
-				SkyAtmosphereRenderParameters param = {
+				SkyAtmosphereRenderParameters params = {
 					.CameraPos = m_viewInfo[viewIndex].m_viewOrigin,
 					.SunDir = -lightProperty.m_direction,
 					.Exposure = 0.4f,
 				};
-				skyAtmosphereRenderParameter->Update( param );
+				skyAtmosphereRenderParameter->Update( params );
 
 				SkyAtmosphereDrawPassProcessor skyAtmosphereDrawPassProcessor;
 				auto result = skyAtmosphereDrawPassProcessor.Process( FullScreenQuadDrawInfo() );
@@ -1290,7 +1290,7 @@ namespace rendercore
 				}
 
 				const VolumetricCloudProxy& proxy = *info->Proxy();
-				VolumetricCloudRenderParameters param = {
+				VolumetricCloudRenderParameters params = {
 					.SphereRadius = Vector( proxy.EarthRadius(), proxy.InnerRadius(), proxy.OuterRadius() ),
 					.LightAbsorption = proxy.LightAbsorption(),
 					.LightPosOrDir = lightPosOrDir,
@@ -1304,7 +1304,7 @@ namespace rendercore
 				};
 
 				auto& shaderArguments = info->GetShaderArguments();
-				shaderArguments.Update( param );
+				shaderArguments.Update( params );
 
 				DrawSnapshot& snapshot = *result;
 
@@ -1409,7 +1409,7 @@ namespace rendercore
 	void SceneRenderer::RenderTemporalAntiAliasing( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
 	{
 		GPU_PROFILE_EVENT( renderGraph, TAA );
-		m_taa.Render( renderGraph, GetRenderTargets(), renderViewGroup );
+		m_taaPass.Render( renderGraph, GetRenderTargets(), renderViewGroup );
 	}
 
 	void SceneRenderer::RenderIndirectIllumination( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, [[maybe_unused]] uint32 viewIndex )
@@ -1469,8 +1469,8 @@ namespace rendercore
 				return;
 			}
 
-			m_rsms.PreRender( renderViewGroup );
-			m_resourceCollection.m_indirectIllumination = m_rsms.Render( renderGraph, renderingParam, m_resourceBinder );
+			m_rsmPass.PreRender( renderViewGroup );
+			m_resourceCollection.m_indirectIllumination = m_rsmPass.Render( renderGraph, renderingParam, m_resourceBinder );
 		}
 	}
 
@@ -1483,7 +1483,7 @@ namespace rendercore
 
 		SSGIConfig ssgiConfig = DefaultRenderCore::GetSSGIConfig();
 		
-		SSGIRenderParam param = {
+		SSGIRenderParams params = {
 			.m_viewShaderArguments = renderViewGroup.Scene().GetViewShaderArguments().Resource(),
 			.m_sceneColor = GetRenderTargets().GetSceneColor(),
 			.m_viewSpaceDistance = GetRenderTargets().GetViewSpaceDistance(),
@@ -1498,7 +1498,7 @@ namespace rendercore
 			.m_denoiseKernelRadius = ssgiConfig.m_denoiseKernelRadius,
 		};
 
-		m_resourceCollection.m_ssgi = m_ssgi.Render( renderGraph, param );
+		m_resourceCollection.m_ssgi = m_ssgiPass.Render( renderGraph, params );
 	}
 
 	void SceneRenderer::RenderDebugOverlay( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex )

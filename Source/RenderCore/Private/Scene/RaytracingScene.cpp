@@ -78,7 +78,7 @@ namespace rendercore
         }
 
         agl::RaytracingInstanceDesc instanceDesc = {
-            .m_worldTransform = primitiveSceneInfo.Proxy()->WorldTransform().GetTrasposed(),
+            .m_worldTransform = primitiveSceneInfo.Proxy()->WorldTransform(),
             .m_instanceId = primitiveSceneInfo.PrimitiveId(),
             .m_blas = blas,
         };
@@ -104,6 +104,9 @@ namespace rendercore
         {
             return;
         }
+
+        agl::RaytracingInstanceDesc& instanceDesc = m_instances[primitiveSceneInfo.m_rayTracingInstanceId];
+        instanceDesc.m_worldTransform = XMMatrix( primitiveSceneInfo.Proxy()->WorldTransform() );
 
         MarkInstanceDirty();
     }

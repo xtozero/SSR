@@ -27,14 +27,14 @@ namespace rendercore
 		virtual PassShader CollectPassShader( MaterialResource& material ) const override;
 	};
 
-	class TAARenderer final
+	class TAARenderPass final
 	{
 	public:
 		void Render( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup );
 		void Resovle( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup );
 		void UpdateHistory( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup );
 
-		TAARenderer();
+		TAARenderPass();
 
 	private:
 		RefHandle<ShaderArguments> m_shaderArguments;

@@ -36,13 +36,13 @@ namespace rendercore
 		float padding[2];
 	};
 
-	class RSMsRenderer final
+	class RSMRenderPass final
 	{
 	public:
 		void PreRender( const RenderViewGroup& renderViewGroup );
 		RefHandle<agl::Texture> Render( RenderGraph& renderGraph, const RSMsRenderingParam& param, const ResourceBinder& resourceBinder );
 
-		RSMsRenderer();
+		RSMRenderPass();
 
 	private:
 		void AllocTextureForIndirectIllumination( const std::pair<uint32, uint32>& renderTargetSize );

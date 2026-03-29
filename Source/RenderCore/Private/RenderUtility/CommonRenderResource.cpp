@@ -6,6 +6,7 @@
 #include "GlobalShaders.h"
 #include "IAssetLoader.h"
 #include "Platform/CommandLine.h"
+#include "RenderGraph.h"
 
 using ::rendercore::IndexBuffer;
 
@@ -114,6 +115,28 @@ namespace rendercore
 		DEFINE_SHADER_PARAM( Precomputed );
 	};
 
+	class DenoiseCS final : public GlobalShaderBase<ComputeShader, DenoiseCS>
+	{
+		DEFINE_SHADER_PARAM( PrevImage );
+		DEFINE_SHADER_PARAM( Image );
+		DEFINE_SHADER_PARAM( PrevViewSpaceDistance );
+		DEFINE_SHADER_PARAM( ViewSpaceDistance );
+		DEFINE_SHADER_PARAM( Velocity );
+
+		DEFINE_SHADER_PARAM( Sampler );
+
+		DEFINE_SHADER_PARAM( Denoised );
+
+		DEFINE_SHADER_PARAM( KernelRadius );
+		DEFINE_SHADER_PARAM( ScreenSize );
+		DEFINE_SHADER_PARAM( InvScreenSize );
+	};
+
+	REGISTER_GLOBAL_SHADER( FullScreenQuadVS, "Common/VS_FullScreenQuad.fx", "main" );
+	REGISTER_GLOBAL_SHADER( PrecomputedBrdfCS, "PhysicallyBased/CS_PrecomputedBRDF.fx", "main" );
+	REGISTER_GLOBAL_SHADER( DefaultAS, "Material/AS_Meshlet.fx", "main" );
+	REGISTER_GLOBAL_SHADER( DenoiseCS, "Common/CS_Denoise.fx", "main" );
+
 	RefHandle<agl::Texture> CreateBRDFLookUpTexture()
 	{
 		agl::TextureTrait trait = {
@@ -154,9 +177,95 @@ namespace rendercore
 		return brdfLUT;
 	}
 
-	REGISTER_GLOBAL_SHADER( FullScreenQuadVS, "Common/VS_FullScreenQuad.fx", "main" );
-	REGISTER_GLOBAL_SHADER( PrecomputedBrdfCS, "PhysicallyBased/CS_PrecomputedBRDF.fx", "main" );
-	REGISTER_GLOBAL_SHADER( DefaultAS, "Material/AS_Meshlet.fx", "main" );
+	bool DenoisePassParams::IsValid() const
+	{
+		return ( m_prevImage != nullptr )
+				&& HasAnyFlags( m_prevImage->GetTrait().m_bindType, agl::ResourceBindType::ShaderResource )
+				&& ( m_image != nullptr )
+				&& HasAnyFlags( m_image->GetTrait().m_bindType, agl::ResourceBindType::RandomAccess )
+				&& ( m_prevViewSpaceDistance != nullptr )
+				&& ( m_viewSpaceDistance != nullptr )
+				&& ( m_velocity != nullptr )
+				&& ( m_kernelRadius > 0 )
+				&& ( m_screenSize.x > 0 )
+				&& ( m_screenSize.y > 0 );
+	}
+
+	RefHandle<agl::Texture> AddDenoisePass( RenderGraph& renderGraph, const DenoisePassParams& params )
+	{
+		assert( params.IsValid() );
+
+		auto denoisedTrait = params.m_image->GetTrait();
+		denoisedTrait.m_bindType |= agl::ResourceBindType::RandomAccess;
+
+		auto rgDenoised = renderGraph.CreateTexture( denoisedTrait, "Denoised" );
+
+		BEGIN_RG_RESOURCE_STRUCT( DenoisePassResource )
+			DECLARE_RG_TEXTURE_NONPIXEL_SRV( prevImage )
+			DECLARE_RG_TEXTURE_NONPIXEL_SRV( image )
+			DECLARE_RG_TEXTURE_NONPIXEL_SRV( prevViewSpaceDistance )
+			DECLARE_RG_TEXTURE_NONPIXEL_SRV( viewSpaceDistance )
+			DECLARE_RG_TEXTURE_NONPIXEL_SRV( velocity )
+			DECLARE_RG_TEXTURE_UAV( denoised )
+		END_RG_RESOURCE_STRUCT();
+
+		DenoisePassResource passResource = {
+			.m_prevImage = params.m_prevImage,
+			.m_image = params.m_image,
+			.m_prevViewSpaceDistance = params.m_prevViewSpaceDistance,
+			.m_viewSpaceDistance = params.m_viewSpaceDistance,
+			.m_velocity = params.m_velocity,
+			.m_denoised = rgDenoised,
+		};
+
+		struct PassParams
+		{
+			int32 m_kernelRadius;
+			Vector2 m_screenSize;
+		} passParams = {
+			.m_kernelRadius = params.m_kernelRadius,
+			.m_screenSize = params.m_screenSize,
+		};
+
+		renderGraph.AddPass( passResource,
+			[passResource, passParams]( ComputeCommandList& commandList )
+			{
+				DenoiseCS denoiseCS;
+
+				RefHandle<agl::ComputePipelineState> denoisePSO = PrepareComputePipelineState( denoiseCS );
+				commandList.BindPipelineState( denoisePSO.Get() );
+
+				agl::ShaderBindings shaderBindings = CreateShaderBindings( denoiseCS );
+
+				BindResource( shaderBindings, denoiseCS.PrevImage(), passResource.m_prevImage->Get() );
+				BindResource( shaderBindings, denoiseCS.Image(), passResource.m_image->Get() );
+				BindResource( shaderBindings, denoiseCS.PrevViewSpaceDistance(), passResource.m_prevViewSpaceDistance->Get() );
+				BindResource( shaderBindings, denoiseCS.ViewSpaceDistance(), passResource.m_viewSpaceDistance->Get() );
+				BindResource( shaderBindings, denoiseCS.Velocity(), passResource.m_velocity->Get() );
+				BindResource( shaderBindings, denoiseCS.Denoised(), passResource.m_denoised->Get() );
+
+				SamplerState blackBorderSampler = StaticSamplerState<agl::TextureFilter::MinMagMipLinear
+					, agl::TextureAddressMode::Border
+					, agl::TextureAddressMode::Border
+					, agl::TextureAddressMode::Border
+					, 0.f
+					, agl::ComparisonFunc::Never
+					, Color( 0, 0, 0, 255 )>::Get();
+				BindResource( shaderBindings, denoiseCS.Sampler(), blackBorderSampler );
+
+				SetShaderValue( commandList, denoiseCS.KernelRadius(), passParams.m_kernelRadius );
+				SetShaderValue( commandList, denoiseCS.ScreenSize(), passParams.m_screenSize );
+				SetShaderValue( commandList, denoiseCS.InvScreenSize(), Vector2::OneVector / passParams.m_screenSize );
+
+				commandList.BindShaderResources( shaderBindings );
+
+				auto numThreadGroupX = static_cast<uint32>( std::ceilf( passParams.m_screenSize.x / 8 ) );
+				auto numThreadGroupY = static_cast<uint32>( std::ceilf( passParams.m_screenSize.y / 8 ) );
+				commandList.Dispatch( numThreadGroupX, numThreadGroupY, 1 );
+			} );
+
+		return renderGraph.ConvertToExternalResource( rgDenoised );
+	}
 
 	void DefaultGraphicsResources::BootUp()
 	{

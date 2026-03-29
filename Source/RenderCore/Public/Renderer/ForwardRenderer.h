@@ -63,6 +63,7 @@ namespace rendercore
 		void RenderDepthPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
 		void RenderOcclusionTest( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
 		void RenderDefaultPassWithVisibilityBuffer( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
+		void RenderAmbientOcclusion( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
 
 		void UpdateLightResource( IScene& scene );
 		void ClearRenderTargets( RenderGraph& renderGraph );
