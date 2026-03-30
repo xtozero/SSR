@@ -37,11 +37,6 @@ namespace rendercore
 		};
 
 		m_hitProxyTexture = agl::Texture::Create( hitProxyTexTrait, "HitProxy.Texture" );
-		EnqueueRenderTask(
-			[this]()
-			{
-				m_hitProxyTexture->Init();
-			} );
 
 		agl::TextureTrait hitProxyCpuTexTrait = {
 			.m_width = width,
@@ -57,11 +52,6 @@ namespace rendercore
 		};
 
 		m_hitProxyCpuTexture = agl::Texture::Create( hitProxyCpuTexTrait, "HitProxy.CpuTexture" );
-		EnqueueRenderTask(
-			[this]()
-			{
-				m_hitProxyCpuTexture->Init();
-			} );
 	}
 
 	agl::Texture* HitProxyMap::Texture() const
@@ -136,21 +126,11 @@ namespace rendercore
 	Viewport::Viewport( uint32 width, uint32 height, agl::ResourceFormat format, const float4& bgColor )
 	{
 		m_pViewport = agl::Viewport::Create( width, height, format, bgColor );
-		EnqueueRenderTask(
-			[viewport = m_pViewport]()
-			{
-				viewport->Init();
-			} );
 	}
 
 	Viewport::Viewport( rendercore::Canvas& canvas )
 	{
 		m_pViewport = agl::Viewport::Create( *canvas.Resource() );
-		EnqueueRenderTask(
-			[viewport = m_pViewport]()
-			{
-				viewport->Init();
-			} );
 	}
 
 	Viewport::~Viewport()

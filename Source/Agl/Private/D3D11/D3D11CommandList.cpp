@@ -48,11 +48,10 @@ namespace
 			.m_format = destTrait.m_format
 		};
 
-		RefHandle<D3D11Buffer> intermediate = static_cast<D3D11Buffer*>( Buffer::Create( intermediateTrait, "UpdateSubresource.Intermediate" ).Get() );
-		intermediate->Init();
+		auto intermediate = RefStaticCast<D3D11Buffer>( Buffer::Create( intermediateTrait, "UpdateSubresource.Intermediate" ) );
 
 		D3D11_MAPPED_SUBRESOURCE lockedResource = {};
-		[[maybe_unused]] HRESULT hr = context.Map( static_cast<ID3D11Resource*>( intermediate->Resource() ), 0, D3D11_MAP_WRITE_DISCARD, 0, &lockedResource );
+		[[maybe_unused]] HRESULT hr = context.Map( intermediate->Resource(), 0, D3D11_MAP_WRITE_DISCARD, 0, &lockedResource );
 		assert( SUCCEEDED( hr ) );
 
 		std::memcpy( lockedResource.pData, src, numByte );
@@ -121,8 +120,7 @@ namespace
 			.m_miscFlag = bIsTexture3D ? ( ResourceMisc::Texture3D | ResourceMisc::Intermediate ) : ResourceMisc::Intermediate
 		};
 
-		RefHandle<TextureBase> intermediate = static_cast<TextureBase*>( Texture::Create( intermediateTrait, "UpdateSubresource.Intermediate" ).Get() );
-		intermediate->Init();
+		auto intermediate = RefStaticCast<TextureBase>( Texture::Create( intermediateTrait, "UpdateSubresource.Intermediate" ) );
 
 		D3D11_MAPPED_SUBRESOURCE lockedResource = {};
 		[[maybe_unused]] HRESULT hr = context.Map( static_cast<ID3D11Resource*>( intermediate->Resource() ), 0, D3D11_MAP_WRITE_DISCARD, 0, &lockedResource );

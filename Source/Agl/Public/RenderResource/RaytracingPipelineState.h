@@ -5,8 +5,6 @@
 
 namespace agl
 {
-    class RaytracingShaderTable;
-
     struct RaytracingPipelineStateDesc
     {
         size_t GetHash() const;

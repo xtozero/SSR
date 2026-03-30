@@ -90,7 +90,7 @@ namespace rendercore
 		void Clear();
 
 	private:
-		void Bind( const ShaderBase* (&shaders)[agl::NumShaderTypes<uint32>], agl::ShaderBindings& outBindings ) const;
+		void Bind( const ShaderBase* (&shaders)[agl::NumNonRTShaderTypes<uint32>], agl::ShaderBindings& outBindings ) const;
 
 		std::vector<Name> m_parameterNames;
 		std::vector<agl::GraphicsApiResource*> m_resources;
@@ -199,7 +199,7 @@ namespace rendercore
 	private:
 		void ResetFrameData();
 
-		LightPropagationVolume m_lpv;
+		LPVRenderPass m_lpvPass;
 		RSMRenderPass m_rsmPass;
 		SSGIRenderPass m_ssgiPass;
 		TAARenderPass m_taaPass;

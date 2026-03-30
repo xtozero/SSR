@@ -82,11 +82,6 @@ namespace rendercore
 		};
 
 		m_buffer = agl::Buffer::Create( trait, "Vertex", initialState, initData );
-		EnqueueRenderTask(
-			[buffer = m_buffer]()
-			{
-				buffer->Init();
-			} );
 	}
 
 	void DynamicVertexBufferChunk::InitResource()
@@ -101,11 +96,6 @@ namespace rendercore
 		};
 
 		m_buffer = agl::Buffer::Create( trait, "GlobalDynamicVertex", agl::ResourceState::VertexAndConstantBuffer );
-		EnqueueRenderTask(
-			[buffer = m_buffer]()
-			{
-				buffer->Init();
-			} );
 	}
 
 	uint8* DynamicVertexBufferChunk::Allocate( uint32 sizeInBytes )

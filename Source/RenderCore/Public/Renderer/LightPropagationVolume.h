@@ -37,7 +37,7 @@ namespace rendercore
 		RefHandle<agl::Texture> m_worldNormal;
 	};
 
-	class LightPropagationVolume
+	class LPVRenderPass
 	{
 	public:
 		void Prepare( RenderGraph& renderGraph, const RenderViewGroup& renderViewGroup );
@@ -57,9 +57,9 @@ namespace rendercore
 		void AllocTextureForIndirectIllumination( const std::pair<uint32, uint32>& renderTargetSize );
 		LPVTextures AllocVolumeTextures( bool allocForOcclusion );
 		void InitResource( const std::pair<uint32, uint32>& renderTargetSize );
-		void ClearLPV( RenderGraph& renderGraph );
-		LpvRSMTextures DownSampleRSMs( RenderGraph& renderGraph, const LightSceneInfo& lightInfo, const LpvRSMTextures& rsmTextures );
-		void InjectToLPV( RenderGraph& renderGraph, const LpvLightInjectionParameters& params, const LpvRSMTextures& downSampledTex );
+		void ClearLPV( RenderGraph& renderGraph ) const;
+		LpvRSMTextures DownSampleRSMs( RenderGraph& renderGraph, const LightSceneInfo& lightInfo, const LpvRSMTextures& rsmTextures ) const;
+		void InjectToLPV( RenderGraph& renderGraph, const LpvLightInjectionParameters& params, const LpvRSMTextures& downSampledTex ) const;
 
 		RefHandle<agl::Buffer> m_lpvCommon;
 

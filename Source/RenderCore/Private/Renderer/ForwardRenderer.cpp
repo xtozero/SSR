@@ -112,11 +112,6 @@ namespace rendercore
 			};
 
 			m_sceneColor = agl::Texture::Create( trait, "Scene.SceneColor" );
-			EnqueueRenderTask(
-				[sceneColor = m_sceneColor]()
-				{
-					sceneColor->Init();
-				} );
 		}
 	}
 
@@ -144,11 +139,6 @@ namespace rendercore
 			};
 
 			m_depthStencil = agl::Texture::Create( trait, "Scene.DepthStencil" );
-			EnqueueRenderTask(
-				[depthStencil = m_depthStencil]()
-				{
-					depthStencil->Init();
-				} );
 		}
 	}
 

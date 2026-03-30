@@ -113,7 +113,7 @@ namespace rendercore
 			VertexBuffer* vertexBuffer = lodResource.m_vertexCollection.GetVertexBuffer( StaticName( "POSITION" ) );
 			assert( vertexBuffer );
 
-			if ( GetInterface<agl::IAgl>()->SupportsHardwareRayTracing() )
+			if ( GetInterface<agl::IAgl>()->SupportsHardwareRaytracing() )
 			{
 				agl::BLASDesc desc = {
 					.m_vertexBuffer = vertexBuffer->Resource(),
@@ -121,11 +121,6 @@ namespace rendercore
 				};
 
 				m_blas = agl::BLAS::Create( desc, "StaticMesh.BLAS" );
-				EnqueueRenderTask(
-					[blas = m_blas]()
-					{
-						blas->Init();
-					} );
 			}
 		}
 

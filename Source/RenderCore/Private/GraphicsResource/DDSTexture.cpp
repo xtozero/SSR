@@ -79,11 +79,5 @@ namespace rendercore
 		}
 
 		m_texture = agl::Texture::Create( tarit, Path().generic_string().c_str(), &initData);
-
-		EnqueueRenderTask(
-			[texture = m_texture]()
-			{
-				texture->Init();
-			} );
 	}
 }

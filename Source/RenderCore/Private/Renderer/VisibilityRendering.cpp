@@ -203,7 +203,6 @@ namespace rendercore
         };
 
         RefHandle<agl::Buffer> buffer = agl::Buffer::Create( trait, "Visibility.PrimitiveIds" );
-        buffer->Init();
 
         auto data = GraphicsInterface().Lock<uint32>( buffer.Get() ) + 1;
         for ( const auto& shadingSnapshot : passData.m_shadingSnapshots )

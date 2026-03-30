@@ -49,7 +49,6 @@ namespace rendercore
             };
 
             m_tlas = agl::TLAS::Create( desc, "RaytracingScene" );
-            m_tlas->Init();
 
             renderGraph.AddPass(
                 [tlas = m_tlas]( ComputeCommandList& commandList )

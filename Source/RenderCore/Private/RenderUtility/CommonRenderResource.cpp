@@ -38,12 +38,6 @@ namespace
 		section.m_pitch = section.m_slicePitch = sizeof( uint32 );
 
 		RefHandle<agl::Texture> texture = agl::Texture::Create( trait, debugName, &initData );
-		EnqueueRenderTask(
-			[texture]()
-			{
-				texture->Init();
-			} );
-
 		return texture;
 	}
 
@@ -78,12 +72,6 @@ namespace
 		}
 
 		RefHandle<agl::Texture> cubeTexture = agl::Texture::Create( trait, debugName, &initData );
-		EnqueueRenderTask(
-			[cubeTexture]()
-			{
-				cubeTexture->Init();
-			} );
-
 		return cubeTexture;
 	}
 
@@ -156,8 +144,6 @@ namespace rendercore
 		EnqueueRenderTask(
 			[brdfLUT]()
 			{
-				brdfLUT->Init();
-
 				PrecomputedBrdfCS precomputedBrdfCS;
 				RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( precomputedBrdfCS );
 

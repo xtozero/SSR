@@ -28,11 +28,6 @@ namespace rendercore
 	void BlendState::InitResource( const agl::BlendStateTrait& trait )
 	{
 		m_state = agl::BlendState::Create( trait );
-		EnqueueRenderTask(
-			[state = m_state]()
-			{
-				state->Init();
-			} );
 	}
 
 	agl::DepthStencilState* DepthStencilState::Resource()
@@ -58,11 +53,6 @@ namespace rendercore
 	void DepthStencilState::InitResource( const agl::DepthStencilStateTrait& trait )
 	{
 		m_state = agl::DepthStencilState::Create( trait );
-		EnqueueRenderTask(
-			[state = m_state]()
-			{
-				state->Init();
-			} );
 	}
 
 	agl::RasterizerState* RasterizerState::Resource()
@@ -88,11 +78,6 @@ namespace rendercore
 	void RasterizerState::InitResource( const agl::RasterizerStateTrait& trait )
 	{
 		m_state = agl::RasterizerState::Create( trait );
-		EnqueueRenderTask(
-			[state = m_state]()
-			{
-				state->Init();
-			} );
 	}
 
 	agl::SamplerState* SamplerState::Resource()
@@ -118,10 +103,5 @@ namespace rendercore
 	void SamplerState::InitResource( const agl::SamplerStateTrait& trait )
 	{
 		m_state = agl::SamplerState::Create( trait );
-		EnqueueRenderTask(
-			[state = m_state]()
-			{
-				state->Init();
-			} );
 	}
 }

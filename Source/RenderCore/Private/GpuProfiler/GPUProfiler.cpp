@@ -88,7 +88,6 @@ namespace rendercore
 		if ( profileData.m_timers[m_curTick] == nullptr )
 		{
 			auto gpuTimer = agl::GpuTimer::Create();
-			gpuTimer->Init();
 			profileData.m_timers[m_curTick] = gpuTimer.Get();
 			m_gpuTimers[m_curTick].emplace_back( std::move( gpuTimer ) );
 		}
@@ -131,7 +130,6 @@ namespace rendercore
 		if ( pipelineStatData.m_stats[m_curTick] == nullptr )
 		{
 			auto pipelineStat = agl::PipelineStatistics::Create();
-			pipelineStat->Init();
 			pipelineStatData.m_stats[m_curTick] = pipelineStat.Get();
 			m_pipelineStats[m_curTick].emplace_back( std::move( pipelineStat ) );
 		}

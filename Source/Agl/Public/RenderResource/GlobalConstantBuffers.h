@@ -77,7 +77,7 @@ namespace agl
 		virtual GlobalConstantBuffer* CreateGlobalConstantBuffer() const = 0;
 		GlobalConstantBuffer& GetGlobalConstantBuffer( ShaderType shaderType );
 
-		GlobalConstantBuffer* m_constantBuffers[NumShaderTypes<uint32>] = {};
+		GlobalConstantBuffer* m_constantBuffers[NumNonRTShaderTypes<uint32>] = {};
 	};
 
 	class GlobalSyncConstantBuffers final : public GlobalConstantBuffers

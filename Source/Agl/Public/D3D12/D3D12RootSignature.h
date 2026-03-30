@@ -116,7 +116,7 @@ namespace agl
 		void InitializeCB( ShaderType shaderType, const ShaderParameterInfo& paramInfo );
 		void InitializeSampler( ShaderType shaderType, const ShaderParameterInfo& paramInfo );
 
-		using ShaderParameterInfoArray = std::vector<std::pair<ShaderType, const ShaderParameterInfo*>, InlineAllocator<std::pair<ShaderType, const ShaderParameterInfo*>, NumShaderTypes<uint32>>>;
+		using ShaderParameterInfoArray = std::vector<std::pair<ShaderType, const ShaderParameterInfo*>, InlineAllocator<std::pair<ShaderType, const ShaderParameterInfo*>, NumNonRTShaderTypes<uint32>>>;
 		void InitializeForBindless( ShaderParameterInfoArray& paramInfoArray );
 
 		ID3D12RootSignature* m_rootSignature = nullptr;

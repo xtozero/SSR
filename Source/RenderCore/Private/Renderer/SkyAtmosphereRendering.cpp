@@ -156,11 +156,6 @@ namespace rendercore
 		};
 
 		info.GetTransmittanceLutTexture() = agl::Texture::Create( transmittanceLut, "Atmosphere.TransmittanceLUT" );
-		EnqueueRenderTask(
-			[texture = info.GetTransmittanceLutTexture()]()
-			{
-				texture->Init();
-			} );
 
 		agl::TextureTrait irradianceLut = {
 			.m_width = IRRADIANCE_W,
@@ -176,11 +171,6 @@ namespace rendercore
 		};
 
 		info.GetIrradianceLutTexture() = agl::Texture::Create( irradianceLut, "Atmosphere.IrradianceLUT" );
-		EnqueueRenderTask(
-			[texture = info.GetIrradianceLutTexture()]()
-			{
-				texture->Init();
-			} );
 
 		agl::TextureTrait inscatterLut = {
 			.m_width = RES_MU_S * RES_NU,
@@ -196,11 +186,6 @@ namespace rendercore
 		};
 
 		info.GetInscatterLutTexture() = agl::Texture::Create( inscatterLut, "Atmosphere.InscatterLUT" );
-		EnqueueRenderTask(
-			[texture = info.GetInscatterLutTexture()]()
-			{
-				texture->Init();
-			} );
 
 		info.GetShaderArguments() = SkyAtmosphereRenderParameters::CreateShaderArguments();
 	}
@@ -400,7 +385,6 @@ namespace rendercore
 
 		Vector4 irradianceData[IRRADIANCE_W * IRRADIANCE_H] = {};
 		RefHandle<agl::Buffer> irradianceBuffer = agl::Buffer::Create( irradiance, "Atmosphere.Irradiance", irradianceData );
-		irradianceBuffer->Init();
 
 		auto rgIrradiance = renderGraph.RegisterExternalResource( irradianceBuffer.Get() );
 
@@ -599,7 +583,6 @@ namespace rendercore
 			};
 
 			RefHandle<agl::Buffer> irradianceReadBack = agl::Buffer::Create( readBack, "Atmosphere.IrradianceReadBack" );
-			irradianceReadBack->Init();
 
 			auto rgIrradianceReadBack = renderGraph.RegisterExternalResource( irradianceReadBack.Get() );
 			auto rgIrradianceLut = renderGraph.RegisterExternalResource( info.GetIrradianceLutTexture().Get() );
@@ -647,7 +630,6 @@ namespace rendercore
 			};
 
 			RefHandle<agl::Buffer> inscatterReadBack = agl::Buffer::Create( readBack, "Atmosphere.InscatterReadBack" );
-			inscatterReadBack->Init();
 
 			auto rgInscatterReadBack = renderGraph.RegisterExternalResource( inscatterReadBack.Get() );
 			auto rgInscatterLut = renderGraph.RegisterExternalResource( info.GetInscatterLutTexture().Get() );

@@ -14,7 +14,6 @@ namespace agl
         };
 
         auto scratchBuffer = RefStaticCast<D3D12Buffer>( Buffer::Create( scratchBufferTrait, "BLAS.Scratch", ResourceState::UnorderedAccess ) );
-        scratchBuffer->Init();
 
         auto vertexBuffer = static_cast<D3D12Buffer*>( m_desc.m_vertexBuffer.Get() );
         auto indexBuffer = static_cast<D3D12Buffer*>( m_desc.m_indexBuffer.Get() );
@@ -61,7 +60,7 @@ namespace agl
         m_blasBuilt = true;
     }
 
-    ID3D12Resource* D3D12BLAS::Resource()
+    ID3D12Resource* D3D12BLAS::Resource() const
     {
         return m_blas->Resource();
     }
@@ -109,7 +108,6 @@ namespace agl
         };
 
         m_blas = RefStaticCast<D3D12Buffer>( Buffer::Create( blasBufferTrait, m_debugName.CStr(), ResourceState::RaytracingAccelerationStructure ) );
-        m_blas->Init();
 
         m_scratchDataSizeInBytes = prebuildInfo.ScratchDataSizeInBytes;
     }
@@ -131,7 +129,6 @@ namespace agl
         };
 
         auto scratchBuffer = RefStaticCast<D3D12Buffer>( Buffer::Create( scratchBufferTrait, "TLAS.Scratch" ) );
-        scratchBuffer->Init();
 
         auto numInstances = static_cast<uint32>( m_desc.instanceDescs.size() );
 
@@ -145,7 +142,6 @@ namespace agl
         };
 
         auto instanceDescBuffer = RefStaticCast<D3D12Buffer>( Buffer::Create( instanceDescBufferTrait, "TLAS.InstanceDesc" ) );
-        instanceDescBuffer->Init();
 
         auto dest = static_cast<D3D12_RAYTRACING_INSTANCE_DESC*>( GetInterface<IAgl>()->Lock( instanceDescBuffer.Get() ).m_data );
         for ( size_t i = 0; i < numInstances; ++i )
@@ -222,7 +218,6 @@ namespace agl
         };
 
         m_tlas = RefStaticCast<D3D12Buffer>( Buffer::Create( tlasBufferTrait, m_debugName.CStr(), ResourceState::RaytracingAccelerationStructure ) );
-        m_tlas->Init();
         m_tlas->CreateShaderResource();
 
         m_scratchDataSizeInBytes = prebuildInfo.ScratchDataSizeInBytes;

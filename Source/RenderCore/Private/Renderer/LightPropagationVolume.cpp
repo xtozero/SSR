@@ -221,7 +221,7 @@ namespace rendercore
 		}
 	};
 
-	void LightPropagationVolume::Prepare( RenderGraph& renderGraph, const RenderViewGroup& renderViewGroup )
+	void LPVRenderPass::Prepare( RenderGraph& renderGraph, const RenderViewGroup& renderViewGroup )
 	{
 		std::pair<uint32, uint32> curRtSize = renderViewGroup.GetViewport().Size();
 
@@ -229,7 +229,7 @@ namespace rendercore
 		ClearLPV( renderGraph );
 	}
 
-	void LightPropagationVolume::InjectLight( RenderGraph& renderGraph, IScene& scene, RenderFrameArray<ShadowInfo>& shadowInfos )
+	void LPVRenderPass::InjectLight( RenderGraph& renderGraph, IScene& scene, RenderFrameArray<ShadowInfo>& shadowInfos )
 	{
 		for ( ShadowInfo& shadowInfo : shadowInfos )
 		{
@@ -274,7 +274,7 @@ namespace rendercore
 		}
 	}
 
-	void LightPropagationVolume::Propagate( RenderGraph& renderGraph )
+	void LPVRenderPass::Propagate( RenderGraph& renderGraph )
 	{
 		LPVTextures tempTextures = AllocVolumeTextures( false );
 
@@ -355,7 +355,7 @@ namespace rendercore
 		}
 	}
 
-	RefHandle<agl::Texture> LightPropagationVolume::Render( RenderGraph& renderGraph, const LpvRenderingParameters& param, const ResourceBinder& resourceBinder )
+	RefHandle<agl::Texture> LPVRenderPass::Render( RenderGraph& renderGraph, const LpvRenderingParameters& param, const ResourceBinder& resourceBinder )
 	{
 		auto rgViewSpaceDistance = renderGraph.RegisterExternalResource( param.m_viewSpaceDistance.Get() );
 		auto rgWorldNormal = renderGraph.RegisterExternalResource( param.m_worldNormal.Get() );
@@ -431,7 +431,7 @@ namespace rendercore
 		return m_indirectIllumination;
 	}
 
-	void LightPropagationVolume::AllocTextureForIndirectIllumination( const std::pair<uint32, uint32>& renderTargetSize )
+	void LPVRenderPass::AllocTextureForIndirectIllumination( const std::pair<uint32, uint32>& renderTargetSize )
 	{
 		agl::TextureTrait trait = {
 			.m_width = renderTargetSize.first,
@@ -452,7 +452,7 @@ namespace rendercore
 		m_indirectIllumination = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "LPV.Illumination" );
 	}
 
-	LightPropagationVolume::LPVTextures LightPropagationVolume::AllocVolumeTextures( bool allocForOcclusion )
+	LPVRenderPass::LPVTextures LPVRenderPass::AllocVolumeTextures( bool allocForOcclusion )
 	{
 		LPVTextures volumeTextures;
 
@@ -484,7 +484,7 @@ namespace rendercore
 		return volumeTextures;
 	}
 
-	void LightPropagationVolume::InitResource( const std::pair<uint32, uint32>& renderTargetSize )
+	void LPVRenderPass::InitResource( const std::pair<uint32, uint32>& renderTargetSize )
 	{
 		if ( m_lpvCommon.Get() == nullptr )
 		{
@@ -497,7 +497,6 @@ namespace rendercore
 			};
 
 			m_lpvCommon = agl::Buffer::Create( trait, "lpvCommon" );
-			m_lpvCommon->Init();
 
 			auto dest = GraphicsInterface().Lock<uint8>( m_lpvCommon.Get() );
 
@@ -535,7 +534,7 @@ namespace rendercore
 		}
 	}
 
-	void LightPropagationVolume::ClearLPV( RenderGraph& renderGraph )
+	void LPVRenderPass::ClearLPV( RenderGraph& renderGraph ) const
 	{
 		auto rgCoeffR = renderGraph.RegisterExternalResource( m_lpvTextures.m_coeffR.Get() );
 		auto rgCoeffG = renderGraph.RegisterExternalResource( m_lpvTextures.m_coeffG.Get() );
@@ -595,7 +594,7 @@ namespace rendercore
 		}
 	}
 
-	LpvRSMTextures LightPropagationVolume::DownSampleRSMs( RenderGraph& renderGraph, const LightSceneInfo& lightInfo, const LpvRSMTextures& rsmTextures )
+	LpvRSMTextures LPVRenderPass::DownSampleRSMs( RenderGraph& renderGraph, const LightSceneInfo& lightInfo, const LpvRSMTextures& rsmTextures ) const
 	{
 		LpvRSMTextures downSampledTex;
 
@@ -615,7 +614,6 @@ namespace rendercore
 			};
 
 			downSampledTex.m_worldPosition = agl::Texture::Create( positionMapTrait, "LPV.DownSampled.RSMs.Position" );
-			downSampledTex.m_worldPosition->Init();
 
 			agl::TextureTrait normalMapTrait = {
 				.m_width = 512,
@@ -631,7 +629,6 @@ namespace rendercore
 			};
 
 			downSampledTex.m_normal = agl::Texture::Create( normalMapTrait, "LPV.DownSampled.RSMs.Normal" );
-			downSampledTex.m_normal->Init();
 
 			agl::TextureTrait fluxMapTrait = {
 				.m_width = 512,
@@ -647,7 +644,6 @@ namespace rendercore
 			};
 
 			downSampledTex.m_flux = agl::Texture::Create( fluxMapTrait, "LPV.DownSampled.RSMs.Flux" );
-			downSampledTex.m_flux->Init();
 		}
 
 		const Vector& lightDir = -lightInfo.Proxy()->GetLightProperty().m_direction;
@@ -713,7 +709,7 @@ namespace rendercore
 		return downSampledTex;
 	}
 
-	void LightPropagationVolume::InjectToLPV( RenderGraph& renderGraph, const LpvLightInjectionParameters& params, const LpvRSMTextures& downSampledTex )
+	void LPVRenderPass::InjectToLPV( RenderGraph& renderGraph, const LpvLightInjectionParameters& params, const LpvRSMTextures& downSampledTex ) const
 	{
 		auto rgWorldPosition = renderGraph.RegisterExternalResource( downSampledTex.m_worldPosition.Get() );
 		auto rgNormal = renderGraph.RegisterExternalResource( downSampledTex.m_normal.Get() );

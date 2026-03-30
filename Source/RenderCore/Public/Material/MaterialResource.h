@@ -39,10 +39,10 @@ namespace rendercore
 		void TakeSnapshot( ShadingSnapshot& snapShot );
 
 	private:
-		void CreateGraphicsResource( const ShaderBase* (&shaders)[agl::NumGraphicsShaderTypes<uint32>] );
+		void CreateGraphicsResource( const ShaderBase* (&shaders)[agl::NumNonRTShaderTypes<uint32>] );
 		void BindResource( const ShaderBase* shader, agl::SingleShaderBindings& binding );
 
-		void UpdateToGPU( const ShaderBase* (&shaders)[agl::NumGraphicsShaderTypes<uint32>], const NamedShaderParameterList& parametersToUpdate );
+		void UpdateToGPU( const ShaderBase* (&shaders)[agl::NumNonRTShaderTypes<uint32>], const NamedShaderParameterList& parametersToUpdate );
 
 		std::weak_ptr<Material> m_material;
 

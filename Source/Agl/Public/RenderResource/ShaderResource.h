@@ -11,6 +11,8 @@ namespace agl
 
 	enum class ShaderType : int8
 	{
+		None = -1,
+
 		Vertex,
 		Hull,
 		Domain,
@@ -28,20 +30,18 @@ namespace agl
 		Callable,
 
 		Count,
-		RayTracing = Compute,
-		GraphicsCount = 8,
-		None = -1,
+		NonRaytracingCount = Amplification + 1,
 	};
 
 	template <typename T> requires std::is_integral_v<T>
 	constexpr T NumShaderTypes = static_cast<T>( ShaderType::Count );
 
 	template <typename T> requires std::is_integral_v<T>
-	constexpr T NumGraphicsShaderTypes = static_cast<T>( ShaderType::GraphicsCount );
+	constexpr T NumNonRTShaderTypes = static_cast<T>( ShaderType::NonRaytracingCount );
 
 	AGL_FUNC_DLL const char* ToString( ShaderType shaderType );
 
-	bool IsRayTracingShader( ShaderType shaderType );
+	bool IsRaytracingShader( ShaderType shaderType );
 
 	class Shader : public GraphicsApiResource
 	{

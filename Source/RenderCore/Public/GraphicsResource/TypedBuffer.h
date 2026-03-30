@@ -84,11 +84,6 @@ namespace rendercore
 				};
 
 				m_buffer = agl::Buffer::Create( trait, "TypedBuffer", initData );
-				EnqueueRenderTask(
-					[buffer = m_buffer]()
-					{
-						buffer->Init();
-					} );
 			}
 		}
 

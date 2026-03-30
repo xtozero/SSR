@@ -8,31 +8,56 @@ namespace agl
 {
 	RefHandle<BlendState> BlendState::Create( const BlendStateTrait& trait )
 	{
-		auto state = GetInterface<IResourceManager>()->CreateBlendState( trait );
-		state->SetHash( trait.GetHash() );
+		auto newState = GetInterface<IResourceManager>()->CreateBlendState( trait );
+		newState->SetHash( trait.GetHash() );
 
-		return state;
+		EnqueueRenderTask(
+			[state = newState]()
+			{
+				state->Init();
+			} );
+
+		return newState;
 	}
 
 	RefHandle<DepthStencilState> DepthStencilState::Create( const DepthStencilStateTrait& trait )
 	{
-		auto state = GetInterface<IResourceManager>()->CreateDepthStencilState( trait );
-		state->SetHash( trait.GetHash() );
+		auto newState = GetInterface<IResourceManager>()->CreateDepthStencilState( trait );
+		newState->SetHash( trait.GetHash() );
 
-		return state;
+		EnqueueRenderTask(
+			[state = newState]()
+			{
+				state->Init();
+			} );
+
+		return newState;
 	}
 
 	RefHandle<RasterizerState> RasterizerState::Create( const RasterizerStateTrait& trait )
 	{
-		auto state = GetInterface<IResourceManager>()->CreateRasterizerState( trait );
-		state->SetHash( trait.GetHash() );
+		auto newState = GetInterface<IResourceManager>()->CreateRasterizerState( trait );
+		newState->SetHash( trait.GetHash() );
 
-		return state;
+		EnqueueRenderTask(
+			[state = newState]()
+			{
+				state->Init();
+			} );
+
+		return newState;
 	}
 
 	RefHandle<SamplerState> SamplerState::Create( const SamplerStateTrait& trait )
 	{
-		return GetInterface<IResourceManager>()->CreateSamplerState( trait );
+		auto newState = GetInterface<IResourceManager>()->CreateSamplerState( trait );
+		EnqueueRenderTask(
+			[state = newState]()
+			{
+				state->Init();
+			} );
+
+		return newState;
 	}
 
 	RefHandle<VertexLayout> VertexLayout::Create( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size )

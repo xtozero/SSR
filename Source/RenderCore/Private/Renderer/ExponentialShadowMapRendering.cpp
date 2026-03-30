@@ -173,7 +173,6 @@ namespace rendercore
 		esmsTrait.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess;
 
 		RefHandle<agl::Texture> esmsTexture = agl::Texture::Create( esmsTrait, "ESMs" );
-		esmsTexture->Init();
 
 		auto rgShadowMap = renderGraph.RegisterExternalResource( shadowMap.Get() );
 		auto rgEsms = renderGraph.RegisterExternalResource( esmsTexture.Get() );

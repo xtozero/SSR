@@ -210,12 +210,6 @@ namespace rendercore
 	{
 		m_shader = agl::VertexShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
-
-		EnqueueRenderTask(
-			[shader = m_shader]()
-			{
-				shader->Init();
-			} );
 	}
 
 	REGISTER_ASSET( GeometryShader );
@@ -234,12 +228,6 @@ namespace rendercore
 	{
 		m_shader = agl::GeometryShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
-
-		EnqueueRenderTask(
-			[shader = m_shader]()
-			{
-				shader->Init();
-			} );
 	}
 
 
@@ -259,12 +247,6 @@ namespace rendercore
 	{
 		m_shader = agl::PixelShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
-
-		EnqueueRenderTask(
-			[shader = m_shader]()
-			{
-				shader->Init();
-			} );
 	}
 
 	REGISTER_ASSET( ComputeShader );
@@ -283,12 +265,6 @@ namespace rendercore
 	{
 		m_shader = agl::ComputeShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
-
-		EnqueueRenderTask(
-			[shader = m_shader]()
-			{
-				shader->Init();
-			} );
 	}
 
 	REGISTER_ASSET( MeshShader );
@@ -316,12 +292,6 @@ namespace rendercore
 	{
 		m_shader = agl::MeshShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
-
-		EnqueueRenderTask(
-			[shader = m_shader]()
-			{
-				shader->Init();
-			} );
 	}
 
 	REGISTER_ASSET( AmplificationShader );
@@ -349,18 +319,12 @@ namespace rendercore
 	{
 		m_shader = agl::AmplificationShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
-
-		EnqueueRenderTask(
-			[shader = m_shader]()
-			{
-				shader->Init();
-			} );
 	}
 
 	REGISTER_ASSET( RayGenerationShader );
 	ShaderBase* RayGenerationShader::CompileShader( const StaticShaderSwitches& switches )
 	{
-		if ( GetInterface<agl::IAgl>()->SupportsHardwareRayTracing() == false )
+		if ( GetInterface<agl::IAgl>()->SupportsHardwareRaytracing() == false )
 		{
 			return nullptr;
 		}
@@ -382,18 +346,12 @@ namespace rendercore
 	{
 		m_shader = agl::RayGenerationShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
 		m_shader->SetHash( m_hash );
-
-		EnqueueRenderTask(
-			[shader = m_shader]()
-			{
-				shader->Init();
-			} );
 	}
 
 	REGISTER_ASSET( IntersectionShader );
 	ShaderBase* IntersectionShader::CompileShader( const StaticShaderSwitches& switches )
 	{
-		if ( GetInterface<agl::IAgl>()->SupportsHardwareRayTracing() == false )
+		if ( GetInterface<agl::IAgl>()->SupportsHardwareRaytracing() == false )
 		{
 			return nullptr;
 		}
@@ -415,18 +373,12 @@ namespace rendercore
 	{
 		m_shader = agl::IntersectionShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
 		m_shader->SetHash( m_hash );
-
-		EnqueueRenderTask(
-			[shader = m_shader]()
-			{
-				shader->Init();
-			} );
 	}
 
 	REGISTER_ASSET( AnyHitShader );
 	ShaderBase* AnyHitShader::CompileShader( const StaticShaderSwitches& switches )
 	{
-		if ( GetInterface<agl::IAgl>()->SupportsHardwareRayTracing() == false )
+		if ( GetInterface<agl::IAgl>()->SupportsHardwareRaytracing() == false )
 		{
 			return nullptr;
 		}
@@ -448,18 +400,12 @@ namespace rendercore
 	{
 		m_shader = agl::AnyHitShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
 		m_shader->SetHash( m_hash );
-
-		EnqueueRenderTask(
-			[shader = m_shader]()
-			{
-				shader->Init();
-			} );
 	}
 
 	REGISTER_ASSET( ClosestHitShader );
 	ShaderBase* ClosestHitShader::CompileShader( const StaticShaderSwitches& switches )
 	{
-		if ( GetInterface<agl::IAgl>()->SupportsHardwareRayTracing() == false )
+		if ( GetInterface<agl::IAgl>()->SupportsHardwareRaytracing() == false )
 		{
 			return nullptr;
 		}
@@ -481,18 +427,12 @@ namespace rendercore
 	{
 		m_shader = agl::ClosestHitShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
 		m_shader->SetHash( m_hash );
-
-		EnqueueRenderTask(
-			[shader = m_shader]()
-			{
-				shader->Init();
-			} );
 	}
 
 	REGISTER_ASSET( MissShader );
 	ShaderBase* MissShader::CompileShader( const StaticShaderSwitches& switches )
 	{
-		if ( GetInterface<agl::IAgl>()->SupportsHardwareRayTracing() == false )
+		if ( GetInterface<agl::IAgl>()->SupportsHardwareRaytracing() == false )
 		{
 			return nullptr;
 		}
@@ -514,18 +454,12 @@ namespace rendercore
 	{
 		m_shader = agl::MissShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
 		m_shader->SetHash( m_hash );
-
-		EnqueueRenderTask(
-			[shader = m_shader]()
-			{
-				shader->Init();
-			} );
 	}
 
 	REGISTER_ASSET( CallableShader );
 	ShaderBase* CallableShader::CompileShader( const StaticShaderSwitches& switches )
 	{
-		if ( GetInterface<agl::IAgl>()->SupportsHardwareRayTracing() == false )
+		if ( GetInterface<agl::IAgl>()->SupportsHardwareRaytracing() == false )
 		{
 			return nullptr;
 		}
@@ -547,11 +481,5 @@ namespace rendercore
 	{
 		m_shader = agl::CallableShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
 		m_shader->SetHash( m_hash );
-
-		EnqueueRenderTask(
-			[shader = m_shader]()
-			{
-				shader->Init();
-			} );
 	}
 }

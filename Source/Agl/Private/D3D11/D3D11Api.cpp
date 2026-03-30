@@ -2,37 +2,22 @@
 
 #include "Core/Paths.h"
 
-#include "D3D11BlendState.h"
 #include "D3D11Buffer.h"
 #include "D3D11CommandList.h"
-#include "D3D11DepthStencilState.h"
 #include "D3D11FlagConvertor.h"
-#include "D3D11RasterizerState.h"
-#include "D3D11ResourceManager.h"
-#include "D3D11ResourceViews.h"
-#include "D3D11SamplerState.h"
-#include "D3D11Shaders.h"
-#include "D3D11Texture.h"
-#include "D3D11VetexLayout.h"
-#include "D3D11Viewport.h"
 
 #include "EnumStringMap.h"
 
 #include "IAgl.h"
 
-#include "PipelineState.h"
-
 #include "ShaderParameterMap.h"
 
 #include "Texture.h"
 
-#include <array>
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <dxgi1_6.h>
-#include <map>
 #include <memory>
-#include <string>
 #include <vector>
 
 using ::Microsoft::WRL::ComPtr;
@@ -187,7 +172,7 @@ namespace agl
 		virtual bool SupportsPSOLibraryCache() const override;
 		virtual std::filesystem::path GetPSOCacheFilePath() const override;
 
-		virtual bool SupportsHardwareRayTracing() const override;
+		virtual bool SupportsHardwareRaytracing() const override;
 
 		virtual bool SupportsMeshShader() const override;
 
@@ -221,10 +206,10 @@ namespace agl
 
 		const char* GetShaderProfile( ShaderType type ) const;
 
-		Microsoft::WRL::ComPtr<IDXGIFactory7> m_pdxgiFactory;
+		ComPtr<IDXGIFactory7> m_pdxgiFactory;
 
-		Microsoft::WRL::ComPtr<ID3D11Device> m_pd3d11Device;
-		Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_pd3d11DeviceContext;
+		ComPtr<ID3D11Device> m_pd3d11Device;
+		ComPtr<ID3D11DeviceContext> m_pd3d11DeviceContext;
 
 		DXGI_SAMPLE_DESC m_multiSampleOption = { 
 			.Count = 1,
@@ -302,7 +287,7 @@ namespace agl
 			.MiscFlags = 0U
 		};
 
-		Microsoft::WRL::ComPtr<ID3D11Query> pQuery = nullptr;
+		ComPtr<ID3D11Query> pQuery = nullptr;
 		if ( SUCCEEDED( m_pd3d11Device->CreateQuery( &desc, pQuery.GetAddressOf() ) ) )
 		{
 			m_pd3d11DeviceContext->End( pQuery.Get() );
@@ -444,8 +429,8 @@ namespace agl
 
 	BinaryChunk Direct3D11::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, ShaderType type, const char* entryPoint ) const
 	{
-		Microsoft::WRL::ComPtr<ID3DBlob> byteCode = nullptr;
-		Microsoft::WRL::ComPtr<ID3DBlob> errorMsg = nullptr;
+		ComPtr<ID3DBlob> byteCode = nullptr;
+		ComPtr<ID3DBlob> errorMsg = nullptr;
 
 		std::vector<D3D_SHADER_MACRO> macros;
 
@@ -484,7 +469,7 @@ namespace agl
 
 	bool Direct3D11::BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const
 	{
-		Microsoft::WRL::ComPtr<ID3D11ShaderReflection> pShaderReflection = nullptr;
+		ComPtr<ID3D11ShaderReflection> pShaderReflection = nullptr;
 		HRESULT hr = D3DReflect( byteCode.Data(), byteCode.Size(), IID_PPV_ARGS(&pShaderReflection));
 		if ( FAILED( hr ) )
 		{
@@ -518,7 +503,7 @@ namespace agl
 		return "";
 	}
 
-	bool Direct3D11::SupportsHardwareRayTracing() const
+	bool Direct3D11::SupportsHardwareRaytracing() const
 	{
 		return false;
 	}
@@ -671,7 +656,7 @@ namespace agl
 
 	bool Direct3D11::CreateDeviceIndependentResource()
 	{
-		Microsoft::WRL::ComPtr<IDXGIFactory2> factory;
+		ComPtr<IDXGIFactory2> factory;
 
 		uint32 factoryFlag = 0;
 #ifdef _DEBUG
@@ -700,7 +685,7 @@ namespace agl
 			return;
 		}
 
-		Microsoft::WRL::ComPtr<ID3D11Debug> pD3dDebug;
+		ComPtr<ID3D11Debug> pD3dDebug;
 		HRESULT hr = m_pd3d11Device.Get()->QueryInterface( IID_PPV_ARGS( &pD3dDebug ) );
 
 		if ( SUCCEEDED( hr ) )

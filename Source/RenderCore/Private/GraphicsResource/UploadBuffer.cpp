@@ -53,11 +53,6 @@ namespace rendercore
 			};
 
 			m_buffer = agl::Buffer::Create( trait, "Upload", initData );
-			EnqueueRenderTask(
-				[buffer = m_buffer]()
-				{
-					buffer->Init();
-				} );
 		}
 	}
 

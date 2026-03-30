@@ -71,14 +71,14 @@ namespace rendercore
     {
     };
 
-    REGISTER_GLOBAL_SHADER( RTAORayGen, "RayTracing/RTAO.fx", "RayGen" );
-    REGISTER_GLOBAL_SHADER( RTAOClosestHit, "RayTracing/RTAO.fx", "ClosestHit" );
-    REGISTER_GLOBAL_SHADER( RTAOMiss, "RayTracing/RTAO.fx", "Miss" );
+    REGISTER_GLOBAL_SHADER( RTAORayGen, "Raytracing/RTAO.fx", "RayGen" );
+    REGISTER_GLOBAL_SHADER( RTAOClosestHit, "Raytracing/RTAO.fx", "ClosestHit" );
+    REGISTER_GLOBAL_SHADER( RTAOMiss, "Raytracing/RTAO.fx", "Miss" );
 
     RefHandle<agl::Texture> RTAORenderPass::Render( RenderGraph& renderGraph, const RTAORenderParams& params )
     {
         if ( ( CVarRTAOEnabled.GetBool() == false )
-            || ( GetInterface<agl::IAgl>()->SupportsHardwareRayTracing() == false )
+            || ( GetInterface<agl::IAgl>()->SupportsHardwareRaytracing() == false )
             || ( params.IsValid() == false ) )
         {
             return WhiteTexture;

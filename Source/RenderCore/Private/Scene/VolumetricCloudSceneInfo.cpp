@@ -133,7 +133,6 @@ namespace rendercore
 		};
 
 		m_weatherMap = agl::Texture::Create( trait, "VolumetricCloud.Weather" );
-		m_weatherMap->Init();
 
 		auto rgWeatherMap = renderGraph.RegisterExternalResource( m_weatherMap.Get() );
 
@@ -181,12 +180,6 @@ namespace rendercore
 		};
 
 		RefHandle<agl::Texture> cloudTex = agl::Texture::Create( trait, "VolumetricCloud.Cloud" );
-		EnqueueRenderTask(
-			[texture = cloudTex]()
-			{
-				texture->Init();
-			}
-		);
 
 		return cloudTex;
 	}

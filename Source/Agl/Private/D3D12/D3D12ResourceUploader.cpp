@@ -33,7 +33,6 @@ namespace agl
 		};
 
 		m_intermediateResource = Buffer::Create( trait, "Uploader.Buffer.Intermediate" );
-		m_intermediateResource->Init();
 
 		auto resource = static_cast<ID3D12Resource*>( m_intermediateResource->Resource() );
 		void* mappedData = nullptr;
@@ -455,7 +454,6 @@ namespace agl
 		};
 
 		intermediate.m_buffer = Buffer::Create( trait, "Uploader.Texture.Intermediate" );
-		intermediate.m_buffer->Init();
 
 		auto resource = static_cast<ID3D12Resource*>( intermediate.m_buffer->Resource() );
 		uint8* mappedData = nullptr;

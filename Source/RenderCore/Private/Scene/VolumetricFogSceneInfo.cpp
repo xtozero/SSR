@@ -138,19 +138,9 @@ namespace rendercore
 		for ( RefHandle<agl::Texture>& frustumVolume : m_frustumVolume )
 		{
 			frustumVolume = agl::Texture::Create( frustumVolumeTrait, "VolumetricFog.Frustum" );
-			EnqueueRenderTask(
-				[texture = frustumVolume]()
-				{
-					texture->Init();
-				} );
 		}
 
 		m_accumulatedVolume = agl::Texture::Create( frustumVolumeTrait, "VolumetricFog.Accumulated" );
-		EnqueueRenderTask(
-			[texture = m_accumulatedVolume]()
-			{
-				texture->Init();
-			} );
 	}
 
 	void VolumetricFogSceneInfo::UpdateParameter()

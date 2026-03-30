@@ -1,6 +1,5 @@
 #include "D3D12RaytracingPipelineState.h"
 
-#include "StringUtility.h"
 #include "TransientAllocator.h"
 
 namespace agl
@@ -155,5 +154,7 @@ namespace agl
 
     void D3D12RaytracingPipelineState::FreeResource()
     {
+        m_shaderTable = nullptr;
+        m_stateObject.Reset();
     }
 }

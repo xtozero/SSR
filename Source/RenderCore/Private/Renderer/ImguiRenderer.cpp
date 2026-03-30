@@ -345,12 +345,6 @@ namespace rendercore
 
 		m_imguiRenderResource.m_fontAtlas = agl::Texture::Create( trait, "UI.FontAtlas", &initData );
 
-		EnqueueRenderTask(
-			[texture = m_imguiRenderResource.m_fontAtlas]()
-			{
-				texture->Init();
-			} );
-
 		static_assert( sizeof( ImTextureID ) >= sizeof( m_imguiRenderResource.m_fontAtlas.Get() ), "Can't pack descriptor handle into TexID" );
 		io.Fonts->SetTexID( reinterpret_cast<ImTextureID>( m_imguiRenderResource.m_fontAtlas.Get() ) );
 	}

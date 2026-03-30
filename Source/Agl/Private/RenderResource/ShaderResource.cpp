@@ -27,7 +27,7 @@ namespace agl
 		return shaderTypeStr[static_cast<uint32>( shaderType )];
 	}
 
-	bool IsRayTracingShader( ShaderType shaderType )
+	bool IsRaytracingShader( ShaderType shaderType )
 	{
 		return shaderType == ShaderType::RayGen
 			|| shaderType == ShaderType::Intersection
@@ -50,32 +50,74 @@ namespace agl
 
 	RefHandle<VertexShader> VertexShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		return GetInterface<IResourceManager>( )->CreateVertexShader( byteCode, byteCodeSize, paramInfo );
+		auto newShader = GetInterface<IResourceManager>( )->CreateVertexShader( byteCode, byteCodeSize, paramInfo );
+		EnqueueRenderTask(
+			[shader = newShader]
+			{
+				shader->Init();
+			});
+
+		return newShader;
 	}
 
 	RefHandle<GeometryShader> GeometryShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		return GetInterface<IResourceManager>( )->CreateGeometryShader( byteCode, byteCodeSize, paramInfo );
+		auto newShader = GetInterface<IResourceManager>( )->CreateGeometryShader( byteCode, byteCodeSize, paramInfo );
+		EnqueueRenderTask(
+			[shader = newShader]
+			{
+				shader->Init();
+			});
+
+		return newShader;
 	}
 
 	RefHandle<PixelShader> PixelShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		return GetInterface<IResourceManager>( )->CreatePixelShader( byteCode, byteCodeSize, paramInfo );
+		auto newShader = GetInterface<IResourceManager>( )->CreatePixelShader( byteCode, byteCodeSize, paramInfo );
+		EnqueueRenderTask(
+			[shader = newShader]
+			{
+				shader->Init();
+			});
+
+		return newShader;
 	}
 
 	RefHandle<ComputeShader> ComputeShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		return GetInterface<IResourceManager>( )->CreateComputeShader( byteCode, byteCodeSize, paramInfo );
+		auto newShader = GetInterface<IResourceManager>( )->CreateComputeShader( byteCode, byteCodeSize, paramInfo );
+		EnqueueRenderTask(
+			[shader = newShader]
+			{
+				shader->Init();
+			});
+
+		return newShader;
 	}
 
 	RefHandle<MeshShader> MeshShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		return GetInterface<IResourceManager>()->CreateMeshShader( byteCode, byteCodeSize, paramInfo );
+		auto newShader = GetInterface<IResourceManager>()->CreateMeshShader( byteCode, byteCodeSize, paramInfo );
+		EnqueueRenderTask(
+			[shader = newShader]
+			{
+				shader->Init();
+			});
+
+		return newShader;
 	}
 
 	RefHandle<AmplificationShader> AmplificationShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		return GetInterface<IResourceManager>()->CreateAmplificationShader( byteCode, byteCodeSize, paramInfo );
+		auto newShader = GetInterface<IResourceManager>()->CreateAmplificationShader( byteCode, byteCodeSize, paramInfo );
+		EnqueueRenderTask(
+			[shader = newShader]
+			{
+				shader->Init();
+			});
+
+		return newShader;
 	}
 
 	const wchar_t* RaytracingShader::GetExportName() const
@@ -91,31 +133,73 @@ namespace agl
 
 	RefHandle<RayGenerationShader> RayGenerationShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
 	{
-		return GetInterface<IResourceManager>()->CreateRayGenerationShader( byteCode, byteCodeSize, paramInfo, exportName );
+		auto newShader = GetInterface<IResourceManager>()->CreateRayGenerationShader( byteCode, byteCodeSize, paramInfo, exportName );
+		EnqueueRenderTask(
+			[shader = newShader]
+			{
+				shader->Init();
+			});
+
+		return newShader;
 	}
 
 	RefHandle<IntersectionShader> IntersectionShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
 	{
-		return GetInterface<IResourceManager>()->CreateIntersectionShader( byteCode, byteCodeSize, paramInfo, exportName );
+		auto newShader = GetInterface<IResourceManager>()->CreateIntersectionShader( byteCode, byteCodeSize, paramInfo, exportName );
+		EnqueueRenderTask(
+			[shader = newShader]
+			{
+				shader->Init();
+			});
+
+		return newShader;
 	}
 
 	RefHandle<AnyHitShader> AnyHitShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
 	{
-		return GetInterface<IResourceManager>()->CreateAnyHitShader( byteCode, byteCodeSize, paramInfo, exportName );
+		auto newShader = GetInterface<IResourceManager>()->CreateAnyHitShader( byteCode, byteCodeSize, paramInfo, exportName );
+		EnqueueRenderTask(
+			[shader = newShader]
+			{
+				shader->Init();
+			});
+
+		return newShader;
 	}
 
 	RefHandle<ClosestHitShader> ClosestHitShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
 	{
-		return GetInterface<IResourceManager>()->CreateClosestHitShader( byteCode, byteCodeSize, paramInfo, exportName );
+		auto newShader = GetInterface<IResourceManager>()->CreateClosestHitShader( byteCode, byteCodeSize, paramInfo, exportName );
+		EnqueueRenderTask(
+			[shader = newShader]
+			{
+				shader->Init();
+			});
+
+		return newShader;
 	}
 
 	RefHandle<MissShader> MissShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
 	{
-		return GetInterface<IResourceManager>()->CreateMissShader( byteCode, byteCodeSize, paramInfo, exportName );
+		auto newShader = GetInterface<IResourceManager>()->CreateMissShader( byteCode, byteCodeSize, paramInfo, exportName );
+		EnqueueRenderTask(
+			[shader = newShader]
+			{
+				shader->Init();
+			});
+
+		return newShader;
 	}
 
 	RefHandle<CallableShader> CallableShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
 	{
-		return GetInterface<IResourceManager>()->CreateCallableShader( byteCode, byteCodeSize, paramInfo, exportName );
+		auto newShader = GetInterface<IResourceManager>()->CreateCallableShader( byteCode, byteCodeSize, paramInfo, exportName );
+		EnqueueRenderTask(
+			[shader = newShader]
+			{
+				shader->Init();
+			});
+
+		return newShader;
 	}
 }

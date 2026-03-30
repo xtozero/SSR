@@ -264,7 +264,7 @@ namespace
 
 			if ( const json::Value* shaderKeys = root.Find( "Shader" ) )
 			{
-				for ( uint32 i = 0; i < agl::NumGraphicsShaderTypes<uint32>; ++i )
+				for ( uint32 i = 0; i < agl::NumNonRTShaderTypes<uint32>; ++i )
 				{
 					auto shaderType = static_cast<agl::ShaderType>( i );
 					const json::Value* shaderPath = shaderKeys->Find( ToString( shaderType ) );

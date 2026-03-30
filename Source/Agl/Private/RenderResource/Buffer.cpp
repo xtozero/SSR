@@ -7,22 +7,50 @@ namespace agl
 {
 	RefHandle<Buffer> Buffer::Create( const BufferTrait& trait, const char* debugName )
 	{
-		return GetInterface<IResourceManager>()->CreateBuffer( trait, debugName, ResourceState::Common, nullptr );
+		auto newBuffer = GetInterface<IResourceManager>()->CreateBuffer( trait, debugName, ResourceState::Common, nullptr );
+		EnqueueRenderTask(
+			[buffer = newBuffer]()
+			{
+				buffer->Init();
+			} );
+
+		return newBuffer;
 	}
 
 	RefHandle<Buffer> Buffer::Create( const BufferTrait& trait, const char* debugName, ResourceState initialState )
 	{
-		return GetInterface<IResourceManager>()->CreateBuffer( trait, debugName, initialState, nullptr );
+		auto newBuffer = GetInterface<IResourceManager>()->CreateBuffer( trait, debugName, initialState, nullptr );
+		EnqueueRenderTask(
+			[buffer = newBuffer]()
+			{
+				buffer->Init();
+			} );
+
+		return newBuffer;
 	}
 
 	RefHandle<Buffer> Buffer::Create( const BufferTrait& trait, const char* debugName, const void* initData )
 	{
-		return GetInterface<IResourceManager>()->CreateBuffer( trait, debugName, ResourceState::Common, initData );
+		auto newBuffer = GetInterface<IResourceManager>()->CreateBuffer( trait, debugName, ResourceState::Common, initData );
+		EnqueueRenderTask(
+			[buffer = newBuffer]()
+			{
+				buffer->Init();
+			} );
+
+		return newBuffer;
 	}
 
 	RefHandle<Buffer> Buffer::Create( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
 	{
-		return GetInterface<IResourceManager>()->CreateBuffer( trait, debugName, initialState, initData );
+		auto newBuffer = GetInterface<IResourceManager>()->CreateBuffer( trait, debugName, initialState, initData );
+		EnqueueRenderTask(
+			[buffer = newBuffer]()
+			{
+				buffer->Init();
+			} );
+
+		return newBuffer;
 	}
 
 	ResourceState Buffer::GetResourceState() const

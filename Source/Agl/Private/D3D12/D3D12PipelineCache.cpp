@@ -222,7 +222,7 @@ namespace agl
 
 	void D3D12PipelineCache::BindBindlessResources( ID3D12GraphicsCommandList6& commandList, D3D12GlobalDescriptorHeap& descriptorHeap, GlobalConstantBuffers& globalConstantBuffers, const ShaderBindings& shaderBindings )
 	{
-		for ( uint32 shaderType = 0; shaderType < NumShaderTypes<uint32>; ++shaderType )
+		for ( uint32 shaderType = 0; shaderType < NumNonRTShaderTypes<uint32>; ++shaderType )
 		{
 			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
 			if ( binding.GetShaderType() == ShaderType::None )
@@ -283,7 +283,7 @@ namespace agl
 			commandList.SetComputeRootDescriptorTable( rootParameterIndex++, resourceHeap.GetGpuHandle() );
 			commandList.SetComputeRootDescriptorTable( rootParameterIndex++, samplerHeap.GetGpuHandle() );
 
-			for ( uint32 shaderType = 0; shaderType < NumShaderTypes<uint32>; ++shaderType )
+			for ( uint32 shaderType = 0; shaderType < NumNonRTShaderTypes<uint32>; ++shaderType )
 			{
 				SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
 				if ( binding.GetShaderType() == ShaderType::None )
@@ -359,7 +359,7 @@ namespace agl
 			commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, resourceHeap.GetGpuHandle() );
 			commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, samplerHeap.GetGpuHandle() );
 
-			for ( uint32 shaderType = 0; shaderType < NumShaderTypes<uint32>; ++shaderType )
+			for ( uint32 shaderType = 0; shaderType < NumNonRTShaderTypes<uint32>; ++shaderType )
 			{
 				SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
 				if ( binding.GetShaderType() == ShaderType::None )
@@ -439,7 +439,7 @@ namespace agl
 		uint32 numSrvUavCbv = 0;
 		uint32 numSampler = 0;
 
-		for ( uint32 shaderType = 0; shaderType < NumShaderTypes<uint32>; ++shaderType )
+		for ( uint32 shaderType = 0; shaderType < NumNonRTShaderTypes<uint32>; ++shaderType )
 		{
 			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
 			if ( binding.GetShaderType() == ShaderType::None )
@@ -455,7 +455,7 @@ namespace agl
 		D3D12GlobalHeapAllocatedInfo samplerHeap = descriptorHeap.Aquire( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, numSampler );
 
 		uint32 destOffset = 0;
-		for ( uint32 shaderType = 0; shaderType < NumShaderTypes<uint32>; ++shaderType )
+		for ( uint32 shaderType = 0; shaderType < NumNonRTShaderTypes<uint32>; ++shaderType )
 		{
 			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
 			if ( binding.GetShaderType() == ShaderType::None )
@@ -477,7 +477,7 @@ namespace agl
 			}
 		}
 
-		for ( uint32 shaderType = 0; shaderType < NumShaderTypes<uint32>; ++shaderType )
+		for ( uint32 shaderType = 0; shaderType < NumNonRTShaderTypes<uint32>; ++shaderType )
 		{
 			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
 			if ( binding.GetShaderType() == ShaderType::None )
@@ -499,7 +499,7 @@ namespace agl
 			}
 		}
 
-		for ( uint32 shaderType = 0; shaderType < NumShaderTypes<uint32>; ++shaderType )
+		for ( uint32 shaderType = 0; shaderType < NumNonRTShaderTypes<uint32>; ++shaderType )
 		{
 			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
 			if ( binding.GetShaderType() == ShaderType::None )
@@ -521,7 +521,7 @@ namespace agl
 			}
 		}
 
-		for ( uint32 shaderType = 0; shaderType < NumShaderTypes<uint32>; ++shaderType )
+		for ( uint32 shaderType = 0; shaderType < NumNonRTShaderTypes<uint32>; ++shaderType )
 		{
 			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
 			if ( binding.GetShaderType() == ShaderType::None )
@@ -583,7 +583,7 @@ namespace agl
 		else
 		{
 			uint32 offset = 0;
-			for ( uint32 shaderType = 0; shaderType < NumShaderTypes<uint32>; ++shaderType )
+			for ( uint32 shaderType = 0; shaderType < NumNonRTShaderTypes<uint32>; ++shaderType )
 			{
 				SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
 				if ( binding.GetShaderType() == ShaderType::None )
@@ -598,7 +598,7 @@ namespace agl
 				}
 			}
 
-			for ( uint32 shaderType = 0; shaderType < NumShaderTypes<uint32>; ++shaderType )
+			for ( uint32 shaderType = 0; shaderType < NumNonRTShaderTypes<uint32>; ++shaderType )
 			{
 				SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
 				if ( binding.GetShaderType() == ShaderType::None )
@@ -613,7 +613,7 @@ namespace agl
 				}
 			}
 
-			for ( uint32 shaderType = 0; shaderType < NumShaderTypes<uint32>; ++shaderType )
+			for ( uint32 shaderType = 0; shaderType < NumNonRTShaderTypes<uint32>; ++shaderType )
 			{
 				SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
 				if ( binding.GetShaderType() == ShaderType::None )
@@ -629,7 +629,7 @@ namespace agl
 			}
 
 			offset = 0;
-			for ( uint32 shaderType = 0; shaderType < NumShaderTypes<uint32>; ++shaderType )
+			for ( uint32 shaderType = 0; shaderType < NumNonRTShaderTypes<uint32>; ++shaderType )
 			{
 				SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
 				if ( binding.GetShaderType() == ShaderType::None )

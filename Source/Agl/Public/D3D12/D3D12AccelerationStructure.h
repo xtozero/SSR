@@ -10,7 +10,7 @@ namespace agl
     public:
         virtual void Build( IComputeCommandList& commandList ) override;
 
-        ID3D12Resource* Resource();
+        ID3D12Resource* Resource() const;
 
         D3D12BLAS( const BLASDesc& desc, const char* debugName );
 

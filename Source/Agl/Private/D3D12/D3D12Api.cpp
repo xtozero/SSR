@@ -13,23 +13,16 @@
 #include "D3D12ResourceManager.h"
 #include "D3D12ResourceUploader.h"
 
-#include "EnumStringMap.h"
-
 #include "IAgl.h"
 #include "LibraryTool/InterfaceFactories.h"
 #include "Memory/InlineMemoryAllocator.h"
 
-#include "PipelineState.h"
-
 #include "ShaderParameterMap.h"
-
-#include "Texture.h"
 
 #include "d3d12shader.h"
 #include "dxcapi.h"
 
 #include <array>
-#include <cstdlib>
 #include <dxgi1_6.h>
 #include <wrl/client.h>
 
@@ -56,7 +49,7 @@ namespace agl
 {
 	struct D3D12ShaderReflectionLibrary
 	{
-		static ShaderType ResolveShaderTypeFromVersion( uint32 shaderVersion )
+		static ShaderType ResolveBindingStageFromVersion( uint32 shaderVersion )
 		{
 			auto version = static_cast<D3D12_SHADER_VERSION_TYPE>( D3D12_SHVER_GET_TYPE( shaderVersion ) );
 
@@ -89,7 +82,7 @@ namespace agl
 			case D3D12_SHVER_MISS_SHADER:
 				[[fallthrough]];
 			case D3D12_SHVER_CALLABLE_SHADER:
-				return ShaderType::RayTracing;
+				return ShaderType::Compute;
 			default:
 				break;
 			}
@@ -98,7 +91,7 @@ namespace agl
 		}
 
 		template <typename ReflectionClass>
-		static void ExtractResources( ReflectionClass& reflection, ShaderType shaderType, uint32 numBoundResources, ShaderParameterMap& outParameterMap )
+		static void ExtractResources( ReflectionClass& reflection, ShaderType bindingStage, uint32 numBoundResources, ShaderParameterMap& outParameterMap )
 		{
 			// Get the resources
 			for ( uint32 i = 0; i < numBoundResources; ++i )
@@ -137,7 +130,7 @@ namespace agl
 
 							ShaderParameterType paramType = isBindlessParam ? ShaderParameterType::Bindless : ShaderParameterType::ConstantBufferValue;
 
-							outParameterMap.AddParameter( paramName.data(), shaderType, paramType, bindDesc.BindPoint, bindDesc.Space, shaderVarDesc.StartOffset, shaderVarDesc.Size );
+							outParameterMap.AddParameter( paramName.data(), bindingStage, paramType, bindDesc.BindPoint, bindDesc.Space, shaderVarDesc.StartOffset, shaderVarDesc.Size );
 						}
 					}
 				}
@@ -164,7 +157,7 @@ namespace agl
 					assert( false && "Unexpected case" );
 				}
 
-				outParameterMap.AddParameter( bindDesc.Name, shaderType, parameterType, bindDesc.BindPoint, bindDesc.Space, 0, parameterSize );
+				outParameterMap.AddParameter( bindDesc.Name, bindingStage, parameterType, bindDesc.BindPoint, bindDesc.Space, 0, parameterSize );
 			}
 		}
 
@@ -174,9 +167,9 @@ namespace agl
 			HRESULT hResult = reflection.GetDesc( &shaderDesc );
 			assert( SUCCEEDED( hResult ) );
 
-			ShaderType shaderType = ResolveShaderTypeFromVersion( shaderDesc.Version );
+			ShaderType bindingStage = ResolveBindingStageFromVersion( shaderDesc.Version );
 
-			ExtractResources( reflection, shaderType, shaderDesc.BoundResources, outParameterMap );
+			ExtractResources( reflection, bindingStage, shaderDesc.BoundResources, outParameterMap );
 		}
 
 		static void ExtractShaderParameters( ID3D12LibraryReflection& reflection, ShaderParameterMap& outParameterMap )
@@ -193,7 +186,7 @@ namespace agl
 				hResult = functionRefection->GetDesc( &functionDesc );
 				assert( SUCCEEDED( hResult ) );
 
-				ShaderType shaderType = ResolveShaderTypeFromVersion( functionDesc.Version );
+				ShaderType shaderType = ResolveBindingStageFromVersion( functionDesc.Version );
 
 				ExtractResources( *functionRefection, shaderType, functionDesc.BoundResources, outParameterMap );
 			}
@@ -236,7 +229,7 @@ namespace agl
 		virtual bool SupportsPSOLibraryCache() const override;
 		virtual std::filesystem::path GetPSOCacheFilePath() const override;
 
-		virtual bool SupportsHardwareRayTracing() const override;
+		virtual bool SupportsHardwareRaytracing() const override;
 
 		virtual bool SupportsMeshShader() const override;
 
@@ -528,7 +521,7 @@ namespace agl
 		args.reserve( 64 );
 
 		// entry point
-		if ( IsRayTracingShader( type ) )
+		if ( IsRaytracingShader( type ) )
 		{
 			args.push_back( L"-auto-binding-space 0" );
 			args.push_back( L"-exports" );
@@ -675,7 +668,7 @@ namespace agl
 		return psoCacheFilePath;
 	}
 
-	bool Direct3D12::SupportsHardwareRayTracing() const
+	bool Direct3D12::SupportsHardwareRaytracing() const
 	{
 		return m_raytracingAvailable;
 	}
@@ -728,13 +721,10 @@ namespace agl
 		{
 		case D3D12_COMMAND_LIST_TYPE_DIRECT:
 			return m_cmdListResourcePools[0];
-			break;
 		case D3D12_COMMAND_LIST_TYPE_COMPUTE:
 			return m_cmdListResourcePools[1];
-			break;
 		case D3D12_COMMAND_LIST_TYPE_COPY:
 			return m_cmdListResourcePools[2];
-			break;
 		default:
 			break;
 		}
@@ -1119,7 +1109,7 @@ namespace agl
 				return L"ms_6_9";
 			}
 		}
-		else if ( IsRayTracingShader( type ) )
+		else if ( IsRaytracingShader( type ) )
 		{
 			switch ( m_shaderModel.HighestShaderModel )
 			{

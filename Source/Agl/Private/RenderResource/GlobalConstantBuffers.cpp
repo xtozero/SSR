@@ -68,7 +68,6 @@ namespace agl
 			};
 
 			m_buffer = Buffer::Create( trait, "GlobalConstant" );
-			m_buffer->Init();
 		}
 
 		singleShaderBindings.AddConstantBuffer( parameter, m_buffer.Get() );
@@ -114,7 +113,6 @@ namespace agl
 		};
 
 		RefHandle<Buffer> buffer = Buffer::Create( trait, "GlobalConstant" );
-		buffer->Init();
 
 		singleShaderBindings.AddConstantBuffer( parameter, buffer.Get() );
 
@@ -123,7 +121,7 @@ namespace agl
 
 	void GlobalConstantBuffers::Initialize()
 	{
-		for ( uint32 i = 0; i < NumShaderTypes<uint32>; ++i )
+		for ( uint32 i = 0; i < NumNonRTShaderTypes<uint32>; ++i )
 		{
 			delete m_constantBuffers[i];
 			m_constantBuffers[i] = CreateGlobalConstantBuffer();
@@ -132,7 +130,7 @@ namespace agl
 
 	void GlobalConstantBuffers::Prepare()
 	{
-		for ( uint32 i = 0; i < NumShaderTypes<uint32>; ++i )
+		for ( uint32 i = 0; i < NumNonRTShaderTypes<uint32>; ++i )
 		{
 			GetGlobalConstantBuffer( static_cast<ShaderType>( i ) ).Prepare();
 		}
@@ -175,7 +173,7 @@ namespace agl
 
 	void GlobalConstantBuffers::AddGlobalConstantBuffers( const ShaderBindings& shaderBindings )
 	{
-		for ( uint32 i = 0; i < NumShaderTypes<uint32>; ++i )
+		for ( uint32 i = 0; i < NumNonRTShaderTypes<uint32>; ++i )
 		{
 			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( i ) );
 
@@ -206,7 +204,7 @@ namespace agl
 	{
 		if ( this != &other )
 		{
-			for ( uint32 i = 0; i < NumShaderTypes<uint32>; ++i )
+			for ( uint32 i = 0; i < NumNonRTShaderTypes<uint32>; ++i )
 			{
 				delete m_constantBuffers[i];
 				m_constantBuffers[i] = other.m_constantBuffers[i];

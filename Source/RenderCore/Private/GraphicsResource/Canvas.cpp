@@ -85,11 +85,6 @@ namespace rendercore
 	Canvas::Canvas( uint32 width, uint32 height, void* hWnd, agl::ResourceFormat format, const float4& clearColor )
 	{
 		m_canvas = agl::Canvas::Create( width, height, hWnd, format, clearColor );
-		EnqueueRenderTask(
-			[canvas = m_canvas]()
-			{
-				canvas->Init();
-			} );
 	}
 
 	Canvas::~Canvas() = default;

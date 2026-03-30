@@ -219,7 +219,6 @@ namespace rendercore
 		};
 
 		auto readBackBuffer = agl::Buffer::Create( readBackTrait, "IrradianceMap.ReadBack" );
-		readBackBuffer->Init();
 
 		auto rgReadBackBuffer = renderGraph.RegisterExternalResource( readBackBuffer.Get() );
 
@@ -306,7 +305,6 @@ namespace rendercore
 		};
 
 		auto prefiltered = agl::Texture::Create( trait, "PrefilteredSpecular" );
-		prefiltered->Init();
 
 		RenderGraph renderGraph;
 		auto rgCubeMap = renderGraph.RegisterExternalResource( cubeMap.Get() );

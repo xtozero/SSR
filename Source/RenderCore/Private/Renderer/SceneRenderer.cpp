@@ -59,12 +59,6 @@ namespace rendercore
 			nullptr, // Compute
 			shaders.m_meshShader,
 			shaders.m_amplificationShader,
-			nullptr, // RayGen
-			nullptr, // Intersection
-			nullptr, // AnyHit
-			nullptr, // ClosestHit
-			nullptr, // Miss
-			nullptr, // Callable
 		};
 
 		Bind( shaderArray, outBindings );
@@ -81,12 +75,6 @@ namespace rendercore
 			shader,
 			nullptr, // Mesh
 			nullptr, // Amplification
-			nullptr, // RayGen
-			nullptr, // Intersection
-			nullptr, // AnyHit
-			nullptr, // ClosestHit
-			nullptr, // Miss
-			nullptr, // Callable
 		};
 
 		Bind( shaderArray, outBindings );
@@ -127,11 +115,11 @@ namespace rendercore
 		}
 	}
 
-	void ResourceBinder::Bind( const ShaderBase* (&shaders)[agl::NumShaderTypes<uint32>], agl::ShaderBindings& outBindings ) const
+	void ResourceBinder::Bind( const ShaderBase* (&shaders)[agl::NumNonRTShaderTypes<uint32>], agl::ShaderBindings& outBindings ) const
 	{
 		CPU_PROFILE( ResourceBinder_Bind );
 
-		for ( uint32 shaderType = 0; shaderType < agl::NumShaderTypes<uint32>; ++shaderType )
+		for ( uint32 shaderType = 0; shaderType < agl::NumNonRTShaderTypes<uint32>; ++shaderType )
 		{
 			if ( shaders[shaderType] == nullptr )
 			{
@@ -1420,16 +1408,16 @@ namespace rendercore
 
 		if ( DefaultRenderCore::IsLpvEnabled() )
 		{
-			m_lpv.Prepare( renderGraph, renderViewGroup );
-			m_lpv.InjectLight( renderGraph, renderViewGroup.Scene(), m_shadowInfos );
-			m_lpv.Propagate( renderGraph );
+			m_lpvPass.Prepare( renderGraph, renderViewGroup );
+			m_lpvPass.InjectLight( renderGraph, renderViewGroup.Scene(), m_shadowInfos );
+			m_lpvPass.Propagate( renderGraph );
 
 			LpvRenderingParameters renderingParams = {
 				.m_viewSpaceDistance = GetRenderTargets().GetViewSpaceDistance(),
 				.m_worldNormal = GetRenderTargets().GetWorldNormal(),
 			};
 
-			m_resourceCollection.m_indirectIllumination = m_lpv.Render( renderGraph, renderingParams, m_resourceBinder );
+			m_resourceCollection.m_indirectIllumination = m_lpvPass.Render( renderGraph, renderingParams, m_resourceBinder );
 		}
 		else if ( DefaultRenderCore::IsRSMsEnabled() )
 		{

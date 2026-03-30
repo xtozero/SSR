@@ -22,7 +22,7 @@ namespace agl
 
     private:
         virtual void InitResource() override;
-        virtual void FreeResource() override {};
+        virtual void FreeResource() override;
 
         RefHandle<D3D12IntersectionShader> m_intersection;
         RefHandle<D3D12AnyHitShader> m_anyHit;
@@ -47,7 +47,7 @@ namespace agl
 
     private:
         virtual void InitResource() override;
-        virtual void FreeResource() override {};
+        virtual void FreeResource() override;
 
         void MergeShaderParameterInfo();
 

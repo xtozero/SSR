@@ -39,6 +39,13 @@ namespace agl
         ToWideChar( m_wExportName, RaytracingShader::ExportNameBufferSize, exportName );
     }
 
+    void D3D12HitGroup::FreeResource()
+    {
+        m_intersection = nullptr;
+        m_anyHit = nullptr;
+        m_closestHit = nullptr;
+    }
+
     void D3D12RaytracingShaderTable::AddToStateSubobjects( D3D12StateSubobjects& outSubobjects ) const
     {
         outSubobjects.AddDXIL( m_rayGeneration->ByteCode(), m_rayGeneration->ByteCodeSize(), m_rayGeneration->GetExportName() );
@@ -181,7 +188,16 @@ namespace agl
         };
 
         m_shaderRecords = RefStaticCast<D3D12Buffer>( Buffer::Create( trait, "ShaderRecords", ResourceState::NonPixelShaderResource ) );
-        m_shaderRecords->Init();
+    }
+
+    void D3D12RaytracingShaderTable::FreeResource()
+    {
+        m_rayGeneration = nullptr;
+        m_hitGroups.clear();
+        m_misses.clear();
+        m_shaderParameterInfo.Clear();
+        m_rootSignature = nullptr;
+        m_shaderRecords = nullptr;
     }
 
     void D3D12RaytracingShaderTable::MergeShaderParameterInfo()

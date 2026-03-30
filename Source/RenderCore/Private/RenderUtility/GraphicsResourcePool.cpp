@@ -234,12 +234,6 @@ namespace rendercore
 		RefHandle<agl::Buffer> newBuffer = agl::Buffer::Create( trait, debugName );
 		m_pooledBuffers.Add( *newBuffer.Get() );
 
-		EnqueueRenderTask(
-			[buffer = newBuffer]()
-			{
-				buffer->Init();
-			} );
-
 		return newBuffer;
 	}
 
@@ -264,12 +258,6 @@ namespace rendercore
 
 		RefHandle<agl::Texture> newTexture = agl::Texture::Create( trait, debugName );
 		m_pooledTextures.Add( *newTexture.Get() );
-
-		EnqueueRenderTask( 
-			[texture = newTexture]()
-			{
-				texture->Init();
-			} );
 
 		return newTexture;
 	}

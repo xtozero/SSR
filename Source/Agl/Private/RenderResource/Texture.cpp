@@ -8,22 +8,50 @@ namespace agl
 {
 	RefHandle<Texture> Texture::Create( const TextureTrait& trait, const char* debugName )
 	{
-		return GetInterface<IResourceManager>()->CreateTexture( trait, debugName, ResourceState::Common, nullptr );
+		auto newTexture = GetInterface<IResourceManager>()->CreateTexture( trait, debugName, ResourceState::Common, nullptr );
+		EnqueueRenderTask(
+			[texture = newTexture]()
+			{
+				texture->Init();
+			} );
+
+		return newTexture;
 	}
 
 	RefHandle<Texture> Texture::Create( const TextureTrait& trait, const char* debugName, ResourceState initialState )
 	{
-		return GetInterface<IResourceManager>()->CreateTexture( trait, debugName, initialState, nullptr );
+		auto newTexture = GetInterface<IResourceManager>()->CreateTexture( trait, debugName, initialState, nullptr );
+		EnqueueRenderTask(
+			[texture = newTexture]()
+			{
+				texture->Init();
+			} );
+
+		return newTexture;
 	}
 
 	RefHandle<Texture> Texture::Create( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData )
 	{
-		return GetInterface<IResourceManager>( )->CreateTexture( trait, debugName, ResourceState::Common, initData );
+		auto newTexture = GetInterface<IResourceManager>( )->CreateTexture( trait, debugName, ResourceState::Common, initData );
+		EnqueueRenderTask(
+			[texture = newTexture]()
+			{
+				texture->Init();
+			} );
+
+		return newTexture;
 	}
 
 	RefHandle<Texture> Texture::Create( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
 	{
-		return GetInterface<IResourceManager>()->CreateTexture( trait, debugName, initialState, initData );
+		auto newTexture = GetInterface<IResourceManager>()->CreateTexture( trait, debugName, initialState, initData );
+		EnqueueRenderTask(
+			[texture = newTexture]()
+			{
+				texture->Init();
+			} );
+
+		return newTexture;
 	}
 
 	UnorderedAccessView* Texture::UAV( uint32 mipSlice )

@@ -93,7 +93,6 @@ namespace rendercore
 		if ( occlusionTestList.m_firstFreeIndex >= occlusionTestList.m_queries.size() )
 		{
 			auto occlusionTest = agl::OcclusionQuery::Create();
-			occlusionTest->Init();
 			occlusionTestList.m_queries.emplace_back( std::move( occlusionTest ) );
 		}
 

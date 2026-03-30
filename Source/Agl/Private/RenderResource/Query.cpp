@@ -7,16 +7,37 @@ namespace agl
 {
 	RefHandle<GpuTimer> GpuTimer::Create()
 	{
-		return GetInterface<IResourceManager>()->CreateGpuTimer();
+		auto newGpuTimer = GetInterface<IResourceManager>()->CreateGpuTimer();
+		EnqueueRenderTask(
+			[gpuTimer = newGpuTimer]()
+			{
+				gpuTimer->Init();
+			} );
+
+		return newGpuTimer;
 	}
 
 	RefHandle<OcclusionQuery> OcclusionQuery::Create()
 	{
-		return GetInterface<IResourceManager>()->CreateOcclusionQuery();
+		auto newQuery = GetInterface<IResourceManager>()->CreateOcclusionQuery();
+		EnqueueRenderTask(
+			[query = newQuery]()
+			{
+				query->Init();
+			} );
+
+		return newQuery;
 	}
 
 	RefHandle<PipelineStatistics> PipelineStatistics::Create()
 	{
-		return GetInterface<IResourceManager>()->CreatePipelineStatistics();
+		auto newPipelineStatistics = GetInterface<IResourceManager>()->CreatePipelineStatistics();
+		EnqueueRenderTask(
+			[pipelineStatistics = newPipelineStatistics]()
+			{
+				pipelineStatistics->Init();
+			} );
+
+		return newPipelineStatistics;
 	}
 }

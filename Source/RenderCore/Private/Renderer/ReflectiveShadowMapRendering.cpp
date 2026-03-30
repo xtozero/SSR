@@ -238,8 +238,6 @@ namespace rendercore
 		m_samplingPattern = agl::Buffer::Create( trait, "RSMs.SamplingPattern", samplingPattern );
 		assert( m_samplingPattern != nullptr );
 
-		m_samplingPattern->Init();
-
 		RSMsParameters params = {
 			.NumSamplingPattern = numSamplingPattern,
 			.MaxRadius = DefaultRenderCore::RSMsMaxSamplingRadius(),

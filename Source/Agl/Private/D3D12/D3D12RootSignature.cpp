@@ -31,6 +31,18 @@ namespace agl
 			return D3D12_SHADER_VISIBILITY_MESH;
 		case ShaderType::Amplification:
 			return D3D12_SHADER_VISIBILITY_AMPLIFICATION;
+		case ShaderType::RayGen:
+			[[fallthrough]];
+		case ShaderType::Intersection:
+			[[fallthrough]];
+		case ShaderType::AnyHit:
+			[[fallthrough]];
+		case ShaderType::ClosestHit:
+			[[fallthrough]];
+		case ShaderType::Miss:
+			[[fallthrough]];
+		case ShaderType::Callable:
+			return D3D12_SHADER_VISIBILITY_ALL;
 		default:
 			break;
 		}
@@ -222,19 +234,20 @@ namespace agl
 		m_parameters.reserve( hasBindless ? ( statistics.TotalBinding() + 2 ) : statistics.NumResourceCategory() );
 		m_descritorRange.reserve( statistics.TotalBinding() + ( hasBindless ? 5 : 0 ) );
 
+		constexpr ShaderType RayTracingBindingStage = ShaderType::Compute;
 		if ( hasBindless )
 		{
 			ShaderParameterInfoArray paramInfoArray;
-			paramInfoArray.emplace_back( ShaderType::RayTracing, &paramInfo );
+			paramInfoArray.emplace_back( RayTracingBindingStage, &paramInfo );
 
 			InitializeForBindless( paramInfoArray );
 		}
 		else
 		{
-			InitializeSRV( ShaderType::RayTracing, paramInfo );
-			InitializeUAV( ShaderType::RayTracing, paramInfo );
-			InitializeCB( ShaderType::RayTracing, paramInfo );
-			InitializeSampler( ShaderType::RayTracing, paramInfo );
+			InitializeSRV( RayTracingBindingStage, paramInfo );
+			InitializeUAV( RayTracingBindingStage, paramInfo );
+			InitializeCB( RayTracingBindingStage, paramInfo );
+			InitializeSampler( RayTracingBindingStage, paramInfo );
 		}
 
 		m_desc.NumParameters = static_cast<uint32>( m_parameters.size() );
