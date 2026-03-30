@@ -19,13 +19,13 @@ namespace agl
 		virtual void Shutdown() override;
 
 		// Texture
-		virtual Texture* CreateTexture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData ) const override;
+		virtual Texture* CreateTexture( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData ) const override;
 
 		// Buffer
-		virtual Buffer* CreateBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData ) const override;
+		virtual Buffer* CreateBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData ) const override;
 
 		// Shader
-		virtual VertexLayout* CreateVertexLayout( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size ) const override;
+		virtual VertexLayout* CreateVertexLayout( const VertexShader* vs, const VertexLayoutData* layoutData, uint32 size ) const override;
 		virtual ComputeShader* CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
 		virtual VertexShader* CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
 		virtual GeometryShader* CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
@@ -40,10 +40,10 @@ namespace agl
 		virtual CallableShader* CreateCallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const override;
 
 		// RenderState
-		virtual BlendState* CreateBlendState( const BlendStateTrait& trait ) const override;
-		virtual DepthStencilState* CreateDepthStencilState( const DepthStencilStateTrait& trait ) const override;
-		virtual RasterizerState* CreateRasterizerState( const RasterizerStateTrait& trait ) const override;
-		virtual SamplerState* CreateSamplerState( const SamplerStateTrait& trait ) const override;
+		virtual BlendState* CreateBlendState( const BlendStateDesc& desc ) const override;
+		virtual DepthStencilState* CreateDepthStencilState( const DepthStencilStateDesc& desc ) const override;
+		virtual RasterizerState* CreateRasterizerState( const RasterizerStateDesc& desc ) const override;
+		virtual SamplerState* CreateSamplerState( const SamplerStateDesc& desc ) const override;
 		virtual GraphicsPipelineState* CreatePipelineState( const GraphicsPipelineStateDesc& desc ) override;
 		virtual ComputePipelineState* CreatePipelineState( const ComputePipelineStateDesc& desc ) override;
 

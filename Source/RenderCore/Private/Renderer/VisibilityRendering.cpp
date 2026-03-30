@@ -90,7 +90,7 @@ namespace rendercore
         // Copy draw call IDs
         auto numSnapshots = static_cast<uint32>( visibilityPassSnapshots.size() );
 
-        agl::BufferTrait uploaderTrait = {
+        agl::BufferDesc uploaderDesc = {
             .m_stride = sizeof( uint32 ),
             .m_count = numSnapshots,
             .m_access = agl::ResourceAccess::Upload,
@@ -99,7 +99,7 @@ namespace rendercore
             .m_format = agl::ResourceFormat::Unknown
         };
 
-        RefHandle<agl::Buffer> uploadBuffer = GraphicsResourcePool::GetInstance().FindFreeBuffer( uploaderTrait, "Visibility.UploadBuffer" );
+        RefHandle<agl::Buffer> uploadBuffer = GraphicsResourcePool::GetInstance().FindFreeBuffer( uploaderDesc, "Visibility.UploadBuffer" );
 
         if ( auto buffer = GraphicsInterface().Lock<uint32>( uploadBuffer.Get() ) )
         {
@@ -111,7 +111,7 @@ namespace rendercore
             GraphicsInterface().UnLock( uploadBuffer.Get() );
         }
 
-        agl::BufferTrait drawCallIDsTrait = {
+        agl::BufferDesc drawCallIDsDesc = {
             .m_stride = sizeof( uint32 ),
             .m_count = numSnapshots,
             .m_access = agl::ResourceAccess::Default,
@@ -121,7 +121,7 @@ namespace rendercore
         };
 
         auto rgUpload = renderGraph.RegisterExternalResource( uploadBuffer.Get() );
-        auto rgDrawCallIDs = renderGraph.CreateBuffer( drawCallIDsTrait, "Visibility.DrawCallIDs" );
+        auto rgDrawCallIDs = renderGraph.CreateBuffer( drawCallIDsDesc, "Visibility.DrawCallIDs" );
 
         BEGIN_RG_RESOURCE_STRUCT( UploadPassResource )
             DECLARE_RG_BUFFER_COPY_SOURCE( upload )
@@ -193,7 +193,7 @@ namespace rendercore
 
         auto numElement = static_cast<uint32>( passData.m_shadingSnapshots.size() + 1 );
 
-        agl::BufferTrait trait = {
+        agl::BufferDesc desc = {
             .m_stride = sizeof( uint32 ),
             .m_count = numElement,
             .m_access = agl::ResourceAccess::Upload,
@@ -202,7 +202,7 @@ namespace rendercore
             .m_format = agl::ResourceFormat::Unknown
         };
 
-        RefHandle<agl::Buffer> buffer = agl::Buffer::Create( trait, "Visibility.PrimitiveIds" );
+        RefHandle<agl::Buffer> buffer = agl::Buffer::Create( desc, "Visibility.PrimitiveIds" );
 
         auto data = GraphicsInterface().Lock<uint32>( buffer.Get() ) + 1;
         for ( const auto& shadingSnapshot : passData.m_shadingSnapshots )
@@ -223,7 +223,7 @@ namespace rendercore
 
         uint32 numElement = param.m_numDrawCallIds;
 
-        agl::BufferTrait counterTrait = {
+        agl::BufferDesc counterDesc = {
             .m_stride = sizeof( uint32 ),
             .m_count = numElement,
             .m_access = agl::ResourceAccess::Default,
@@ -232,9 +232,9 @@ namespace rendercore
             .m_format = agl::ResourceFormat::Unknown
         };
 
-        auto rgCounter = renderGraph.CreateBuffer( counterTrait, "Visibility.Counter" );
+        auto rgCounter = renderGraph.CreateBuffer( counterDesc, "Visibility.Counter" );
 
-        agl::BufferTrait indirectArgsTrait = {
+        agl::BufferDesc indirectArgsDesc = {
             .m_stride = sizeof( uint32 ) * 3,
             .m_count = numElement,
             .m_access = agl::ResourceAccess::Default,
@@ -243,7 +243,7 @@ namespace rendercore
             .m_format = agl::ResourceFormat::R32_TYPELESS,
         };
 
-        auto rgIndirectArgs = renderGraph.CreateBuffer( indirectArgsTrait, "Visibility.IndirectArgs" );
+        auto rgIndirectArgs = renderGraph.CreateBuffer( indirectArgsDesc, "Visibility.IndirectArgs" );
 
         BEGIN_RG_RESOURCE_STRUCT( InitCounterPassResource )
             DECLARE_RG_BUFFER_UAV( counter )
@@ -312,8 +312,8 @@ namespace rendercore
                     BindResource( shaderBindings, countDrawCallIdCS.Visibility(), visibility.Get() );
                     BindResource( shaderBindings, countDrawCallIdCS.Counter(), counter.Get() );
 
-                    uint32 width = visibility.GetTrait().m_width;
-                    uint32 height = visibility.GetTrait().m_height;
+                    uint32 width = visibility.GetDesc().m_width;
+                    uint32 height = visibility.GetDesc().m_height;
 
                     uint32 screenSize[2] = {
                         width,
@@ -345,7 +345,7 @@ namespace rendercore
             return nullptr;
         }
 
-        agl::BufferTrait blockIdTrait = {
+        agl::BufferDesc blockIdDesc = {
             .m_stride = sizeof( uint32 ),
             .m_count = 1,
             .m_access = agl::ResourceAccess::Default,
@@ -354,7 +354,7 @@ namespace rendercore
             .m_format = agl::ResourceFormat::Unknown
         };
 
-        agl::BufferTrait blockStatusTrait = {
+        agl::BufferDesc blockStatusDesc = {
             .m_stride = sizeof( uint32 ) * 2,
             .m_count = CalcAlignment( param.m_numDrawCallIds, PrefixSumBlockSize ) / PrefixSumBlockSize,
             .m_access = agl::ResourceAccess::Default,
@@ -363,8 +363,8 @@ namespace rendercore
             .m_format = agl::ResourceFormat::Unknown
         };
 
-        auto rgBlockId = renderGraph.CreateBuffer( blockIdTrait, "PrefixSum.BlockId" );
-        auto rgBlockStatus = renderGraph.CreateBuffer( blockStatusTrait, "PrefixSum.BlockStatus" );
+        auto rgBlockId = renderGraph.CreateBuffer( blockIdDesc, "PrefixSum.BlockId" );
+        auto rgBlockStatus = renderGraph.CreateBuffer( blockStatusDesc, "PrefixSum.BlockStatus" );
 
         BEGIN_RG_RESOURCE_STRUCT( InitPrefixSumPassResource )
             DECLARE_RG_BUFFER_UAV( blockId )
@@ -407,7 +407,7 @@ namespace rendercore
                 } );
         }
 
-        agl::BufferTrait offsetTrait = {
+        agl::BufferDesc offsetDesc = {
             .m_stride = sizeof( uint32 ),
             .m_count = param.m_numDrawCallIds,
             .m_access = agl::ResourceAccess::Default,
@@ -416,7 +416,7 @@ namespace rendercore
             .m_format = agl::ResourceFormat::Unknown
         };
 
-        auto rgOffset = renderGraph.CreateBuffer( offsetTrait, "Visibility.Offset" );
+        auto rgOffset = renderGraph.CreateBuffer( offsetDesc, "Visibility.Offset" );
 
         BEGIN_RG_RESOURCE_STRUCT( PrefixSumPassResource )
             DECLARE_RG_BUFFER_UAV( input )
@@ -474,10 +474,10 @@ namespace rendercore
             return nullptr;
         }
 
-        uint32 width = param.m_visibility->GetTrait().m_width;
-        uint32 height = param.m_visibility->GetTrait().m_height;
+        uint32 width = param.m_visibility->GetDesc().m_width;
+        uint32 height = param.m_visibility->GetDesc().m_height;
 
-        agl::BufferTrait workListTrait = {
+        agl::BufferDesc workListDesc = {
             .m_stride = sizeof( uint32 ),
             .m_count = width * height,
             .m_access = agl::ResourceAccess::Default,
@@ -486,7 +486,7 @@ namespace rendercore
             .m_format = agl::ResourceFormat::Unknown,
         };
 
-        auto rgWorkList = renderGraph.CreateBuffer( workListTrait, "Visibility.WorkList" );
+        auto rgWorkList = renderGraph.CreateBuffer( workListDesc, "Visibility.WorkList" );
 
         BEGIN_RG_RESOURCE_STRUCT( BuildWorkListPassResource )
             DECLARE_RG_TEXTURE_NONPIXEL_SRV( visibility )
@@ -525,8 +525,8 @@ namespace rendercore
                     BindResource( shaderBindings, buildWorkListCS.IndirectArgs(), indirectArgs.Get() );
                     BindResource( shaderBindings, buildWorkListCS.WorkList(), workList.Get() );
 
-                    uint32 width = visibility.GetTrait().m_width;
-                    uint32 height = visibility.GetTrait().m_height;
+                    uint32 width = visibility.GetDesc().m_width;
+                    uint32 height = visibility.GetDesc().m_height;
 
                     uint32 screenSize[2] = {
                         width,
@@ -591,7 +591,7 @@ namespace rendercore
         constexpr uint32 numElements = 10000;
 
         // input
-        agl::BufferTrait inputUploaderTrait = {
+        agl::BufferDesc inputUploaderDesc = {
             .m_stride = sizeof( uint32 ),
             .m_count = numElements,
             .m_access = agl::ResourceAccess::Upload,
@@ -600,7 +600,7 @@ namespace rendercore
             .m_format = agl::ResourceFormat::Unknown
         };
 
-        RefHandle<agl::Buffer> inputUploader = GraphicsResourcePool::GetInstance().FindFreeBuffer( inputUploaderTrait, "PrefixTestBed.InputUploader" );
+        RefHandle<agl::Buffer> inputUploader = GraphicsResourcePool::GetInstance().FindFreeBuffer( inputUploaderDesc, "PrefixTestBed.InputUploader" );
         if ( uint32* dest = GraphicsInterface().Lock<uint32>( inputUploader.Get() ) )
         {
             std::fill_n( dest, numElements, 1 );
@@ -609,7 +609,7 @@ namespace rendercore
 
         auto rgInputUploader = renderGraph.RegisterExternalResource( inputUploader.Get() );
 
-        agl::BufferTrait inputTrait = {
+        agl::BufferDesc inputDesc = {
             .m_stride = sizeof( uint32 ),
             .m_count = numElements,
             .m_access = agl::ResourceAccess::Default,
@@ -618,7 +618,7 @@ namespace rendercore
             .m_format = agl::ResourceFormat::Unknown
         };
 
-        auto rgInput = renderGraph.CreateBuffer( inputTrait, "PrefixSumTestBed.Input" );
+        auto rgInput = renderGraph.CreateBuffer( inputDesc, "PrefixSumTestBed.Input" );
 
         BEGIN_RG_RESOURCE_STRUCT( UploadInputPassResource )
             DECLARE_RG_BUFFER_COPY_SOURCE( inputUploader )
@@ -642,7 +642,7 @@ namespace rendercore
         }
 
         // prepare to prefix sum
-        agl::BufferTrait blockIdTrait = {
+        agl::BufferDesc blockIdDesc = {
             .m_stride = sizeof( uint32 ),
             .m_count = 1,
             .m_access = agl::ResourceAccess::Default,
@@ -651,7 +651,7 @@ namespace rendercore
             .m_format = agl::ResourceFormat::Unknown
         };
 
-        agl::BufferTrait blockStatusTrait = {
+        agl::BufferDesc blockStatusDesc = {
             .m_stride = sizeof( uint32 ) * 2,
             .m_count = CalcAlignment( numElements, PrefixSumBlockSize ) / PrefixSumBlockSize,
             .m_access = agl::ResourceAccess::Default,
@@ -660,8 +660,8 @@ namespace rendercore
             .m_format = agl::ResourceFormat::Unknown
         };
 
-        auto rgBlockId = renderGraph.CreateBuffer( blockIdTrait, "PrefixTestBed.BlockId" );
-        auto rgBlockStatus = renderGraph.CreateBuffer( blockStatusTrait, "PrefixTestBed.BlockStatus" );
+        auto rgBlockId = renderGraph.CreateBuffer( blockIdDesc, "PrefixTestBed.BlockId" );
+        auto rgBlockStatus = renderGraph.CreateBuffer( blockStatusDesc, "PrefixTestBed.BlockStatus" );
 
         BEGIN_RG_RESOURCE_STRUCT( InitPrefixSumPassResource )
             DECLARE_RG_BUFFER_UAV( blockId )
@@ -703,7 +703,7 @@ namespace rendercore
         }
 
         // output
-        agl::BufferTrait outputTrait = {
+        agl::BufferDesc outputDesc = {
             .m_stride = sizeof( uint32 ),
             .m_count = numElements,
             .m_access = agl::ResourceAccess::Default,
@@ -712,7 +712,7 @@ namespace rendercore
             .m_format = agl::ResourceFormat::Unknown
         };
 
-        auto rgOutput = renderGraph.CreateBuffer( outputTrait, "PrefixTestBed.Output" );
+        auto rgOutput = renderGraph.CreateBuffer( outputDesc, "PrefixTestBed.Output" );
 
         BEGIN_RG_RESOURCE_STRUCT( PrefixSumPassResource )
             DECLARE_RG_BUFFER_UAV( input )

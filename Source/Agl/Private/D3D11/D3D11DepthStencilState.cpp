@@ -6,30 +6,30 @@
 using ::agl::ConvertToComparisionFunc;
 using ::agl::ConvertToStencilOp;
 using ::agl::ConvertToDepthWriteMask;
-using ::agl::DepthStencilStateTrait;
+using ::agl::DepthStencilStateDesc;
 
 namespace
 {
-	D3D11_DEPTH_STENCIL_DESC ConvertTraitToDesc( const DepthStencilStateTrait& trait )
+	D3D11_DEPTH_STENCIL_DESC ConvertToD3DDesc( const DepthStencilStateDesc& desc )
 	{
 		return D3D11_DEPTH_STENCIL_DESC{
-			.DepthEnable = trait.m_depthEnable,
-			.DepthWriteMask = ConvertToDepthWriteMask( trait.m_depthWriteMode ),
-			.DepthFunc = ConvertToComparisionFunc( trait.m_depthFunc ),
-			.StencilEnable = trait.m_stencilEnable,
-			.StencilReadMask = trait.m_stencilReadMask,
-			.StencilWriteMask = trait.m_stencilWriteMask,
+			.DepthEnable = desc.m_depthEnable,
+			.DepthWriteMask = ConvertToDepthWriteMask( desc.m_depthWriteMode ),
+			.DepthFunc = ConvertToComparisionFunc( desc.m_depthFunc ),
+			.StencilEnable = desc.m_stencilEnable,
+			.StencilReadMask = desc.m_stencilReadMask,
+			.StencilWriteMask = desc.m_stencilWriteMask,
 			.FrontFace = {
-				.StencilFailOp = ConvertToStencilOp( trait.m_frontFace.m_failOp ),
-				.StencilDepthFailOp = ConvertToStencilOp( trait.m_frontFace.m_depthFailOp ),
-				.StencilPassOp = ConvertToStencilOp( trait.m_frontFace.m_passOp ),
-				.StencilFunc = ConvertToComparisionFunc( trait.m_frontFace.m_func )
+				.StencilFailOp = ConvertToStencilOp( desc.m_frontFace.m_failOp ),
+				.StencilDepthFailOp = ConvertToStencilOp( desc.m_frontFace.m_depthFailOp ),
+				.StencilPassOp = ConvertToStencilOp( desc.m_frontFace.m_passOp ),
+				.StencilFunc = ConvertToComparisionFunc( desc.m_frontFace.m_func )
 			},
 			.BackFace = {
-				.StencilFailOp = ConvertToStencilOp( trait.m_backFace.m_failOp ),
-				.StencilDepthFailOp = ConvertToStencilOp( trait.m_backFace.m_depthFailOp ),
-				.StencilPassOp = ConvertToStencilOp( trait.m_backFace.m_passOp ),
-				.StencilFunc = ConvertToComparisionFunc( trait.m_backFace.m_func )
+				.StencilFailOp = ConvertToStencilOp( desc.m_backFace.m_failOp ),
+				.StencilDepthFailOp = ConvertToStencilOp( desc.m_backFace.m_depthFailOp ),
+				.StencilPassOp = ConvertToStencilOp( desc.m_backFace.m_passOp ),
+				.StencilFunc = ConvertToComparisionFunc( desc.m_backFace.m_func )
 			}
 		};
 	}
@@ -57,11 +57,11 @@ namespace agl
 		m_stencilRef = stencilRef;
 	}
 
-	D3D11DepthStencilState::D3D11DepthStencilState( const DepthStencilStateTrait& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
+	D3D11DepthStencilState::D3D11DepthStencilState( const DepthStencilStateDesc& desc ) : m_d3dDesc( ConvertToD3DDesc( desc ) ) {}
 
 	void D3D11DepthStencilState::InitResource()
 	{
-		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateDepthStencilState( &m_desc, &m_depthStencilState ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateDepthStencilState( &m_d3dDesc, &m_depthStencilState ) );
 		assert( result );
 	}
 

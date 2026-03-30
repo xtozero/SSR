@@ -19,7 +19,7 @@ namespace rendercore
 		m_width = width;
 		m_height = height;
 
-		agl::TextureTrait hitProxyTexTrait = {
+		agl::TextureDesc hitProxyTexDesc = {
 			.m_width = width,
 			.m_height = height,
 			.m_depth = 1,
@@ -36,9 +36,9 @@ namespace rendercore
 			}
 		};
 
-		m_hitProxyTexture = agl::Texture::Create( hitProxyTexTrait, "HitProxy.Texture" );
+		m_hitProxyTexture = agl::Texture::Create( hitProxyTexDesc, "HitProxy.Texture" );
 
-		agl::TextureTrait hitProxyCpuTexTrait = {
+		agl::TextureDesc hitProxyCpuTexDesc = {
 			.m_width = width,
 			.m_height = height,
 			.m_depth = 1,
@@ -51,7 +51,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::None
 		};
 
-		m_hitProxyCpuTexture = agl::Texture::Create( hitProxyCpuTexTrait, "HitProxy.CpuTexture" );
+		m_hitProxyCpuTexture = agl::Texture::Create( hitProxyCpuTexDesc, "HitProxy.CpuTexture" );
 	}
 
 	agl::Texture* HitProxyMap::Texture() const

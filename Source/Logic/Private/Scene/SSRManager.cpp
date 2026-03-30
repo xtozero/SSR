@@ -147,7 +147,7 @@ namespace logic
 		//IResourceManager& resourceMgr = renderer.GetResourceManager( );
 
 		//std::string ssrTextureName( "ScreenSpaceReflect" );
-		//TextureTrait ssrTexTrait = {
+		//TextureDesc ssrTexDesc = {
 		//	0U,
 		//	0U,
 		//	1U,
@@ -160,7 +160,7 @@ namespace logic
 		//	RESOURCE_MISC::APP_SIZE_DEPENDENT
 		//};
 
-		//m_ssrTexture = resourceMgr.CreateTexture2D( ssrTexTrait, ssrTextureName );
+		//m_ssrTexture = resourceMgr.CreateTexture2D( ssrTexDesc, ssrTextureName );
 		//if ( m_ssrTexture == RE_HANDLE::InValidHandle( ) )
 		//{
 		//	return false;
@@ -202,7 +202,7 @@ namespace logic
 	bool CSSRManager::CreateDeviceDependendResource( CGameLogic& gameLogic )
 	{
 		//// Create Constant Buffer
-		//BufferTrait trait = { sizeof( SSRConstantBuffer ),
+		//BufferDesc desc = { sizeof( SSRConstantBuffer ),
 		//	1,
 		//	RESOURCE_ACCESS_FLAG::GPU_READ | RESOURCE_ACCESS_FLAG::CPU_WRITE,
 		//	RESOURCE_BIND_TYPE::CONSTANT_BUFFER,
@@ -212,7 +212,7 @@ namespace logic
 		//	0 };
 
 		//IRenderer& renderer = gameLogic.GetRenderer( );
-		//m_ssrConstantBuffer = renderer.CreateBuffer( trait );
+		//m_ssrConstantBuffer = renderer.CreateBuffer( desc );
 
 		//if ( m_ssrConstantBuffer == RE_HANDLE::InValidHandle( ) )
 		//{

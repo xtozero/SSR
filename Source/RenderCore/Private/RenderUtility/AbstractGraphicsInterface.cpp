@@ -61,14 +61,14 @@ namespace rendercore
 		auto found = m_blendStates.find( option );
 		if ( found == std::end( m_blendStates ) )
 		{
-			agl::BlendStateTrait trait;
-			trait.m_alphaToConverageEnable = option.m_alphaToConverageEnable;
-			trait.m_independentBlendEnable = option.m_independentBlendEnable;
+			agl::BlendStateDesc desc;
+			desc.m_alphaToConverageEnable = option.m_alphaToConverageEnable;
+			desc.m_independentBlendEnable = option.m_independentBlendEnable;
 
 			constexpr uint32 MaxRenderTargets = std::extent_v<decltype( option.m_renderTarget )>;
 			for ( uint32 i = 0; i < MaxRenderTargets; ++i )
 			{
-				auto& dest = trait.m_renderTarget[i];
+				auto& dest = desc.m_renderTarget[i];
 				auto& src = option.m_renderTarget[i];
 
 				dest.m_blendEnable = src.m_blendEnable;
@@ -81,9 +81,9 @@ namespace rendercore
 				dest.m_renderTargetWriteMask = src.m_renderTargetWriteMask;
 			}
 
-			trait.m_sampleMask = option.m_sampleMask;
+			desc.m_sampleMask = option.m_sampleMask;
 
-			BlendState state( trait );
+			BlendState state( desc );
 			m_blendStates.emplace( option, state );
 
 			return state;
@@ -97,7 +97,7 @@ namespace rendercore
 		auto found = m_depthStencilStates.find( option );
 		if ( found == std::end( m_depthStencilStates ) )
 		{
-			agl::DepthStencilStateTrait trait = {
+			agl::DepthStencilStateDesc desc = {
 				.m_depthEnable = option.m_depth.m_enable,
 				.m_depthWriteMode = option.m_depth.m_writeDepth ? agl::DepthWriteMode::All : agl::DepthWriteMode::Zero,
 				.m_depthFunc = option.m_depth.m_depthFunc,
@@ -108,7 +108,7 @@ namespace rendercore
 				.m_backFace = option.m_stencil.m_backFace
 			};
 
-			DepthStencilState state( trait );
+			DepthStencilState state( desc );
 			m_depthStencilStates.emplace( option, state );
 
 			return state;
@@ -122,7 +122,7 @@ namespace rendercore
 		auto found = m_rasterizerStates.find( option );
 		if ( found == std::end( m_rasterizerStates ) )
 		{
-			agl::RasterizerStateTrait trait = {
+			agl::RasterizerStateDesc desc = {
 				.m_fillMode = option.m_isWireframe ? agl::FillMode::Wireframe : agl::FillMode::Solid,
 				.m_cullMode = option.m_cullMode,
 				.m_frontCounterClockwise = option.m_counterClockwise,
@@ -135,7 +135,7 @@ namespace rendercore
 				.m_antialiasedLineEnable = option.m_antialiasedLineEnable
 			};
 
-			RasterizerState state( trait );
+			RasterizerState state( desc );
 			m_rasterizerStates.emplace( option, state );
 
 			return state;
@@ -149,7 +149,7 @@ namespace rendercore
 		auto found = m_samplerStates.find( option );
 		if ( found == std::end( m_samplerStates ) )
 		{
-			agl::SamplerStateTrait trait = {
+			agl::SamplerStateDesc desc = {
 				.m_filter = option.m_filter,
 				.m_addressU = option.m_addressU,
 				.m_addressV = option.m_addressV,
@@ -162,7 +162,7 @@ namespace rendercore
 				.m_maxLOD = std::numeric_limits<float>::max()
 			};
 
-			SamplerState state( trait );
+			SamplerState state( desc );
 			m_samplerStates.emplace( option, state );
 
 			return state;

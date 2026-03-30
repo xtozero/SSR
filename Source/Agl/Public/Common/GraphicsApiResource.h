@@ -670,7 +670,7 @@ namespace agl
 		};
 	};
 
-	struct BufferTrait
+	struct BufferDesc
 	{
 		uint32 m_stride;
 		uint32 m_count;
@@ -682,7 +682,7 @@ namespace agl
 		AGL_DLL size_t GetHash() const;
 	};
 
-	struct TextureTrait
+	struct TextureDesc
 	{
 		uint32 m_width = 0;
 		uint32 m_height = 0;
@@ -726,7 +726,7 @@ namespace agl
 		int32 m_quality;
 	};
 
-	struct SamplerStateTrait
+	struct SamplerStateDesc
 	{
 		TextureFilter m_filter;
 		TextureAddressMode m_addressU;
@@ -740,7 +740,7 @@ namespace agl
 		float m_maxLOD;
 	};
 
-	struct RasterizerStateTrait
+	struct RasterizerStateDesc
 	{
 		FillMode m_fillMode;
 		CullMode m_cullMode;
@@ -756,7 +756,7 @@ namespace agl
 		AGL_DLL size_t GetHash() const;
 	};
 
-	struct RenderTargetBlendTrait
+	struct RenderTargetBlendDesc
 	{
 		bool m_blendEnable;
 		Blend m_srcBlend;
@@ -770,17 +770,17 @@ namespace agl
 		AGL_DLL size_t GetHash() const;
 	};
 
-	struct BlendStateTrait
+	struct BlendStateDesc
 	{
 		bool m_alphaToConverageEnable;
 		bool m_independentBlendEnable;
-		RenderTargetBlendTrait m_renderTarget[MaxRendertagets];
+		RenderTargetBlendDesc m_renderTarget[MaxRendertagets];
 		uint32 m_sampleMask;
 
 		AGL_DLL size_t GetHash() const;
 	};
 
-	struct StencilOpTrait
+	struct StencilOpDesc
 	{
 		StencilOp m_failOp;
 		StencilOp m_depthFailOp;
@@ -789,7 +789,7 @@ namespace agl
 
 		AGL_DLL size_t GetHash() const;
 
-		friend bool operator==( const StencilOpTrait& lhs, const StencilOpTrait& rhs )
+		friend bool operator==( const StencilOpDesc& lhs, const StencilOpDesc& rhs )
 		{
 			return lhs.m_failOp == rhs.m_failOp
 				&& lhs.m_depthFailOp == rhs.m_depthFailOp
@@ -798,7 +798,7 @@ namespace agl
 		}
 	};
 
-	struct DepthStencilStateTrait
+	struct DepthStencilStateDesc
 	{
 		bool m_depthEnable;
 		DepthWriteMode m_depthWriteMode;
@@ -806,13 +806,13 @@ namespace agl
 		bool m_stencilEnable;
 		unsigned char m_stencilReadMask;
 		unsigned char m_stencilWriteMask;
-		StencilOpTrait m_frontFace;
-		StencilOpTrait m_backFace;
+		StencilOpDesc m_frontFace;
+		StencilOpDesc m_backFace;
 
 		AGL_DLL size_t GetHash() const;
 	};
 
-	struct VertexLayoutTrait
+	struct VertexLayoutData
 	{
 		bool m_isInstanceData = false;
 		uint32 m_index = 0;
@@ -823,7 +823,7 @@ namespace agl
 
 		AGL_DLL size_t GetHash() const;
 
-		friend bool operator==( const VertexLayoutTrait& lhs, const VertexLayoutTrait& rhs )
+		friend bool operator==( const VertexLayoutData& lhs, const VertexLayoutData& rhs )
 		{
 			return  lhs.m_isInstanceData == rhs.m_isInstanceData
 				&& lhs.m_index == rhs.m_index
@@ -833,7 +833,7 @@ namespace agl
 				&& lhs.m_name == rhs.m_name;
 		}
 
-		friend bool operator!=( const VertexLayoutTrait& lhs, const VertexLayoutTrait& rhs )
+		friend bool operator!=( const VertexLayoutData& lhs, const VertexLayoutData& rhs )
 		{
 			return !( lhs == rhs );
 		}

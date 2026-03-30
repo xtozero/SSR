@@ -5,16 +5,16 @@
 
 namespace
 {
-	uint32 ComputeSizeInKB( const agl::TextureTrait& trait )
+	uint32 ComputeSizeInKB( const agl::TextureDesc& desc )
 	{
-		uint32 bitPerPixel = agl::BitPerPixel( trait.m_format );
+		uint32 bitPerPixel = agl::BitPerPixel( desc.m_format );
 		uint32 totalSize = 0;
 
-		uint32 width = trait.m_width;
-		uint32 height = trait.m_height;
-		uint32 depth = trait.m_depth;
+		uint32 width = desc.m_width;
+		uint32 height = desc.m_height;
+		uint32 depth = desc.m_depth;
 
-		for ( uint32 i = 0; i < trait.m_mipLevels; ++i )
+		for ( uint32 i = 0; i < desc.m_mipLevels; ++i )
 		{
 			totalSize += ( width * height * depth * bitPerPixel + 7 ) / 8;
 
@@ -26,9 +26,9 @@ namespace
 		return ( totalSize + 1023 ) / 1024;
 	}
 
-	uint32 ComputeSizeInKB( const agl::BufferTrait& trait )
+	uint32 ComputeSizeInKB( const agl::BufferDesc& desc )
 	{
-		return ( trait.m_stride * trait.m_count + 1023 ) / 1024;
+		return ( desc.m_stride * desc.m_count + 1023 ) / 1024;
 	}
 }
 
@@ -92,12 +92,12 @@ namespace rendercore
 
 	size_t PooledBuffer::GetHash() const
 	{
-		return m_trait.GetHash();
+		return m_desc.GetHash();
 	}
 
-	const agl::BufferTrait& PooledBuffer::GetTrait() const
+	const agl::BufferDesc& PooledBuffer::GetDesc() const
 	{
-		return m_trait;
+		return m_desc;
 	}
 
 	RefHandle<agl::Buffer> PooledBuffer::Get() const
@@ -108,7 +108,7 @@ namespace rendercore
 
 	PooledBuffer::PooledBuffer( agl::Buffer& buffer )
 		: PooledResource( buffer )
-		, m_trait( buffer.GetTrait() )
+		, m_desc( buffer.GetDesc() )
 	{
 	}
 
@@ -124,7 +124,7 @@ namespace rendercore
 
 		if ( this != &other )
 		{
-			m_trait = other.m_trait;
+			m_desc = other.m_desc;
 		}
 
 		return *this;
@@ -142,7 +142,7 @@ namespace rendercore
 
 		if ( this != &other )
 		{
-			m_trait = std::move( other.m_trait );
+			m_desc = std::move( other.m_desc );
 		}
 
 		return *this;
@@ -150,12 +150,12 @@ namespace rendercore
 
 	size_t PooledTexture::GetHash() const
 	{
-		return m_trait.GetHash();
+		return m_desc.GetHash();
 	}
 
-	const agl::TextureTrait& PooledTexture::GetTrait() const
+	const agl::TextureDesc& PooledTexture::GetDesc() const
 	{
-		return m_trait;
+		return m_desc;
 	}
 
 	RefHandle<agl::Texture> PooledTexture::Get() const
@@ -166,7 +166,7 @@ namespace rendercore
 
 	PooledTexture::PooledTexture( agl::Texture& texture )
 		: PooledResource( texture )
-		, m_trait( texture.GetTrait() )
+		, m_desc( texture.GetDesc() )
 	{
 	}
 
@@ -182,7 +182,7 @@ namespace rendercore
 
 		if ( this != &other )
 		{
-			m_trait = other.m_trait;
+			m_desc = other.m_desc;
 		}
 
 		return *this;
@@ -200,7 +200,7 @@ namespace rendercore
 
 		if ( this != &other )
 		{
-			m_trait = std::move( other.m_trait );
+			m_desc = std::move( other.m_desc );
 		}
 
 		return *this;
@@ -212,7 +212,7 @@ namespace rendercore
 		TickInternal( m_pooledBuffers );
 	}
 
-	RefHandle<agl::Buffer> GraphicsResourcePool::FindFreeBuffer( const agl::BufferTrait& trait, const char* debugName )
+	RefHandle<agl::Buffer> GraphicsResourcePool::FindFreeBuffer( const agl::BufferDesc& desc, const char* debugName )
 	{
 		for ( PooledBuffer& buffer : m_pooledBuffers )
 		{
@@ -221,7 +221,7 @@ namespace rendercore
 				continue;
 			}
 
-			if ( buffer.GetHash() == trait.GetHash() )
+			if ( buffer.GetHash() == desc.GetHash() )
 			{
 				buffer.MarkAsInUse();
 				buffer.Get()->Rename( Name( debugName ) );
@@ -229,15 +229,15 @@ namespace rendercore
 			}
 		}
 
-		m_allocationSizeInKB += ComputeSizeInKB( trait );
+		m_allocationSizeInKB += ComputeSizeInKB( desc );
 
-		RefHandle<agl::Buffer> newBuffer = agl::Buffer::Create( trait, debugName );
+		RefHandle<agl::Buffer> newBuffer = agl::Buffer::Create( desc, debugName );
 		m_pooledBuffers.Add( *newBuffer.Get() );
 
 		return newBuffer;
 	}
 
-	RefHandle<agl::Texture> GraphicsResourcePool::FindFreeTexture( const agl::TextureTrait& trait, const char* debugName )
+	RefHandle<agl::Texture> GraphicsResourcePool::FindFreeTexture( const agl::TextureDesc& desc, const char* debugName )
 	{
 		for ( PooledTexture& pooledTexture : m_pooledTextures )
 		{
@@ -246,7 +246,7 @@ namespace rendercore
 				continue;
 			}
 
-			if ( pooledTexture.GetHash() == trait.GetHash() )
+			if ( pooledTexture.GetHash() == desc.GetHash() )
 			{
 				pooledTexture.MarkAsInUse();
 				pooledTexture.Get()->Rename( Name( debugName ) );
@@ -254,9 +254,9 @@ namespace rendercore
 			}
 		}
 
-		m_allocationSizeInKB += ComputeSizeInKB( trait );
+		m_allocationSizeInKB += ComputeSizeInKB( desc );
 
-		RefHandle<agl::Texture> newTexture = agl::Texture::Create( trait, debugName );
+		RefHandle<agl::Texture> newTexture = agl::Texture::Create( desc, debugName );
 		m_pooledTextures.Add( *newTexture.Get() );
 
 		return newTexture;
@@ -297,7 +297,7 @@ namespace rendercore
 
 			if ( oldestIndex != endIndex )
 			{
-				m_allocationSizeInKB -= ComputeSizeInKB( pooledResources[oldestIndex].GetTrait() );
+				m_allocationSizeInKB -= ComputeSizeInKB( pooledResources[oldestIndex].GetDesc() );
 				pooledResources.RemoveAt( oldestIndex );
 			}
 			else

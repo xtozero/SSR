@@ -109,19 +109,19 @@ namespace rendercore
 		return nullptr;
 	}
 
-	void VertexCollection::InitLayout( const agl::VertexLayoutTrait* traits, uint32 count, VertexStreamLayoutType layoutType )
+	void VertexCollection::InitLayout( const agl::VertexLayoutData* layoutData, uint32 count, VertexStreamLayoutType layoutType )
 	{
 		if ( layoutType == VertexStreamLayoutType::PositionOnly )
 		{
-			m_positionLayout = SetupVertexLayout( traits, count );
+			m_positionLayout = SetupVertexLayout( layoutData, count );
 		}
 		else if ( layoutType == VertexStreamLayoutType::PositionNormal )
 		{
-			m_positionNormalLayout = SetupVertexLayout( traits, count );
+			m_positionNormalLayout = SetupVertexLayout( layoutData, count );
 		}
 		else
 		{
-			m_defaultLayout = SetupVertexLayout( traits, count );
+			m_defaultLayout = SetupVertexLayout( layoutData, count );
 		}
 	}
 
@@ -158,7 +158,7 @@ namespace rendercore
 		for ( uint32 i = 0; i < layout->Size(); ++i )
 		{
 			int32 streamIndex = layout->StreamIndex( i );
-			uint32 slot = layout->Data()[i].m_slot;
+			uint32 slot = layout->GetData()[i].m_slot;
 
 			if ( streamIndex != -1 )
 			{
@@ -204,22 +204,22 @@ namespace rendercore
 		return { };
 	}
 
-	VertexStreamLayout VertexCollection::SetupVertexLayout( const agl::VertexLayoutTrait* traits, uint32 count )
+	VertexStreamLayout VertexCollection::SetupVertexLayout( const agl::VertexLayoutData* layoutData, uint32 count )
 	{
 		VertexStreamLayout layout;
 
 		for ( uint32 i = 0; i < count; ++i )
 		{
-			const agl::VertexLayoutTrait& trait = traits[i];
-			auto streamIndex = FindStreamIndex( trait.m_name );
+			const agl::VertexLayoutData& elem = layoutData[i];
+			auto streamIndex = FindStreamIndex( elem.m_name );
 			if ( streamIndex )
 			{
-				layout.AddLayout( trait.m_name.Str().data(),
-					trait.m_index,
-					trait.m_format,
-					trait.m_slot,
-					trait.m_isInstanceData,
-					trait.m_instanceDataStep,
+				layout.AddLayout( elem.m_name.Str().data(),
+					elem.m_index,
+					elem.m_format,
+					elem.m_slot,
+					elem.m_isInstanceData,
+					elem.m_instanceDataStep,
 					*streamIndex );
 			}
 		}
@@ -237,8 +237,8 @@ namespace rendercore
 		const std::vector<MeshVertexInstance>& vertexInstances = desc.m_vertexInstances;
 		uint32 vertexInstanceCount = static_cast<uint32>( vertexInstances.size() );
 
-		agl::VertexLayoutTrait trait[agl::MaxVertexLayouts] = {};
-		uint32 traitSize = 0;
+		agl::VertexLayoutData layoutData[agl::MaxVertexLayouts] = {};
+		uint32 numLayoutData = 0;
 		uint32 slot = 0;
 
 		// Only Position
@@ -254,7 +254,7 @@ namespace rendercore
 
 			collection.AddStream( std::move( posStream ) );
 
-			trait[traitSize++] = {
+			layoutData[numLayoutData++] = {
 				.m_isInstanceData = false,
 				.m_index = 0,
 				.m_format = agl::ResourceFormat::R32G32B32_FLOAT,
@@ -263,7 +263,7 @@ namespace rendercore
 				.m_name = StaticName( "POSITION" )
 			};
 
-			collection.InitLayout( trait, traitSize, VertexStreamLayoutType::PositionOnly );
+			collection.InitLayout( layoutData, numLayoutData, VertexStreamLayoutType::PositionOnly );
 		}
 
 		// Normal
@@ -281,7 +281,7 @@ namespace rendercore
 
 				collection.AddStream( std::move( normalStream ) );
 
-				trait[traitSize++] = {
+				layoutData[numLayoutData++] = {
 					.m_isInstanceData = false,
 					.m_index = 0,
 					.m_format = agl::ResourceFormat::R32G32B32_FLOAT,
@@ -290,7 +290,7 @@ namespace rendercore
 					.m_name = StaticName( "NORMAL" )
 				};
 
-				collection.InitLayout( trait, traitSize, VertexStreamLayoutType::PositionNormal );
+				collection.InitLayout( layoutData, numLayoutData, VertexStreamLayoutType::PositionNormal );
 			}
 		}
 
@@ -309,7 +309,7 @@ namespace rendercore
 
 				collection.AddStream( std::move( texCoordStream ) );
 
-				trait[traitSize++] = {
+				layoutData[numLayoutData++] = {
 					.m_isInstanceData = false,
 					.m_index = 0,
 					.m_format = agl::ResourceFormat::R32G32_FLOAT,
@@ -319,7 +319,7 @@ namespace rendercore
 				};
 			}
 
-			collection.InitLayout( trait, traitSize, VertexStreamLayoutType::Default );
+			collection.InitLayout( layoutData, numLayoutData, VertexStreamLayoutType::Default );
 		}
 
 		return collection;

@@ -152,13 +152,13 @@ namespace rendercore
 		unsigned char m_readMask = 255;
 		unsigned char m_writeMask = 255;
 
-		agl::StencilOpTrait m_frontFace = { 
+		agl::StencilOpDesc m_frontFace = { 
 			.m_failOp = agl::StencilOp::Keep,
 			.m_depthFailOp = agl::StencilOp::Keep,
 			.m_passOp = agl::StencilOp::Keep,
 			.m_func = agl::ComparisonFunc::Always };
 
-		agl::StencilOpTrait m_backFace = {
+		agl::StencilOpDesc m_backFace = {
 			.m_failOp = agl::StencilOp::Keep,
 			.m_depthFailOp = agl::StencilOp::Keep,
 			.m_passOp = agl::StencilOp::Keep,

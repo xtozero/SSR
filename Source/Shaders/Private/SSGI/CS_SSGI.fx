@@ -171,7 +171,8 @@ void main( uint3 DTid : SV_DispatchThreadID )
 {
     float3 gi = (float3)0.f;
 
-    float2 uv = ( DTid.xy + 0.5f ) * InvScreenSize;
+    float2 jitter = HALTON_SEQUENCE[FrameCount % MAX_HALTON_SEQUENCE].xy;
+    float2 uv = ( DTid.xy + jitter ) * InvScreenSize;
 
     float2 noise = SpatioTemporalNoise( DTid.xy, FrameCount );
 

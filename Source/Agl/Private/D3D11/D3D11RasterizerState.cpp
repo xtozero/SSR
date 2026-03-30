@@ -5,23 +5,23 @@
 
 using ::agl::ConvertToCullMode;
 using ::agl::ConvertToFillMode;
-using ::agl::RasterizerStateTrait;
+using ::agl::RasterizerStateDesc;
 
 namespace
 {
-	D3D11_RASTERIZER_DESC ConvertTraitToDesc( const RasterizerStateTrait& trait )
+	D3D11_RASTERIZER_DESC ConvertToD3DDesc( const RasterizerStateDesc& desc )
 	{
 		return D3D11_RASTERIZER_DESC{
-			.FillMode = ConvertToFillMode( trait.m_fillMode ),
-			.CullMode = ConvertToCullMode( trait.m_cullMode ),
-			.FrontCounterClockwise = trait.m_frontCounterClockwise,
-			.DepthBias = trait.m_depthBias,
-			.DepthBiasClamp = trait.m_depthBiasClamp,
-			.SlopeScaledDepthBias = trait.m_slopeScaleDepthBias,
-			.DepthClipEnable = trait.m_depthClipEnable,
-			.ScissorEnable = trait.m_scissorEnable,
-			.MultisampleEnable = trait.m_multisampleEnable,
-			.AntialiasedLineEnable = trait.m_antialiasedLineEnable
+			.FillMode = ConvertToFillMode( desc.m_fillMode ),
+			.CullMode = ConvertToCullMode( desc.m_cullMode ),
+			.FrontCounterClockwise = desc.m_frontCounterClockwise,
+			.DepthBias = desc.m_depthBias,
+			.DepthBiasClamp = desc.m_depthBiasClamp,
+			.SlopeScaledDepthBias = desc.m_slopeScaleDepthBias,
+			.DepthClipEnable = desc.m_depthClipEnable,
+			.ScissorEnable = desc.m_scissorEnable,
+			.MultisampleEnable = desc.m_multisampleEnable,
+			.AntialiasedLineEnable = desc.m_antialiasedLineEnable
 		};
 	}
 }
@@ -38,11 +38,11 @@ namespace agl
 		return m_rasterizerState;
 	}
 
-	D3D11RasterizerState::D3D11RasterizerState( const RasterizerStateTrait& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
+	D3D11RasterizerState::D3D11RasterizerState( const RasterizerStateDesc& desc ) : m_d3dDesc( ConvertToD3DDesc( desc ) ) {}
 
 	void D3D11RasterizerState::InitResource()
 	{
-		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateRasterizerState( &m_desc, &m_rasterizerState ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateRasterizerState( &m_d3dDesc, &m_rasterizerState ) );
 		assert( result );
 	}
 

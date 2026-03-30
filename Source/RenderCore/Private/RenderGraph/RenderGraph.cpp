@@ -49,9 +49,9 @@ namespace rendercore
 		std::construct_at( rgTexture );
 
 		rgTexture->m_ref = texture;
-		rgTexture->m_trait = texture->GetTrait();
+		rgTexture->m_desc = texture->GetDesc();
 		rgTexture->m_isExternal = true;
-		rgTexture->m_isForUpload = HasAnyFlags( rgTexture->m_trait.m_access, agl::ResourceAccess::CpuWrite );
+		rgTexture->m_isForUpload = HasAnyFlags( rgTexture->m_desc.m_access, agl::ResourceAccess::CpuWrite );
 
 		m_textures.emplace_back( rgTexture );
 		m_externalTextures.emplace( texture, rgTexture );
@@ -73,9 +73,9 @@ namespace rendercore
 		std::construct_at( rgBuffer );
 
 		rgBuffer->m_ref = buffer;
-		rgBuffer->m_trait = buffer->GetTrait();
+		rgBuffer->m_desc = buffer->GetDesc();
 		rgBuffer->m_isExternal = true;
-		rgBuffer->m_isForUpload = HasAnyFlags( rgBuffer->m_trait.m_access, agl::ResourceAccess::CpuWrite );
+		rgBuffer->m_isForUpload = HasAnyFlags( rgBuffer->m_desc.m_access, agl::ResourceAccess::CpuWrite );
 
 		m_buffers.emplace_back( rgBuffer );
 		m_externalBuffers.emplace( buffer, rgBuffer );
@@ -89,7 +89,7 @@ namespace rendercore
 
 		if ( rgTexture->Get() == nullptr )
 		{
-			rgTexture->m_ref = GraphicsResourcePool::GetInstance().FindFreeTexture( rgTexture->GetTrait(), rgTexture->m_name );
+			rgTexture->m_ref = GraphicsResourcePool::GetInstance().FindFreeTexture( rgTexture->GetDesc(), rgTexture->m_name );
 		}
 
 		if ( rgTexture->m_isExternal == false )
@@ -107,7 +107,7 @@ namespace rendercore
 
 		if ( rgBuffer->Get() == nullptr )
 		{
-			rgBuffer->m_ref = GraphicsResourcePool::GetInstance().FindFreeBuffer( rgBuffer->GetTrait(), rgBuffer->m_name );
+			rgBuffer->m_ref = GraphicsResourcePool::GetInstance().FindFreeBuffer( rgBuffer->GetDesc(), rgBuffer->m_name );
 		}
 
 		if ( rgBuffer->m_isExternal == false )
@@ -119,28 +119,28 @@ namespace rendercore
 		return rgBuffer->Get();
 	}
 
-	RenderGraphTexture* RenderGraph::CreateTexture( const agl::TextureTrait& trait, const char* name )
+	RenderGraphTexture* RenderGraph::CreateTexture( const agl::TextureDesc& desc, const char* name )
 	{
 		auto* rgTexture = m_allocator.Allocate<RenderGraphTexture>( 1 );
 		std::construct_at( rgTexture );
 
 		rgTexture->m_name = name;
-		rgTexture->m_trait = trait;
-		rgTexture->m_isForUpload = HasAnyFlags( trait.m_access, agl::ResourceAccess::CpuWrite );
+		rgTexture->m_desc = desc;
+		rgTexture->m_isForUpload = HasAnyFlags( desc.m_access, agl::ResourceAccess::CpuWrite );
 
 		m_textures.emplace_back( rgTexture );
 
 		return rgTexture;
 	}
 
-	RenderGraphBuffer* RenderGraph::CreateBuffer( const agl::BufferTrait& trait, const char* name )
+	RenderGraphBuffer* RenderGraph::CreateBuffer( const agl::BufferDesc& desc, const char* name )
 	{
 		auto* rgBuffer = m_allocator.Allocate<RenderGraphBuffer>( 1 );
 		std::construct_at( rgBuffer );
 
 		rgBuffer->m_name = name;
-		rgBuffer->m_trait = trait;
-		rgBuffer->m_isForUpload = HasAnyFlags( trait.m_access, agl::ResourceAccess::CpuWrite );
+		rgBuffer->m_desc = desc;
+		rgBuffer->m_isForUpload = HasAnyFlags( desc.m_access, agl::ResourceAccess::CpuWrite );
 
 		m_buffers.emplace_back( rgBuffer );
 
@@ -357,7 +357,7 @@ namespace rendercore
 						return;
 					}
 
-					rgTexture->m_ref = GraphicsResourcePool::GetInstance().FindFreeTexture( rgTexture->GetTrait(), rgTexture->m_name );
+					rgTexture->m_ref = GraphicsResourcePool::GetInstance().FindFreeTexture( rgTexture->GetDesc(), rgTexture->m_name );
 				}
 				else
 				{
@@ -367,7 +367,7 @@ namespace rendercore
 						return;
 					}
 
-					rgBuffer->m_ref = GraphicsResourcePool::GetInstance().FindFreeBuffer( rgBuffer->GetTrait(), rgBuffer->m_name );
+					rgBuffer->m_ref = GraphicsResourcePool::GetInstance().FindFreeBuffer( rgBuffer->GetDesc(), rgBuffer->m_name );
 				}
 			};
 

@@ -2,7 +2,7 @@
 
 #include "D3D12FlagConvertor.h"
 
-using ::agl::BlendStateTrait;
+using ::agl::BlendStateDesc;
 using ::agl::ConvertToBlend;
 using ::agl::ConvertToBlendOp;
 using ::agl::ConvertToColorWriteEnable;
@@ -10,30 +10,30 @@ using ::agl::MaxRendertagets;
 
 namespace
 {
-	D3D12_BLEND_DESC ConvertTraitToDesc( const BlendStateTrait& trait )
+	D3D12_BLEND_DESC ConvertToD3DDesc( const BlendStateDesc& desc )
 	{
-		D3D12_BLEND_DESC desc = {
-			.AlphaToCoverageEnable = trait.m_alphaToConverageEnable,
-			.IndependentBlendEnable = trait.m_independentBlendEnable
+		D3D12_BLEND_DESC d3dDesc = {
+			.AlphaToCoverageEnable = desc.m_alphaToConverageEnable,
+			.IndependentBlendEnable = desc.m_independentBlendEnable
 		};
 
 		for ( uint32 i = 0; i < MaxRendertagets; ++i )
 		{
-			desc.RenderTarget[i] = {
-				.BlendEnable = trait.m_renderTarget[i].m_blendEnable,
+			d3dDesc.RenderTarget[i] = {
+				.BlendEnable = desc.m_renderTarget[i].m_blendEnable,
 				.LogicOpEnable = false,
-				.SrcBlend = ConvertToBlend( trait.m_renderTarget[i].m_srcBlend ),
-				.DestBlend = ConvertToBlend( trait.m_renderTarget[i].m_destBlend ),
-				.BlendOp = ConvertToBlendOp( trait.m_renderTarget[i].m_blendOp ),
-				.SrcBlendAlpha = ConvertToBlend( trait.m_renderTarget[i].m_srcBlendAlpha ),
-				.DestBlendAlpha = ConvertToBlend( trait.m_renderTarget[i].m_destBlendAlpha ),
-				.BlendOpAlpha = ConvertToBlendOp( trait.m_renderTarget[i].m_blendOpAlpha ),
+				.SrcBlend = ConvertToBlend( desc.m_renderTarget[i].m_srcBlend ),
+				.DestBlend = ConvertToBlend( desc.m_renderTarget[i].m_destBlend ),
+				.BlendOp = ConvertToBlendOp( desc.m_renderTarget[i].m_blendOp ),
+				.SrcBlendAlpha = ConvertToBlend( desc.m_renderTarget[i].m_srcBlendAlpha ),
+				.DestBlendAlpha = ConvertToBlend( desc.m_renderTarget[i].m_destBlendAlpha ),
+				.BlendOpAlpha = ConvertToBlendOp( desc.m_renderTarget[i].m_blendOpAlpha ),
 				.LogicOp = D3D12_LOGIC_OP_NOOP,
-				.RenderTargetWriteMask = ConvertToColorWriteEnable( trait.m_renderTarget[i].m_renderTargetWriteMask )
+				.RenderTargetWriteMask = ConvertToColorWriteEnable( desc.m_renderTarget[i].m_renderTargetWriteMask )
 			};
 		}
 
-		return desc;
+		return d3dDesc;
 	}
 }
 
@@ -62,9 +62,9 @@ namespace agl
 		m_sampleMask = sampleMask;
 	}
 
-	D3D12BlendState::D3D12BlendState( const BlendStateTrait& trait ) 
-		: m_sampleMask( trait.m_sampleMask )
-		, m_desc( ConvertTraitToDesc( trait ) )
+	D3D12BlendState::D3D12BlendState( const BlendStateDesc& desc )
+		: m_sampleMask( desc.m_sampleMask )
+		, m_d3dDesc( ConvertToD3DDesc( desc ) )
 	{
 	}
 

@@ -72,7 +72,7 @@ namespace rendercore
 			miscFlag |= agl::ResourceMisc::BufferStructured;
 		}
 
-		agl::BufferTrait trait = {
+		agl::BufferDesc desc = {
 			.m_stride = m_elementSize,
 			.m_count = m_numElement,
 			.m_access = resourceAccess,
@@ -81,12 +81,12 @@ namespace rendercore
 			.m_format = m_format
 		};
 
-		m_buffer = agl::Buffer::Create( trait, "Vertex", initialState, initData );
+		m_buffer = agl::Buffer::Create( desc, "Vertex", initialState, initData );
 	}
 
 	void DynamicVertexBufferChunk::InitResource()
 	{
-		agl::BufferTrait trait = {
+		agl::BufferDesc desc = {
 			.m_stride = m_sizeInBytes,
 			.m_count = 1,
 			.m_access = agl::ResourceAccess::Upload,
@@ -95,7 +95,7 @@ namespace rendercore
 			.m_format = agl::ResourceFormat::Unknown
 		};
 
-		m_buffer = agl::Buffer::Create( trait, "GlobalDynamicVertex", agl::ResourceState::VertexAndConstantBuffer );
+		m_buffer = agl::Buffer::Create( desc, "GlobalDynamicVertex", agl::ResourceState::VertexAndConstantBuffer );
 	}
 
 	uint8* DynamicVertexBufferChunk::Allocate( uint32 sizeInBytes )

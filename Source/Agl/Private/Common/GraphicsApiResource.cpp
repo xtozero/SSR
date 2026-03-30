@@ -15,9 +15,9 @@ namespace agl
 		return static_cast<unsigned char>( colorWriteEnable );
 	}
 
-	size_t BufferTrait::GetHash() const
+	size_t BufferDesc::GetHash() const
 	{
-		static size_t typeHash = typeid( BufferTrait ).hash_code();
+		static size_t typeHash = typeid( BufferDesc ).hash_code();
 		size_t hash = typeHash;
 
 		HashCombine( hash, m_stride );
@@ -30,9 +30,9 @@ namespace agl
 		return hash;
 	}
 
-	size_t TextureTrait::GetHash() const
+	size_t TextureDesc::GetHash() const
 	{
-		static size_t typeHash = typeid( TextureTrait ).hash_code();
+		static size_t typeHash = typeid( TextureDesc ).hash_code();
 		size_t hash = typeHash;
 
 		HashCombine( hash, m_width );
@@ -49,9 +49,9 @@ namespace agl
 		return hash;
 	}
 
-	size_t RasterizerStateTrait::GetHash() const
+	size_t RasterizerStateDesc::GetHash() const
 	{
-		static size_t typeHash = typeid( RasterizerStateTrait ).hash_code();
+		static size_t typeHash = typeid( RasterizerStateDesc ).hash_code();
 		size_t hash = typeHash;
 
 		HashCombine( hash, m_fillMode );
@@ -68,9 +68,9 @@ namespace agl
 		return hash;
 	}
 
-	size_t RenderTargetBlendTrait::GetHash() const
+	size_t RenderTargetBlendDesc::GetHash() const
 	{
-		static size_t typeHash = typeid( RenderTargetBlendTrait ).hash_code();
+		static size_t typeHash = typeid( RenderTargetBlendDesc ).hash_code();
 		size_t hash = typeHash;
 
 		HashCombine( hash, m_blendEnable );
@@ -85,9 +85,9 @@ namespace agl
 		return hash;
 	}
 
-	size_t BlendStateTrait::GetHash() const
+	size_t BlendStateDesc::GetHash() const
 	{
-		static size_t typeHash = typeid( BlendStateTrait ).hash_code();
+		static size_t typeHash = typeid( BlendStateDesc ).hash_code();
 		size_t hash = typeHash;
 
 		HashCombine( hash, m_alphaToConverageEnable );
@@ -103,9 +103,9 @@ namespace agl
 		return hash;
 	}
 
-	size_t StencilOpTrait::GetHash() const
+	size_t StencilOpDesc::GetHash() const
 	{
-		static size_t typeHash = typeid( StencilOpTrait ).hash_code();
+		static size_t typeHash = typeid( StencilOpDesc ).hash_code();
 		size_t hash = typeHash;
 
 		HashCombine( hash, m_failOp );
@@ -116,9 +116,9 @@ namespace agl
 		return hash;
 	}
 
-	size_t DepthStencilStateTrait::GetHash() const
+	size_t DepthStencilStateDesc::GetHash() const
 	{
-		static size_t typeHash = typeid( DepthStencilStateTrait ).hash_code();
+		static size_t typeHash = typeid( DepthStencilStateDesc ).hash_code();
 		size_t hash = typeHash;
 
 		HashCombine( hash, m_depthEnable );
@@ -133,9 +133,9 @@ namespace agl
 		return hash;
 	}
 
-	size_t VertexLayoutTrait::GetHash() const
+	size_t VertexLayoutData::GetHash() const
 	{
-		static size_t typeHash = typeid( VertexLayoutTrait ).hash_code();
+		static size_t typeHash = typeid( VertexLayoutData ).hash_code();
 		size_t hash = typeHash;
 
 		HashCombine( hash, m_isInstanceData );

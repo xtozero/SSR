@@ -30,16 +30,16 @@ namespace agl
 		m_graphicsPipelineStateCache.clear();
 	}
 
-	Texture* D3D11ResourceManager::CreateTexture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData ) const
+	Texture* D3D11ResourceManager::CreateTexture( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData ) const
 	{
 		Texture* newTexture = nullptr;
-		if ( IsTexture2D( trait ) )
+		if ( IsTexture2D( desc ) )
 		{
-			newTexture = new D3D11Texture2D( trait, debugName, initialState, initData );
+			newTexture = new D3D11Texture2D( desc, debugName, initialState, initData );
 		}
-		else if ( IsTexture3D( trait ) )
+		else if ( IsTexture3D( desc ) )
 		{
-			newTexture = new D3D11Texture3D( trait, debugName, initialState, initData );
+			newTexture = new D3D11Texture3D( desc, debugName, initialState, initData );
 		}
 		else
 		{
@@ -49,17 +49,17 @@ namespace agl
 		return newTexture;
 	}
 
-	Buffer* D3D11ResourceManager::CreateBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData ) const
+	Buffer* D3D11ResourceManager::CreateBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData ) const
 	{
-		Buffer* newBuffer = new D3D11Buffer( trait, debugName, initialState, initData );
+		Buffer* newBuffer = new D3D11Buffer( desc, debugName, initialState, initData );
 
 		return newBuffer;
 	}
 
-	VertexLayout* D3D11ResourceManager::CreateVertexLayout( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size ) const
+	VertexLayout* D3D11ResourceManager::CreateVertexLayout( const VertexShader* vs, const VertexLayoutData* layoutData, uint32 size ) const
 	{
 		auto d3d11VS = static_cast<const D3D11VertexShader*>( vs );
-		auto newVertexLayout = new D3D11VertexLayout( d3d11VS, trait, size );
+		auto newVertexLayout = new D3D11VertexLayout( d3d11VS, layoutData, size );
 
 		return newVertexLayout;
 	}
@@ -140,30 +140,30 @@ namespace agl
 		return nullptr;
 	}
 
-	BlendState* D3D11ResourceManager::CreateBlendState( const BlendStateTrait& trait ) const
+	BlendState* D3D11ResourceManager::CreateBlendState( const BlendStateDesc& desc ) const
 	{
-		auto blendState = new D3D11BlendState( trait );
+		auto blendState = new D3D11BlendState( desc );
 
 		return blendState;
 	}
 
-	DepthStencilState* D3D11ResourceManager::CreateDepthStencilState( const DepthStencilStateTrait& trait ) const
+	DepthStencilState* D3D11ResourceManager::CreateDepthStencilState( const DepthStencilStateDesc& desc ) const
 	{
-		auto depthStencilState = new D3D11DepthStencilState( trait );
+		auto depthStencilState = new D3D11DepthStencilState( desc );
 
 		return depthStencilState;
 	}
 
-	RasterizerState* D3D11ResourceManager::CreateRasterizerState( const RasterizerStateTrait& trait ) const
+	RasterizerState* D3D11ResourceManager::CreateRasterizerState( const RasterizerStateDesc& desc ) const
 	{
-		auto rasterizerState = new D3D11RasterizerState( trait );
+		auto rasterizerState = new D3D11RasterizerState( desc );
 
 		return rasterizerState;
 	}
 
-	SamplerState* D3D11ResourceManager::CreateSamplerState( const SamplerStateTrait& trait ) const
+	SamplerState* D3D11ResourceManager::CreateSamplerState( const SamplerStateDesc& desc ) const
 	{
-		auto samplerState = new D3D11SamplerState( trait );
+		auto samplerState = new D3D11SamplerState( desc );
 
 		return samplerState;
 	}

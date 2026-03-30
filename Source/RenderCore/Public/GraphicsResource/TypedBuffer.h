@@ -74,7 +74,7 @@ namespace rendercore
 		{
 			if ( m_numElement > 0 )
 			{
-				agl::BufferTrait trait = {
+				agl::BufferDesc desc = {
 					.m_stride = static_cast<uint32>( sizeof( T ) ),
 					.m_count = m_numElement,
 					.m_access = agl::ResourceAccess::Default,
@@ -83,7 +83,7 @@ namespace rendercore
 					.m_format = agl::ResourceFormat::Unknown
 				};
 
-				m_buffer = agl::Buffer::Create( trait, "TypedBuffer", initData );
+				m_buffer = agl::Buffer::Create( desc, "TypedBuffer", initData );
 			}
 		}
 

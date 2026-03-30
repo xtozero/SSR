@@ -433,7 +433,7 @@ namespace rendercore
 
 	void LPVRenderPass::AllocTextureForIndirectIllumination( const std::pair<uint32, uint32>& renderTargetSize )
 	{
-		agl::TextureTrait trait = {
+		agl::TextureDesc desc = {
 			.m_width = renderTargetSize.first,
 			.m_height = renderTargetSize.second,
 			.m_depth = 1,
@@ -449,14 +449,14 @@ namespace rendercore
 			}
 		};
 
-		m_indirectIllumination = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "LPV.Illumination" );
+		m_indirectIllumination = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "LPV.Illumination" );
 	}
 
 	LPVRenderPass::LPVTextures LPVRenderPass::AllocVolumeTextures( bool allocForOcclusion )
 	{
 		LPVTextures volumeTextures;
 
-		agl::TextureTrait trait = {
+		agl::TextureDesc desc = {
 			.m_width = 32,
 			.m_height = 32,
 			.m_depth = 32,
@@ -472,13 +472,13 @@ namespace rendercore
 			}
 		};
 
-		volumeTextures.m_coeffR = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "LPV.Coeff.R" );
-		volumeTextures.m_coeffG = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "LPV.Coeff.G" );
-		volumeTextures.m_coeffB = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "LPV.Coeff.B" );
+		volumeTextures.m_coeffR = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "LPV.Coeff.R" );
+		volumeTextures.m_coeffG = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "LPV.Coeff.G" );
+		volumeTextures.m_coeffB = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "LPV.Coeff.B" );
 
 		if ( allocForOcclusion )
 		{
-			volumeTextures.m_coeffOcclusion = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "LPV.Coeff.Occlusion" );
+			volumeTextures.m_coeffOcclusion = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "LPV.Coeff.Occlusion" );
 		}
 
 		return volumeTextures;
@@ -488,7 +488,7 @@ namespace rendercore
 	{
 		if ( m_lpvCommon.Get() == nullptr )
 		{
-			agl::BufferTrait trait = {
+			agl::BufferDesc desc = {
 				.m_stride = sizeof( Vector4 ) + sizeof( Vector4 ),
 				.m_count = 1,
 				.m_access = agl::ResourceAccess::Upload,
@@ -496,7 +496,7 @@ namespace rendercore
 				.m_format = agl::ResourceFormat::Unknown
 			};
 
-			m_lpvCommon = agl::Buffer::Create( trait, "lpvCommon" );
+			m_lpvCommon = agl::Buffer::Create( desc, "lpvCommon" );
 
 			auto dest = GraphicsInterface().Lock<uint8>( m_lpvCommon.Get() );
 
@@ -524,8 +524,8 @@ namespace rendercore
 		}
 		else
 		{
-			auto texTrait = m_indirectIllumination->GetTrait();
-			std::pair<uint32, uint32> oldRtSize = { texTrait.m_width, texTrait.m_height };
+			auto texDesc = m_indirectIllumination->GetDesc();
+			std::pair<uint32, uint32> oldRtSize = { texDesc.m_width, texDesc.m_height };
 
 			if ( renderTargetSize != oldRtSize )
 			{
@@ -600,7 +600,7 @@ namespace rendercore
 
 		// Create textures
 		{
-			agl::TextureTrait positionMapTrait = {
+			agl::TextureDesc positionMapDesc = {
 				.m_width = 512,
 				.m_height = 512,
 				.m_depth = CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
@@ -613,9 +613,9 @@ namespace rendercore
 				.m_miscFlag = agl::ResourceMisc::None,
 			};
 
-			downSampledTex.m_worldPosition = agl::Texture::Create( positionMapTrait, "LPV.DownSampled.RSMs.Position" );
+			downSampledTex.m_worldPosition = agl::Texture::Create( positionMapDesc, "LPV.DownSampled.RSMs.Position" );
 
-			agl::TextureTrait normalMapTrait = {
+			agl::TextureDesc normalMapDesc = {
 				.m_width = 512,
 				.m_height = 512,
 				.m_depth = CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
@@ -628,9 +628,9 @@ namespace rendercore
 				.m_miscFlag = agl::ResourceMisc::None,
 			};
 
-			downSampledTex.m_normal = agl::Texture::Create( normalMapTrait, "LPV.DownSampled.RSMs.Normal" );
+			downSampledTex.m_normal = agl::Texture::Create( normalMapDesc, "LPV.DownSampled.RSMs.Normal" );
 
-			agl::TextureTrait fluxMapTrait = {
+			agl::TextureDesc fluxMapDesc = {
 				.m_width = 512,
 				.m_height = 512,
 				.m_depth = CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
@@ -643,7 +643,7 @@ namespace rendercore
 				.m_miscFlag = agl::ResourceMisc::None,
 			};
 
-			downSampledTex.m_flux = agl::Texture::Create( fluxMapTrait, "LPV.DownSampled.RSMs.Flux" );
+			downSampledTex.m_flux = agl::Texture::Create( fluxMapDesc, "LPV.DownSampled.RSMs.Flux" );
 		}
 
 		const Vector& lightDir = -lightInfo.Proxy()->GetLightProperty().m_direction;
@@ -691,12 +691,12 @@ namespace rendercore
 				BindResource( shaderBindings, downSampleRSMsCS.OutRSMsNormal(), passResource.m_dstNormal->Get() );
 				BindResource( shaderBindings, downSampleRSMsCS.OutRSMsFlux(), passResource.m_dstFlux->Get() );
 
-				const agl::TextureTrait& rsmTextureTrait = passResource.m_srcWorldPosition->GetTrait();
-				uint32 dimensions[] = { rsmTextureTrait.m_width, rsmTextureTrait.m_height, rsmTextureTrait.m_depth };
+				const agl::TextureDesc& rsmTextureDesc = passResource.m_srcWorldPosition->GetDesc();
+				uint32 dimensions[] = { rsmTextureDesc.m_width, rsmTextureDesc.m_height, rsmTextureDesc.m_depth };
 
 				SetShaderValue( commandList, downSampleRSMsCS.RSMsDimensions(), dimensions );
 
-				uint32 kernelSize = rsmTextureTrait.m_width / 512;
+				uint32 kernelSize = rsmTextureDesc.m_width / 512;
 				SetShaderValue( commandList, downSampleRSMsCS.KernelSize(), kernelSize );
 				SetShaderValue( commandList, downSampleRSMsCS.ToLightDir(), lightDir );
 
@@ -752,8 +752,8 @@ namespace rendercore
 					auto lightInjectionPass = lightInjectionPassProcessor.Process( meshInfo );
 					if ( lightInjectionPass.has_value() )
 					{
-						const agl::TextureTrait& rsmTextureTrait = passResouce.m_worldPosition->GetTrait();
-						uint32 dimensions[] = { rsmTextureTrait.m_width, rsmTextureTrait.m_height, rsmTextureTrait.m_depth };
+						const agl::TextureDesc& rsmTextureDesc = passResouce.m_worldPosition->GetDesc();
+						uint32 dimensions[] = { rsmTextureDesc.m_width, rsmTextureDesc.m_height, rsmTextureDesc.m_depth };
 						SetShaderValue( commandList, LightInjectionVS().RSMsDimensions(), dimensions );
 
 						Vector4 vSurfelArea[CascadeShadowSetting::MAX_CASCADE_NUM] = {};
@@ -803,8 +803,8 @@ namespace rendercore
 					auto geometryInjectionPass = geometryInjectionPassProcessor.Process( meshInfo );
 					if ( geometryInjectionPass.has_value() )
 					{
-						const agl::TextureTrait& rsmTextureTrait = passResouce.m_worldPosition->GetTrait();
-						uint32 dimensions[] = { rsmTextureTrait.m_width, rsmTextureTrait.m_height, rsmTextureTrait.m_depth };
+						const agl::TextureDesc& rsmTextureDesc = passResouce.m_worldPosition->GetDesc();
+						uint32 dimensions[] = { rsmTextureDesc.m_width, rsmTextureDesc.m_height, rsmTextureDesc.m_depth };
 						SetShaderValue( commandList, GeometryInjectionVS().RSMsDimensions(), dimensions );
 
 						Vector lightDirection = params.lightInfo->Proxy()->GetDirection();

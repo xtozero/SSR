@@ -178,7 +178,7 @@ namespace agl
 
         auto shaderRecordCount = static_cast<uint32>( 1/*RayGen*/ + m_hitGroups.size() + m_misses.size() );
 
-        BufferTrait trait = {
+        BufferDesc desc = {
             .m_stride = ShaderRecordSize,
             .m_count = shaderRecordCount,
             .m_access = ResourceAccess::Upload,
@@ -187,7 +187,7 @@ namespace agl
             .m_format = ResourceFormat::Unknown
         };
 
-        m_shaderRecords = RefStaticCast<D3D12Buffer>( Buffer::Create( trait, "ShaderRecords", ResourceState::NonPixelShaderResource ) );
+        m_shaderRecords = RefStaticCast<D3D12Buffer>( Buffer::Create( desc, "ShaderRecords", ResourceState::NonPixelShaderResource ) );
     }
 
     void D3D12RaytracingShaderTable::FreeResource()

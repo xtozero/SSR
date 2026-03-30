@@ -34,15 +34,15 @@ namespace agl
 
 		GraphicsApiResource* GetOwner() const { return m_owner; }
 
-		const DescType& GetDesc() const
+		const DescType& GetD3DDesc() const
 		{
-			return m_desc;
+			return m_d3dDesc;
 		}
 
 		D3D12ViewBase( GraphicsApiResource* owner, ID3D12Resource* d3d12Resource, const DescType& desc ) noexcept :
 			m_owner( owner ),
 			m_d3d12Resource( d3d12Resource ),
-			m_desc( desc )
+			m_d3dDesc( desc )
 		{}
 
 		virtual ~D3D12ViewBase() override
@@ -62,7 +62,7 @@ namespace agl
 				m_owner = other.m_owner;
 				m_d3d12Resource = other.m_d3d12Resource;
 				m_descriptorHeap = other.m_descriptorHeap;
-				m_desc = other.m_desc;
+				m_d3dDesc = other.m_d3dDesc;
 			}
 
 			return *this;
@@ -80,11 +80,11 @@ namespace agl
 				m_owner = other.m_owner;
 				m_d3d12Resource = other.m_d3d12Resource;
 				m_descriptorHeap = std::move( other.m_descriptorHeap );
-				m_desc = other.m_desc;
+				m_d3dDesc = other.m_d3dDesc;
 
 				other.m_owner = nullptr;
 				other.m_d3d12Resource = nullptr;
-				other.m_desc = {};
+				other.m_d3dDesc = {};
 			}
 
 			return *this;
@@ -102,7 +102,7 @@ namespace agl
 		GraphicsApiResource* m_owner = nullptr;
 		ID3D12Resource* m_d3d12Resource = nullptr;
 		D3D12DescriptorHeap m_descriptorHeap;
-		DescType m_desc = {};
+		DescType m_d3dDesc = {};
 	};
 
 	class D3D12ShaderResourceView final : public D3D12ViewBase<ShaderResourceView, D3D12_SHADER_RESOURCE_VIEW_DESC>

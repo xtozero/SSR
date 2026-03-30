@@ -10,31 +10,31 @@ namespace agl
 	class BlendState : public GraphicsApiResource
 	{
 	public:
-		AGL_DLL static RefHandle<BlendState> Create( const BlendStateTrait& trait );
+		AGL_DLL static RefHandle<BlendState> Create( const BlendStateDesc& desc );
 	};
 
 	class DepthStencilState : public GraphicsApiResource
 	{
 	public:
-		AGL_DLL static RefHandle<DepthStencilState> Create( const DepthStencilStateTrait& trait );
+		AGL_DLL static RefHandle<DepthStencilState> Create( const DepthStencilStateDesc& desc );
 	};
 
 	class RasterizerState : public GraphicsApiResource
 	{
 	public:
-		AGL_DLL static RefHandle<RasterizerState> Create( const RasterizerStateTrait& trait );
+		AGL_DLL static RefHandle<RasterizerState> Create( const RasterizerStateDesc& desc );
 	};
 
 	class SamplerState : public GraphicsApiResource
 	{
 	public:
-		AGL_DLL static RefHandle<SamplerState> Create( const SamplerStateTrait& trait );
+		AGL_DLL static RefHandle<SamplerState> Create( const SamplerStateDesc& desc );
 	};
 
 	class VertexLayout : public GraphicsApiResource
 	{
 	public:
-		AGL_DLL static RefHandle<VertexLayout> Create( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size );
+		AGL_DLL static RefHandle<VertexLayout> Create( const VertexShader* vs, const VertexLayoutData* layoutData, uint32 size );
 	};
 
 	class GraphicsPipelineStateDesc final

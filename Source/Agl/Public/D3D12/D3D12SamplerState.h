@@ -15,7 +15,7 @@ namespace agl
 
 		const D3D12DescriptorHeap& Resource() const;
 
-		D3D12SamplerState( const SamplerStateTrait& trait );
+		D3D12SamplerState( const SamplerStateDesc& desc );
 		D3D12SamplerState( const D3D12SamplerState& ) = default;
 		D3D12SamplerState( D3D12SamplerState&& ) = default;
 		D3D12SamplerState& operator=( const D3D12SamplerState& ) = default;
@@ -28,7 +28,7 @@ namespace agl
 
 		D3D12DescriptorHeap m_samplerState;
 
-		D3D12_SAMPLER_DESC m_desc;
+		D3D12_SAMPLER_DESC m_d3dDesc;
 
 		int32 m_bindlessHandle = NullBindlessHandle;
 	};

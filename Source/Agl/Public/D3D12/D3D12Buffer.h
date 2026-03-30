@@ -31,7 +31,7 @@ namespace agl
 
 		D3D12ConstantBufferView* CBV() const;
 
-		D3D12Buffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData );
+		D3D12Buffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData );
 		virtual ~D3D12Buffer() override;
 		D3D12Buffer( const D3D12Buffer& ) = delete;
 		D3D12Buffer& operator=( const D3D12Buffer& ) = delete;
@@ -50,7 +50,7 @@ namespace agl
 		bool m_neverLocked = true;
 
 		AllocatedResourceInfo m_resourceInfo;
-		D3D12_RESOURCE_DESC m_desc = {};
+		D3D12_RESOURCE_DESC m_d3dDesc = {};
 		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
 
 		RefHandle<D3D12ConstantBufferView> m_cbv;
@@ -65,7 +65,7 @@ namespace agl
 	class D3D12ConstantBuffer final : public D3D12Buffer
 	{
 	public:
-		D3D12ConstantBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData );
+		D3D12ConstantBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData );
 		virtual ~D3D12ConstantBuffer() override = default;
 		D3D12ConstantBuffer( const D3D12ConstantBuffer& ) = delete;
 		D3D12ConstantBuffer& operator=( const D3D12ConstantBuffer& ) = delete;
@@ -115,7 +115,7 @@ namespace agl
 		virtual LockedResource Lock( uint32 subResource = 0, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard ) override;
 		virtual void UnLock( [[maybe_unused]] uint32 subResource = 0 ) override {}
 
-		explicit D3D12DisposableConstantBuffer( const BufferTrait& trait, const char* debugName );
+		explicit D3D12DisposableConstantBuffer( const BufferDesc& desc, const char* debugName );
 
 	protected:
 		virtual void CreateBuffer() override;
@@ -130,7 +130,7 @@ namespace agl
 	public:
 		const D3D12_INDEX_BUFFER_VIEW& GetView() const;
 
-		D3D12IndexBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData );
+		D3D12IndexBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData );
 		virtual ~D3D12IndexBuffer() override = default;
 		D3D12IndexBuffer( const D3D12IndexBuffer& ) = delete;
 		D3D12IndexBuffer& operator=( const D3D12IndexBuffer& ) = delete;
@@ -149,7 +149,7 @@ namespace agl
 	public:
 		const D3D12_VERTEX_BUFFER_VIEW& GetView() const;
 
-		D3D12VertexBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData );
+		D3D12VertexBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData );
 		virtual ~D3D12VertexBuffer() override = default;
 		D3D12VertexBuffer( const D3D12VertexBuffer& ) = delete;
 		D3D12VertexBuffer& operator=( const D3D12VertexBuffer& ) = delete;

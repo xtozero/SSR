@@ -18,7 +18,7 @@ namespace agl
 		D3D11ViewBase( IResourceViews* viewHolder, ID3D11Resource* d3d11Resource, const DescType& desc ) :
 			m_viewHolder( viewHolder ),
 			m_d3d11Resource( d3d11Resource ),
-			m_desc( desc )
+			m_d3dDesc( desc )
 		{
 			if ( m_d3d11Resource )
 			{
@@ -53,7 +53,7 @@ namespace agl
 				m_viewHolder = other.m_viewHolder;
 				m_d3d11Resource = other.m_d3d11Resource;
 				m_resource = other.m_resource;
-				m_desc = other.m_desc;
+				m_d3dDesc = other.m_d3dDesc;
 
 				if ( m_d3d11Resource )
 				{
@@ -91,12 +91,12 @@ namespace agl
 				m_viewHolder = other.m_viewHolder;
 				m_d3d11Resource = other.m_d3d11Resource;
 				m_resource = other.m_resource;
-				m_desc = other.m_desc;
+				m_d3dDesc = other.m_d3dDesc;
 
 				other.m_viewHolder = nullptr;
 				other.m_d3d11Resource = nullptr;
 				other.m_resource = nullptr;
-				other.m_desc = {};
+				other.m_d3dDesc = {};
 			}
 
 			return *this;
@@ -123,7 +123,7 @@ namespace agl
 		IResourceViews* m_viewHolder = nullptr;
 		ID3D11Resource* m_d3d11Resource = nullptr;
 		ViewType m_resource = nullptr;
-		DescType m_desc = {};
+		DescType m_d3dDesc = {};
 	};
 
 	class D3D11ShaderResourceView final : public D3D11ViewBase<ShaderResourceView, ID3D11ShaderResourceView*, D3D11_SHADER_RESOURCE_VIEW_DESC>

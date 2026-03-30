@@ -10,9 +10,9 @@ namespace agl
 	class D3D12BlendState final : public BlendState
 	{
 	public:
-		const D3D12_BLEND_DESC& GetDesc() const
+		const D3D12_BLEND_DESC& GetD3DDesc() const
 		{
-			return m_desc;
+			return m_d3dDesc;
 		}
 
 		const float* GetBlendFactor() const;
@@ -23,7 +23,7 @@ namespace agl
 
 		void SetSampleMask( uint32 sampleMask );
 
-		D3D12BlendState( const BlendStateTrait& trait );
+		D3D12BlendState( const BlendStateDesc& desc );
 		D3D12BlendState( const D3D12BlendState& ) = default;
 		D3D12BlendState( D3D12BlendState&& ) = default;
 		D3D12BlendState& operator=( const D3D12BlendState& ) = default;
@@ -36,6 +36,6 @@ namespace agl
 
 		float m_blendFactor[4] = {};
 		uint32 m_sampleMask = D3D12_DEFAULT_SAMPLE_MASK;
-		D3D12_BLEND_DESC m_desc;
+		D3D12_BLEND_DESC m_d3dDesc;
 	};
 }

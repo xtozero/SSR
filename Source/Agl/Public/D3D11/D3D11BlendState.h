@@ -21,7 +21,7 @@ namespace agl
 
 		void SetSampleMask( uint32 sampleMask );
 
-		D3D11BlendState( const BlendStateTrait& trait );
+		D3D11BlendState( const BlendStateDesc& desc );
 		D3D11BlendState( const D3D11BlendState& ) = delete;
 		D3D11BlendState( D3D11BlendState&& ) = default;
 		D3D11BlendState& operator=( const D3D11BlendState& ) = delete;
@@ -36,6 +36,6 @@ namespace agl
 
 		float m_blendFactor[4] = {};
 		uint32 m_sampleMask = D3D11_DEFAULT_SAMPLE_MASK;
-		D3D11_BLEND_DESC m_desc;
+		D3D11_BLEND_DESC m_d3dDesc;
 	};
 }

@@ -19,13 +19,13 @@ using ::agl::ResourceBindType;
 using ::agl::ResourceClearValue;
 using ::agl::ResourceFormat;
 using ::agl::ResourceMisc;
-using ::agl::TextureTrait;
+using ::agl::TextureDesc;
 
 namespace
 {
-	D3D12_RESOURCE_DIMENSION GetResourceDimension( const TextureTrait& trait )
+	D3D12_RESOURCE_DIMENSION GetResourceDimension( const TextureDesc& desc )
 	{
-		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D ) )
+		if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Texture3D ) )
 		{
 			return D3D12_RESOURCE_DIMENSION_TEXTURE3D;
 		}
@@ -35,25 +35,25 @@ namespace
 		}
 	}
 
-	D3D12_RESOURCE_FLAGS GetResourceFlags( const TextureTrait& trait )
+	D3D12_RESOURCE_FLAGS GetResourceFlags( const TextureDesc& desc )
 	{
 		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
 
-		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::RenderTarget ) )
+		if ( HasAnyFlags( desc.m_bindType, ResourceBindType::RenderTarget ) )
 		{
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 		}
 
-		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::DepthStencil ) )
+		if ( HasAnyFlags( desc.m_bindType, ResourceBindType::DepthStencil ) )
 		{
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-			if ( HasAnyFlags( trait.m_bindType, ResourceBindType::ShaderResource ) == false )
+			if ( HasAnyFlags( desc.m_bindType, ResourceBindType::ShaderResource ) == false )
 			{
 				flags |= D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
 			}
 		}
 
-		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::RandomAccess ) )
+		if ( HasAnyFlags( desc.m_bindType, ResourceBindType::RandomAccess ) )
 		{
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 		}
@@ -61,36 +61,36 @@ namespace
 		return flags;
 	}
 
-	D3D12_RESOURCE_DESC ConvertTraitToDesc( const TextureTrait& trait )
+	D3D12_RESOURCE_DESC ConvertToD3DDesc( const TextureDesc& desc )
 	{
-		uint64 alignment = ( trait.m_sampleCount > 1 ) ? D3D12_DEFAULT_MSAA_RESOURCE_PLACEMENT_ALIGNMENT : D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+		uint64 alignment = ( desc.m_sampleCount > 1 ) ? D3D12_DEFAULT_MSAA_RESOURCE_PLACEMENT_ALIGNMENT : D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 
-		D3D12_RESOURCE_DESC desc = {
-			.Dimension = GetResourceDimension( trait ),
+		D3D12_RESOURCE_DESC d3dDesc = {
+			.Dimension = GetResourceDimension( desc ),
 			.Alignment = alignment,
-			.Width = trait.m_width,
-			.Height = trait.m_height,
-			.DepthOrArraySize = static_cast<uint16>( trait.m_depth ),
-			.MipLevels = static_cast<uint16>( trait.m_mipLevels ),
-			.Format = ConvertFormatToDxgiFormat( trait.m_format ),
+			.Width = desc.m_width,
+			.Height = desc.m_height,
+			.DepthOrArraySize = static_cast<uint16>( desc.m_depth ),
+			.MipLevels = static_cast<uint16>( desc.m_mipLevels ),
+			.Format = ConvertFormatToDxgiFormat( desc.m_format ),
 			.SampleDesc = {
-				.Count = trait.m_sampleCount,
-				.Quality = trait.m_sampleQuality
+				.Count = desc.m_sampleCount,
+				.Quality = desc.m_sampleQuality
 			},
 			.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN,
-			.Flags = GetResourceFlags( trait )
+			.Flags = GetResourceFlags( desc )
 		};
 
-		return desc;
+		return d3dDesc;
 	}
 
-	TextureTrait ConvertDescToTrait( const D3D12_RESOURCE_DESC& desc, const D3D12_HEAP_PROPERTIES& heapProperties )
+	TextureDesc ConvertToTextureDesc( const D3D12_RESOURCE_DESC& desc, const D3D12_HEAP_PROPERTIES& heapProperties )
 	{
 		ResourceFormat format = ConvertDxgiFormatToFormat( desc.Format );
 		ResourceBindType bindType = ConvertResourceFlagsToBindType( desc.Flags );
 		ResourceAccess access = ConvertToResourceAccess( heapProperties.Type );
 
-		return TextureTrait{
+		return TextureDesc{
 			.m_width = static_cast<uint32>( desc.Width ),
 			.m_height = static_cast<uint32>( desc.Height ),
 			.m_depth = static_cast<uint32>( desc.DepthOrArraySize ),
@@ -104,30 +104,30 @@ namespace
 		};
 	}
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertTraitToNonMultiSampleSRV( const TextureTrait& trait )
+	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertToNonMultiSampleSRVDesc( const TextureDesc& desc )
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv = {};
-		srv.Format = ConvertDxgiFormatForSRV( ConvertFormatToDxgiFormat( trait.m_format ) );
+		srv.Format = ConvertDxgiFormatForSRV( ConvertFormatToDxgiFormat( desc.m_format ) );
 		srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D ) )
+		if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Texture3D ) )
 		{
 			srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE3D;
 			srv.Texture3D = {
 				.MostDetailedMip = 0,
-				.MipLevels = trait.m_mipLevels,
+				.MipLevels = desc.m_mipLevels,
 				.ResourceMinLODClamp = 0
 			};
 		}
-		else if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::TextureCube ) )
+		else if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::TextureCube ) )
 		{
-			assert( ( trait.m_depth % 6 == 0 ) && "texture cube's depth count must be multiples of 6" );
-			if ( trait.m_depth == 6 )
+			assert( ( desc.m_depth % 6 == 0 ) && "texture cube's depth count must be multiples of 6" );
+			if ( desc.m_depth == 6 )
 			{
 				srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
 				srv.TextureCube = {
 					.MostDetailedMip = 0,
-					.MipLevels = trait.m_mipLevels,
+					.MipLevels = desc.m_mipLevels,
 					.ResourceMinLODClamp = 0
 				};
 			}
@@ -136,21 +136,21 @@ namespace
 				srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
 				srv.TextureCubeArray = {
 					.MostDetailedMip = 0,
-					.MipLevels = trait.m_mipLevels,
+					.MipLevels = desc.m_mipLevels,
 					.First2DArrayFace = 0,
-					.NumCubes = trait.m_depth / 6,
+					.NumCubes = desc.m_depth / 6,
 					.ResourceMinLODClamp = 0
 				};
 			}
 		}
 		else
 		{
-			if ( trait.m_depth <= 1 )
+			if ( desc.m_depth <= 1 )
 			{
 				srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 				srv.Texture2D = {
 					.MostDetailedMip = 0,
-					.MipLevels = trait.m_mipLevels,
+					.MipLevels = desc.m_mipLevels,
 					.PlaneSlice = 0,
 					.ResourceMinLODClamp = 0
 				};
@@ -160,9 +160,9 @@ namespace
 				srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
 				srv.Texture2DArray = {
 					.MostDetailedMip = 0,
-					.MipLevels = trait.m_mipLevels,
+					.MipLevels = desc.m_mipLevels,
 					.FirstArraySlice = 0,
-					.ArraySize = trait.m_depth,
+					.ArraySize = desc.m_depth,
 					.PlaneSlice = 0,
 					.ResourceMinLODClamp = 0
 				};
@@ -172,18 +172,18 @@ namespace
 		return srv;
 	}
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertTraitToMultiSampleSRV( const TextureTrait& trait )
+	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertToMultiSampleSRVDesc( const TextureDesc& desc )
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv = {};
-		srv.Format = ConvertDxgiFormatForSRV( ConvertFormatToDxgiFormat( trait.m_format ) );
+		srv.Format = ConvertDxgiFormatForSRV( ConvertFormatToDxgiFormat( desc.m_format ) );
 		srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-		assert( ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D ) == false )
+		assert( ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Texture3D ) == false )
 			&& "texture 3d can't be multi sampled" );
-		assert( ( trait.m_height > 1 )
+		assert( ( desc.m_height > 1 )
 			&& "texture 1d can't be multi sampled" );
 
-		if ( trait.m_depth <= 1 )
+		if ( desc.m_depth <= 1 )
 		{
 			srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
 			srv.Texture2DMS = {};
@@ -193,49 +193,49 @@ namespace
 			srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
 			srv.Texture2DMSArray = {
 				.FirstArraySlice = 0,
-				.ArraySize = trait.m_depth
+				.ArraySize = desc.m_depth
 			};
 		}
 
 		return srv;
 	}
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertTraitToSRV( const TextureTrait& trait )
+	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertToSRVDesc( const TextureDesc& desc )
 	{
-		if ( trait.m_sampleCount <= 1 )
+		if ( desc.m_sampleCount <= 1 )
 		{
-			return ConvertTraitToNonMultiSampleSRV( trait );
+			return ConvertToNonMultiSampleSRVDesc( desc );
 		}
 		else
 		{
-			return ConvertTraitToMultiSampleSRV( trait );
+			return ConvertToMultiSampleSRVDesc( desc );
 		}
 	}
 
-	D3D12_UNORDERED_ACCESS_VIEW_DESC ConvertTraitToUAV( const TextureTrait& trait, uint32 mipSlice )
+	D3D12_UNORDERED_ACCESS_VIEW_DESC ConvertToUAVDesc( const TextureDesc& desc, uint32 mipSlice )
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {
-			.Format = ConvertFormatToDxgiFormat( trait.m_format )
+			.Format = ConvertFormatToDxgiFormat( desc.m_format )
 		};
 
-		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D ) )
+		if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Texture3D ) )
 		{
 			uav.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE3D;
 			uav.Texture3D = {
 				.MipSlice = mipSlice,
 				.FirstWSlice = 0,
-				.WSize = trait.m_depth
+				.WSize = desc.m_depth
 			};
 		}
 		else
 		{
-			if ( trait.m_depth > 1 )
+			if ( desc.m_depth > 1 )
 			{
 				uav.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
 				uav.Texture2DArray = {
 					.MipSlice = mipSlice,
 					.FirstArraySlice = 0,
-					.ArraySize = trait.m_depth,
+					.ArraySize = desc.m_depth,
 					.PlaneSlice = 0
 				};
 			}
@@ -252,30 +252,30 @@ namespace
 		return uav;
 	}
 
-	D3D12_RENDER_TARGET_VIEW_DESC ConvertTraitToNonMultiSampleRTV( const TextureTrait& trait )
+	D3D12_RENDER_TARGET_VIEW_DESC ConvertToNonMultiSampleRTVDesc( const TextureDesc& desc )
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC rtv = {
-			.Format = ConvertFormatToDxgiFormat( trait.m_format )
+			.Format = ConvertFormatToDxgiFormat( desc.m_format )
 		};
 
-		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D ) )
+		if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Texture3D ) )
 		{
 			rtv.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE3D;
 			rtv.Texture3D = {
 				.MipSlice = 0,
 				.FirstWSlice = 0,
-				.WSize = trait.m_depth
+				.WSize = desc.m_depth
 			};
 		}
 		else
 		{
-			if ( trait.m_depth > 1 )
+			if ( desc.m_depth > 1 )
 			{
 				rtv.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
 				rtv.Texture2DArray = {
 					.MipSlice = 0,
 					.FirstArraySlice = 0,
-					.ArraySize = trait.m_depth,
+					.ArraySize = desc.m_depth,
 					.PlaneSlice = 0
 				};
 			}
@@ -292,23 +292,23 @@ namespace
 		return rtv;
 	}
 
-	D3D12_RENDER_TARGET_VIEW_DESC ConvertTraitToMultiSampleRTV( const TextureTrait& trait )
+	D3D12_RENDER_TARGET_VIEW_DESC ConvertToMultiSampleRTVDesc( const TextureDesc& desc )
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC rtv = {
-			.Format = ConvertFormatToDxgiFormat( trait.m_format )
+			.Format = ConvertFormatToDxgiFormat( desc.m_format )
 		};
 
-		assert( ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D ) == false )
+		assert( ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Texture3D ) == false )
 			&& "texture 3d can't be multi sampled" );
-		assert( ( trait.m_height > 1 )
+		assert( ( desc.m_height > 1 )
 			&& "texture 1d can't be multi sampled" );
 
-		if ( trait.m_depth > 1 )
+		if ( desc.m_depth > 1 )
 		{
 			rtv.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DMSARRAY;
 			rtv.Texture2DMSArray = {
 				.FirstArraySlice = 0,
-				.ArraySize = trait.m_depth
+				.ArraySize = desc.m_depth
 			};
 		}
 		else
@@ -320,32 +320,32 @@ namespace
 		return rtv;
 	}
 
-	D3D12_RENDER_TARGET_VIEW_DESC ConvertTraitToRTV( const TextureTrait& trait )
+	D3D12_RENDER_TARGET_VIEW_DESC ConvertToRTVDesc( const TextureDesc& desc )
 	{
-		if ( trait.m_sampleCount > 1 )
+		if ( desc.m_sampleCount > 1 )
 		{
-			return ConvertTraitToMultiSampleRTV( trait );
+			return ConvertToMultiSampleRTVDesc( desc );
 		}
 		else
 		{
-			return ConvertTraitToNonMultiSampleRTV( trait );
+			return ConvertToNonMultiSampleRTVDesc( desc );
 		}
 	}
 
-	D3D12_DEPTH_STENCIL_VIEW_DESC ConvertTraitToNonMultiSampleDSV( const TextureTrait& trait )
+	D3D12_DEPTH_STENCIL_VIEW_DESC ConvertToNonMultiSampleDSVDesc( const TextureDesc& desc )
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {
-			.Format = ConvertDxgiFormatForDSV( ConvertFormatToDxgiFormat( trait.m_format ) )
+			.Format = ConvertDxgiFormatForDSV( ConvertFormatToDxgiFormat( desc.m_format ) )
 		};
 
-		assert( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D ) == false );
-		if ( trait.m_depth > 1 )
+		assert( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Texture3D ) == false );
+		if ( desc.m_depth > 1 )
 		{
 			dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DARRAY;
 			dsv.Texture2DArray = {
 				.MipSlice = 0,
 				.FirstArraySlice = 0,
-				.ArraySize = trait.m_depth
+				.ArraySize = desc.m_depth
 			};
 		}
 		else
@@ -359,23 +359,23 @@ namespace
 		return dsv;
 	}
 
-	D3D12_DEPTH_STENCIL_VIEW_DESC ConvertTraitToMultiSampleDSV( const TextureTrait& trait )
+	D3D12_DEPTH_STENCIL_VIEW_DESC ConvertToMultiSampleDSVDesc( const TextureDesc& desc )
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {
-			.Format = ConvertDxgiFormatForDSV( ConvertFormatToDxgiFormat( trait.m_format ) )
+			.Format = ConvertDxgiFormatForDSV( ConvertFormatToDxgiFormat( desc.m_format ) )
 		};
 
-		assert( ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Texture3D ) == false )
+		assert( ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Texture3D ) == false )
 			&& "texture 3d can't be multi sampled" );
-		assert( ( trait.m_height > 1 )
+		assert( ( desc.m_height > 1 )
 			&& "texture 1d can't be multi sampled" );
 
-		if ( trait.m_depth > 1 )
+		if ( desc.m_depth > 1 )
 		{
 			dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2DMSARRAY;
 			dsv.Texture2DMSArray = {
 				.FirstArraySlice = 0,
-				.ArraySize = trait.m_depth
+				.ArraySize = desc.m_depth
 			};
 		}
 		else
@@ -387,15 +387,15 @@ namespace
 		return dsv;
 	}
 
-	D3D12_DEPTH_STENCIL_VIEW_DESC ConvertTraitToDSV( const TextureTrait& trait )
+	D3D12_DEPTH_STENCIL_VIEW_DESC ConvertToDSVDesc( const TextureDesc& desc )
 	{
-		if ( trait.m_sampleCount > 1 )
+		if ( desc.m_sampleCount > 1 )
 		{
-			return ConvertTraitToMultiSampleDSV( trait );
+			return ConvertToMultiSampleDSVDesc( desc );
 		}
 		else
 		{
-			return ConvertTraitToNonMultiSampleDSV( trait );
+			return ConvertToNonMultiSampleDSVDesc( desc );
 		}
 	}
 
@@ -411,35 +411,35 @@ namespace
 		}
 	}
 
-	D3D12HeapProperties ConvertToHeapProperties( const TextureTrait& trait )
+	D3D12HeapProperties ConvertToHeapProperties( const TextureDesc& desc )
 	{
-		uint64 alignment = ( trait.m_sampleCount > 1 ) ? D3D12_DEFAULT_MSAA_RESOURCE_PLACEMENT_ALIGNMENT : D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+		uint64 alignment = ( desc.m_sampleCount > 1 ) ? D3D12_DEFAULT_MSAA_RESOURCE_PLACEMENT_ALIGNMENT : D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
 
-		bool bDownload = HasAnyFlags( trait.m_access, ResourceAccess::CpuRead );
+		bool bDownload = HasAnyFlags( desc.m_access, ResourceAccess::CpuRead );
 
 		D3D12HeapProperties properties = {
 			.m_alignment = alignment,
-			.m_heapType = ConvertToHeapType( trait.m_access ),
-			.m_heapFlags = bDownload ? D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS : ConvertToTextureHeapFlags( trait.m_bindType )
+			.m_heapType = ConvertToHeapType( desc.m_access ),
+			.m_heapFlags = bDownload ? D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS : ConvertToTextureHeapFlags( desc.m_bindType )
 		};
 
 		return properties;
 	}
 
-	D3D12_CLEAR_VALUE ConvertToClearValue( const TextureTrait& trait )
+	D3D12_CLEAR_VALUE ConvertToClearValue( const TextureDesc& desc )
 	{
-		if ( trait.m_clearValue.has_value() == false )
+		if ( desc.m_clearValue.has_value() == false )
 		{
 			return {};
 		}
 
-		const ResourceClearValue& clearValue = trait.m_clearValue.value();
+		const ResourceClearValue& clearValue = desc.m_clearValue.value();
 
 		D3D12_CLEAR_VALUE ret;
-		ResourceFormat clearFormat = ( clearValue.m_format == ResourceFormat::Unknown ) ? trait.m_format : clearValue.m_format;
+		ResourceFormat clearFormat = ( clearValue.m_format == ResourceFormat::Unknown ) ? desc.m_format : clearValue.m_format;
 		ret.Format = IsTypeless( clearFormat ) ? DXGI_FORMAT_UNKNOWN : ConvertFormatToDxgiFormat( clearFormat );
 
-		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::RenderTarget ) )
+		if ( HasAnyFlags( desc.m_bindType, ResourceBindType::RenderTarget ) )
 		{
 			ret.Format = ConvertDxgiFormatForDSV( ret.Format );
 			ret.Color[0] = clearValue.m_color[0];
@@ -449,7 +449,7 @@ namespace
 
 			return ret;
 		}
-		else if ( HasAnyFlags( trait.m_bindType, ResourceBindType::DepthStencil ) )
+		else if ( HasAnyFlags( desc.m_bindType, ResourceBindType::DepthStencil ) )
 		{
 			ret.Format = ConvertDxgiFormatForDSV( ret.Format );
 			ret.DepthStencil.Depth = clearValue.m_depthStencil.m_depth;
@@ -479,14 +479,14 @@ namespace agl
 		return m_resourceInfo;
 	}
 
-	const D3D12_RESOURCE_DESC& D3D12Texture::GetDesc() const
+	const D3D12_RESOURCE_DESC& D3D12Texture::GetD3DDesc() const
 	{
-		return m_desc;
+		return m_d3dDesc;
 	}
 
 	LockedResource D3D12Texture::Lock( uint32 subResource )
 	{
-		assert( HasAnyFlags( GetTrait().m_access, ResourceAccess::CpuRead ) );
+		assert( HasAnyFlags( GetDesc().m_access, ResourceAccess::CpuRead ) );
 
 		ID3D12Resource* resource = Resource();
 		if ( resource == nullptr )
@@ -503,7 +503,7 @@ namespace agl
 		uint64 rowSize = 0;
 		uint64 totalSize = 0;
 
-		D3D12Device().GetCopyableFootprints( &GetDesc(), subResource, 1, 0, &layout, &numRows, &rowSize, &totalSize );
+		D3D12Device().GetCopyableFootprints( &GetD3DDesc(), subResource, 1, 0, &layout, &numRows, &rowSize, &totalSize );
 
 		LockedResource result = {
 			.m_data = mappedData,
@@ -526,7 +526,7 @@ namespace agl
 
 	void D3D12Texture::CreateShaderResource( std::optional<ResourceFormat> overrideFormat )
 	{
-		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertTraitToSRV( m_trait );
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertToSRVDesc( m_desc );
 		if ( overrideFormat.has_value() )
 		{
 			srvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
@@ -537,10 +537,10 @@ namespace agl
 
 	void D3D12Texture::CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat )
 	{
-		m_uav.resize( m_trait.m_mipLevels );
-		for ( uint32 mipSlice = 0; mipSlice < m_trait.m_mipLevels; ++mipSlice )
+		m_uav.resize( m_desc.m_mipLevels );
+		for ( uint32 mipSlice = 0; mipSlice < m_desc.m_mipLevels; ++mipSlice )
 		{
-			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertTraitToUAV( m_trait, mipSlice );
+			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertToUAVDesc( m_desc, mipSlice );
 			if ( overrideFormat.has_value() )
 			{
 				uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
@@ -550,12 +550,12 @@ namespace agl
 		}
 	}
 
-	void D3D12Texture::Reconstruct( const TextureTrait& trait, const ResourceInitData* initData )
+	void D3D12Texture::Reconstruct( const TextureDesc& desc, const ResourceInitData* initData )
 	{
 		delete[] m_dataStorage;
 
-		m_trait = trait;
-		m_desc = ConvertTraitToDesc( trait );
+		m_desc = desc;
+		m_d3dDesc = ConvertToD3DDesc( desc );
 		m_initData.clear();
 
 		if ( initData )
@@ -577,9 +577,9 @@ namespace agl
 		}
 	}
 
-	D3D12Texture::D3D12Texture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
-		: TextureBase( trait, debugName, initialState, initData )
-		, m_desc( ConvertTraitToDesc( trait ) )
+	D3D12Texture::D3D12Texture( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+		: TextureBase( desc, debugName, initialState, initData )
+		, m_d3dDesc( ConvertToD3DDesc( desc ) )
 	{
 		if ( initData )
 		{
@@ -610,14 +610,14 @@ namespace agl
 	{
 		AdjustInitalResourceStates();
 
-		D3D12HeapProperties properties = ConvertToHeapProperties( m_trait );
+		D3D12HeapProperties properties = ConvertToHeapProperties( m_desc );
 
-		D3D12_CLEAR_VALUE clearValue = ConvertToClearValue( m_trait );
+		D3D12_CLEAR_VALUE clearValue = ConvertToClearValue( m_desc );
 
-		bool bDownload = HasAnyFlags( m_trait.m_access, ResourceAccess::CpuRead );
+		bool bDownload = HasAnyFlags( m_desc.m_access, ResourceAccess::CpuRead );
 		m_resourceInfo = D3D12Allocator().AllocateResource(
 			properties,
-			bDownload ? GetDescForDownload() : m_desc,
+			bDownload ? GetDescForDownload() : m_d3dDesc,
 			ConvertToResourceStates( GetResourceState() ),
 			clearValue.Format == DXGI_FORMAT_UNKNOWN ? nullptr : &clearValue );
 
@@ -634,15 +634,15 @@ namespace agl
 
 	void D3D12Texture::AdjustInitalResourceStates()
 	{
-		if ( HasAllFlags( m_trait.m_access, ResourceAccess::Download ) )
+		if ( HasAllFlags( m_desc.m_access, ResourceAccess::Download ) )
 		{
 			SetResourceState( ResourceState::CopyDest );
 		}
-		else if ( HasAllFlags( m_trait.m_access, ResourceAccess::Upload ) )
+		else if ( HasAllFlags( m_desc.m_access, ResourceAccess::Upload ) )
 		{
 			SetResourceState( ResourceState::GenericRead );
 		}
-		else if ( ( m_dataStorage != nullptr ) && ( HasAllFlags( m_trait.m_access, ResourceAccess::CpuWrite ) == false ) )
+		else if ( ( m_dataStorage != nullptr ) && ( HasAllFlags( m_desc.m_access, ResourceAccess::CpuWrite ) == false ) )
 		{
 			SetResourceState( ResourceState::Common );
 		}
@@ -655,7 +655,7 @@ namespace agl
 		uint64 rowSize = 0;
 		uint64 totalSize = 0;
 
-		D3D12Device().GetCopyableFootprints( &m_desc, 0, 1, 0, &layout, &numRows, &rowSize, &totalSize );
+		D3D12Device().GetCopyableFootprints( &m_d3dDesc, 0, 1, 0, &layout, &numRows, &rowSize, &totalSize );
 
 		return {
 			.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
@@ -670,12 +670,12 @@ namespace agl
 				.Quality = 0
 			},
 			.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
-			.Flags = GetResourceFlags( m_trait )
+			.Flags = GetResourceFlags( m_desc )
 		};
 	}
 
-	D3D12Texture2D::D3D12Texture2D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
-		: D3D12Texture( trait, debugName, initialState, initData )
+	D3D12Texture2D::D3D12Texture2D( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+		: D3D12Texture( desc, debugName, initialState, initData )
 	{
 	}
 
@@ -689,19 +689,19 @@ namespace agl
 
 			if ( desc == nullptr )
 			{
-				m_desc = texture->GetDesc();
+				m_d3dDesc = texture->GetDesc();
 			}
 			else
 			{
-				m_desc = *desc;
+				m_d3dDesc = *desc;
 			}
 
 			HRESULT hr = texture->GetHeapProperties( &m_heapProperties, &m_heapFlags );
 			assert( SUCCEEDED( hr ) );
 
-			m_trait = ConvertDescToTrait( m_desc, m_heapProperties );
-			m_trait.m_clearValue = ResourceClearValue{
-				.m_format = m_trait.m_format,
+			m_desc = ConvertToTextureDesc( m_d3dDesc, m_heapProperties );
+			m_desc.m_clearValue = ResourceClearValue{
+				.m_format = m_desc.m_format,
 				.m_color = { clearColor[0], clearColor[1], clearColor[2], clearColor[3]}
 			};
 		}
@@ -709,16 +709,16 @@ namespace agl
 
 	void D3D12Texture2D::CreateRenderTarget( std::optional<ResourceFormat> overrideFormat )
 	{
-		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertTraitToRTV( m_trait );
+		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertToRTVDesc( m_desc );
 		if ( overrideFormat.has_value() )
 		{
 			rtvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
 		}
 
 		ColorF clearColor = ColorF::Black;
-		if ( m_trait.m_clearValue )
+		if ( m_desc.m_clearValue )
 		{
-			clearColor = m_trait.m_clearValue->m_color;
+			clearColor = m_desc.m_clearValue->m_color;
 		}
 
 		m_rtv = new D3D12RenderTargetView( this, static_cast<ID3D12Resource*>( Resource() ), rtvDesc, clearColor );
@@ -727,7 +727,7 @@ namespace agl
 
 	void D3D12Texture2D::CreateDepthStencil( std::optional<ResourceFormat> overrideFormat )
 	{
-		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = ConvertTraitToDSV( m_trait );
+		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = ConvertToDSVDesc( m_desc );
 		if ( overrideFormat.has_value() )
 		{
 			dsvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
@@ -735,10 +735,10 @@ namespace agl
 
 		float depthClearValue = 0;
 		uint8 stencilClearValue = 0;
-		if ( m_trait.m_clearValue )
+		if ( m_desc.m_clearValue )
 		{
-			depthClearValue = m_trait.m_clearValue->m_depthStencil.m_depth;
-			stencilClearValue = m_trait.m_clearValue->m_depthStencil.m_stencil;
+			depthClearValue = m_desc.m_clearValue->m_depthStencil.m_depth;
+			stencilClearValue = m_desc.m_clearValue->m_depthStencil.m_stencil;
 		}
 
 		m_dsv = new D3D12DepthStencilView( this, static_cast<ID3D12Resource*>( Resource() ), dsvDesc, depthClearValue, stencilClearValue );
@@ -747,24 +747,24 @@ namespace agl
 
 	void D3D12Texture3D::CreateRenderTarget( std::optional<ResourceFormat> overrideFormat )
 	{
-		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertTraitToRTV( m_trait );
+		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertToRTVDesc( m_desc );
 		if ( overrideFormat.has_value() )
 		{
 			rtvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
 		}
 
 		ColorF clearColor = ColorF::Black;
-		if ( m_trait.m_clearValue )
+		if ( m_desc.m_clearValue )
 		{
-			clearColor = m_trait.m_clearValue->m_color;
+			clearColor = m_desc.m_clearValue->m_color;
 		}
 
 		m_rtv = new D3D12RenderTargetView( this, static_cast<ID3D12Resource*>( Resource() ), rtvDesc, clearColor );
 		m_rtv->Init();
 	}
 
-	D3D12Texture3D::D3D12Texture3D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
-		: D3D12Texture( trait, debugName, initialState, initData )
+	D3D12Texture3D::D3D12Texture3D( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+		: D3D12Texture( desc, debugName, initialState, initData )
 	{
 	}
 }

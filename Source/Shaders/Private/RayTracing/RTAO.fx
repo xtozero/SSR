@@ -78,9 +78,7 @@ struct [raypayload] PayLoad
 [shader("raygeneration")]
 void RayGen()
 {
-    uint frameIndex = FrameCount;
-
-    float2 jitter = HALTON_SEQUENCE[frameIndex % MAX_HALTON_SEQUENCE].xy;
+    float2 jitter = HALTON_SEQUENCE[FrameCount % MAX_HALTON_SEQUENCE].xy;
     float2 uv = ( DispatchRaysIndex().xy + jitter ) / DispatchRaysDimensions().xy;
 
     float3 packedNormal = WorldNormal.SampleLevel( BlackBorderSampler, uv, 0 ).yzw;
@@ -103,7 +101,7 @@ void RayGen()
         RayDesc ray;
         ray.Origin = worldPosition;
         ray.TMin = 0.001f;
-        ray.Direction = SampleAODirection( uv, i, frameIndex, tbn );
+        ray.Direction = SampleAODirection( uv, i, FrameCount, tbn );
         ray.TMax = AORadius;
 
         PayLoad payload;

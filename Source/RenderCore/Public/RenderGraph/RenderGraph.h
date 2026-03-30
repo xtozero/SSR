@@ -106,8 +106,8 @@ namespace rendercore
 		agl::Texture* ConvertToExternalResource( RenderGraphTexture* rgTexture );
 		agl::Buffer* ConvertToExternalResource( RenderGraphBuffer* rgBuffer );
 
-		RenderGraphTexture* CreateTexture( const agl::TextureTrait& trait, const char* name );
-		RenderGraphBuffer* CreateBuffer( const agl::BufferTrait& trait, const char* name );
+		RenderGraphTexture* CreateTexture( const agl::TextureDesc& desc, const char* name );
+		RenderGraphBuffer* CreateBuffer( const agl::BufferDesc& desc, const char* name );
 
 		void PushGPUProfileEvent( GpuProfileData& gpuProfileData );
 		void PopGPUProfileEvent();

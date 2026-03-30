@@ -108,22 +108,22 @@ namespace rendercore
 			.m_cubeMap = rgCubeMap
 		};
 
-		agl::TextureTrait trait = cubeMap->GetTrait();
-		trait.m_width = trait.m_height = 32;
-		trait.m_format = agl::ResourceFormat::R8G8B8A8_UNORM;
-		trait.m_bindType |= agl::ResourceBindType::RenderTarget;
-		trait.m_clearValue = agl::ResourceClearValue{
-			.m_format = trait.m_format,
+		agl::TextureDesc desc = cubeMap->GetDesc();
+		desc.m_width = desc.m_height = 32;
+		desc.m_format = agl::ResourceFormat::R8G8B8A8_UNORM;
+		desc.m_bindType |= agl::ResourceBindType::RenderTarget;
+		desc.m_clearValue = agl::ResourceClearValue{
+			.m_format = desc.m_format,
 			.m_color = { 0, 0, 0, 1 }
 		};
 
-		auto irradianceMap = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "DiffuseIrradianceMap" );
+		auto irradianceMap = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "DiffuseIrradianceMap" );
 		auto rgIrrdianceMap = renderGraph.RegisterExternalResource( irradianceMap.Get() );
 
 		RasterOutput rasterOutput;
 		rasterOutput.SetRenderTarget( 0, rgIrrdianceMap, RasterOutputLoadAction::Clear );
-		rasterOutput.SetViewport( trait.m_width, trait.m_height );
-		rasterOutput.SetScissorRect( trait.m_width, trait.m_height );
+		rasterOutput.SetViewport( desc.m_width, desc.m_height );
+		rasterOutput.SetScissorRect( desc.m_width, desc.m_height );
 
 		renderGraph.AddPass(
 			passResource,
@@ -168,7 +168,7 @@ namespace rendercore
 		RenderGraph renderGraph;
 		auto rgCubeMap = renderGraph.RegisterExternalResource( cubeMap.Get() );
 
-		agl::BufferTrait coeffTrait = {
+		agl::BufferDesc coeffDesc = {
 			.m_stride = sizeof( Vector ),
 			.m_count = 9,
 			.m_access = agl::ResourceAccess::Default,
@@ -176,7 +176,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::BufferStructured,
 			.m_format = agl::ResourceFormat::Unknown
 		};
-		auto rgCoeffBuffer = renderGraph.CreateBuffer( coeffTrait, "IrradianceMap.Coefficient" );
+		auto rgCoeffBuffer = renderGraph.CreateBuffer( coeffDesc, "IrradianceMap.Coefficient" );
 
 		BEGIN_RG_RESOURCE_STRUCT( SHPassResource )
 			DECLARE_RG_TEXTURE_NONPIXEL_SRV( cubeMap )
@@ -209,7 +209,7 @@ namespace rendercore
 				commandList.Dispatch( 1, 1 );
 			} );
 
-		agl::BufferTrait readBackTrait = {
+		agl::BufferDesc readBackDesc = {
 			.m_stride = sizeof( Vector ),
 			.m_count = 9,
 			.m_access = agl::ResourceAccess::Download,
@@ -218,7 +218,7 @@ namespace rendercore
 			.m_format = agl::ResourceFormat::Unknown
 		};
 
-		auto readBackBuffer = agl::Buffer::Create( readBackTrait, "IrradianceMap.ReadBack" );
+		auto readBackBuffer = agl::Buffer::Create( readBackDesc, "IrradianceMap.ReadBack" );
 
 		auto rgReadBackBuffer = renderGraph.RegisterExternalResource( readBackBuffer.Get() );
 
@@ -285,16 +285,16 @@ namespace rendercore
 				return mipLevels;
 			};
 
-		const agl::TextureTrait& cubeMapTrait = cubeMap->GetTrait();
+		const agl::TextureDesc& cubeMapDesc = cubeMap->GetDesc();
 
 		constexpr uint32 MaxResolution = 512;
-		uint32 width = std::min( cubeMapTrait.m_width, MaxResolution );
-		uint32 height = std::min( cubeMapTrait.m_height, MaxResolution );
+		uint32 width = std::min( cubeMapDesc.m_width, MaxResolution );
+		uint32 height = std::min( cubeMapDesc.m_height, MaxResolution );
 
-		agl::TextureTrait trait = {
+		agl::TextureDesc desc = {
 			.m_width = width,
 			.m_height = height,
-			.m_depth = cubeMapTrait.m_depth,
+			.m_depth = cubeMapDesc.m_depth,
 			.m_sampleCount = 1,
 			.m_sampleQuality = 0,
 			.m_mipLevels = CountMips( width, height ),
@@ -304,7 +304,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::TextureCube
 		};
 
-		auto prefiltered = agl::Texture::Create( trait, "PrefilteredSpecular" );
+		auto prefiltered = agl::Texture::Create( desc, "PrefilteredSpecular" );
 
 		RenderGraph renderGraph;
 		auto rgCubeMap = renderGraph.RegisterExternalResource( cubeMap.Get() );
@@ -322,7 +322,7 @@ namespace rendercore
 
 		renderGraph.AddPass(
 			passResource,
-			[passResource, width, height, mipLevels = trait.m_mipLevels]( ComputeCommandList& commandList )
+			[passResource, width, height, mipLevels = desc.m_mipLevels]( ComputeCommandList& commandList )
 			{
 				agl::Texture* cubeMap = passResource.m_cubeMap->Get();
 				agl::Texture* prefiltered = passResource.m_prefiltered->Get();

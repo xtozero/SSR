@@ -15,7 +15,7 @@ namespace rendercore
 	class VertexLayoutDesc
 	{
 	public:
-		const agl::VertexLayoutTrait* Data() const
+		const agl::VertexLayoutData* GetData() const
 		{
 			return m_layoutData.data();
 		}
@@ -30,14 +30,14 @@ namespace rendercore
 			assert( Size() < agl::MaxVertexLayouts );
 
 			m_layoutData.emplace_back();
-			agl::VertexLayoutTrait& trait = m_layoutData.back();
+			agl::VertexLayoutData& elem = m_layoutData.back();
 
-			trait.m_name = Name( name );
-			trait.m_isInstanceData = isInstanceData;
-			trait.m_index = index;
-			trait.m_format = format;
-			trait.m_slot = slot;
-			trait.m_instanceDataStep = instanceDataStep;
+			elem.m_name = Name( name );
+			elem.m_isInstanceData = isInstanceData;
+			elem.m_index = index;
+			elem.m_format = format;
+			elem.m_slot = slot;
+			elem.m_instanceDataStep = instanceDataStep;
 		}
 
 		friend bool operator==( const VertexLayoutDesc& lhs, const VertexLayoutDesc& rhs )
@@ -63,12 +63,12 @@ namespace rendercore
 		friend Archive& operator<<( Archive& ar, VertexLayoutDesc& desc );
 
 	private:
-		std::vector<agl::VertexLayoutTrait, InlineAllocator<agl::VertexLayoutTrait, 8>> m_layoutData;
+		std::vector<agl::VertexLayoutData, InlineAllocator<agl::VertexLayoutData, 8>> m_layoutData;
 	};
 
 	struct VertexLayoutInstance final
 	{
-		const agl::VertexShader* m_vertexShader;
+		const agl::VertexShader* m_vertexShader = nullptr;
 		VertexLayoutDesc m_desc;
 	};
 
@@ -89,10 +89,10 @@ namespace rendercore
 			size_t hash = typeHash;
 			HashCombine( hash, instance.m_vertexShader );
 
-			const agl::VertexLayoutTrait* data = instance.m_desc.Data();
+			const agl::VertexLayoutData* layoutData = instance.m_desc.GetData();
 			for ( uint32 i = 0; i < instance.m_desc.Size(); ++i )
 			{
-				HashCombine( hash, data[i].GetHash() );
+				HashCombine( hash, layoutData[i].GetHash() );
 			}
 
 			return hash;

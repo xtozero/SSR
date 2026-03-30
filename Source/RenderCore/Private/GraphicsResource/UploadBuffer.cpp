@@ -43,7 +43,7 @@ namespace rendercore
 	{
 		if ( m_elementSize > 0 && m_numElement > 0 )
 		{
-			agl::BufferTrait trait = {
+			agl::BufferDesc desc = {
 				.m_stride = m_elementSize,
 				.m_count = m_numElement,
 				.m_access = agl::ResourceAccess::Upload,
@@ -52,7 +52,7 @@ namespace rendercore
 				.m_format = agl::ResourceFormat::Unknown
 			};
 
-			m_buffer = agl::Buffer::Create( trait, "Upload", initData );
+			m_buffer = agl::Buffer::Create( desc, "Upload", initData );
 		}
 	}
 

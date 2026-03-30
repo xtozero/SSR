@@ -119,7 +119,7 @@ namespace agl
 		DXGI_FORMAT typelessDxgiFormat = ConvertDxgiFormatToDxgiTypelessFormat( m_format );
 		ResourceFormat typelessFormat = ConvertDxgiFormatToFormat( typelessDxgiFormat );
 
-		TextureTrait frameBufferTrait = {
+		TextureDesc frameBufferDesc = {
 			.m_width = m_width,
 			.m_height = m_height,
 			.m_depth = 1,
@@ -138,11 +138,11 @@ namespace agl
 
 		if ( m_frameBuffer == nullptr )
 		{
-			m_frameBuffer = new D3D11Texture2D( frameBufferTrait, "FrameBuffer", ResourceState::Common, nullptr );
+			m_frameBuffer = new D3D11Texture2D( frameBufferDesc, "FrameBuffer", ResourceState::Common, nullptr );
 		}
 		else
 		{
-			m_frameBuffer->Reconstruct( frameBufferTrait, nullptr );
+			m_frameBuffer->Reconstruct( frameBufferDesc, nullptr );
 		}
 
 		EnqueueRenderTask(
@@ -154,9 +154,9 @@ namespace agl
 				m_frameBuffer->CreateRenderTarget( orignalFormat );
 				m_frameBuffer->CreateShaderResource( orignalFormat );
 
-				const TextureTrait& trait = m_frameBuffer->GetTrait();
-				m_proxy.m_width = trait.m_width;
-				m_proxy.m_height = trait.m_height;
+				const TextureDesc& desc = m_frameBuffer->GetDesc();
+				m_proxy.m_width = desc.m_width;
+				m_proxy.m_height = desc.m_height;
 			} );
 	}
 }

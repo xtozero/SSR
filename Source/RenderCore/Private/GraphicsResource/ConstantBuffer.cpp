@@ -53,7 +53,7 @@ namespace rendercore
 
 	void ConstantBuffer::InitResource( uint32 size )
 	{
-		agl::BufferTrait trait = {
+		agl::BufferDesc desc = {
 			.m_stride = size,
 			.m_count = 1,
 			.m_access = agl::ResourceAccess::Upload,
@@ -62,6 +62,6 @@ namespace rendercore
 			.m_format = agl::ResourceFormat::Unknown
 		};
 
-		m_buffer = agl::Buffer::Create( trait, "Constant" );
+		m_buffer = agl::Buffer::Create( desc, "Constant" );
 	}
 }

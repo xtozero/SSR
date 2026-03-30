@@ -122,7 +122,7 @@ namespace rendercore
 	{
 		const std::array<uint32, 3>& frustumGridSize = Proxy()->FrustumGridSize();
 
-		agl::TextureTrait frustumVolumeTrait = {
+		agl::TextureDesc frustumVolumeDesc = {
 			.m_width = frustumGridSize[0],
 			.m_height = frustumGridSize[1],
 			.m_depth = frustumGridSize[2],
@@ -137,10 +137,10 @@ namespace rendercore
 
 		for ( RefHandle<agl::Texture>& frustumVolume : m_frustumVolume )
 		{
-			frustumVolume = agl::Texture::Create( frustumVolumeTrait, "VolumetricFog.Frustum" );
+			frustumVolume = agl::Texture::Create( frustumVolumeDesc, "VolumetricFog.Frustum" );
 		}
 
-		m_accumulatedVolume = agl::Texture::Create( frustumVolumeTrait, "VolumetricFog.Accumulated" );
+		m_accumulatedVolume = agl::Texture::Create( frustumVolumeDesc, "VolumetricFog.Accumulated" );
 	}
 
 	void VolumetricFogSceneInfo::UpdateParameter()

@@ -119,7 +119,7 @@ namespace rendercore
 
 	void VolumetricCloudSceneInfo::GenerateWeatherMap( RenderGraph& renderGraph )
 	{
-		agl::TextureTrait trait = {
+		agl::TextureDesc desc = {
 			.m_width = 1024,
 			.m_height = 1024,
 			.m_depth = 1,
@@ -132,7 +132,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::None,
 		};
 
-		m_weatherMap = agl::Texture::Create( trait, "VolumetricCloud.Weather" );
+		m_weatherMap = agl::Texture::Create( desc, "VolumetricCloud.Weather" );
 
 		auto rgWeatherMap = renderGraph.RegisterExternalResource( m_weatherMap.Get() );
 
@@ -166,7 +166,7 @@ namespace rendercore
 
 	RefHandle<agl::Texture> VolumetricCloudSceneInfo::CreateCloudTexture( uint32 texSize )
 	{
-		agl::TextureTrait trait = {
+		agl::TextureDesc desc = {
 			.m_width = texSize,
 			.m_height = texSize,
 			.m_depth = texSize,
@@ -179,7 +179,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::Texture3D
 		};
 
-		RefHandle<agl::Texture> cloudTex = agl::Texture::Create( trait, "VolumetricCloud.Cloud" );
+		RefHandle<agl::Texture> cloudTex = agl::Texture::Create( desc, "VolumetricCloud.Cloud" );
 
 		return cloudTex;
 	}

@@ -58,7 +58,7 @@ namespace agl
 
 		if ( m_buffer == nullptr )
 		{
-			BufferTrait trait = {
+			BufferDesc desc = {
 			   .m_stride = DefaultBufferSize,
 			   .m_count = 1,
 			   .m_access = ResourceAccess::Upload,
@@ -67,7 +67,7 @@ namespace agl
 			   .m_format = ResourceFormat::Unknown
 			};
 
-			m_buffer = Buffer::Create( trait, "GlobalConstant" );
+			m_buffer = Buffer::Create( desc, "GlobalConstant" );
 		}
 
 		singleShaderBindings.AddConstantBuffer( parameter, m_buffer.Get() );
@@ -103,7 +103,7 @@ namespace agl
 			return;
 		}
 
-		BufferTrait trait = {
+		BufferDesc desc = {
 			.m_stride = m_updateSize,
 			.m_count = 1,
 			.m_access = ResourceAccess::Upload,
@@ -112,7 +112,7 @@ namespace agl
 			.m_format = ResourceFormat::Unknown
 		};
 
-		RefHandle<Buffer> buffer = Buffer::Create( trait, "GlobalConstant" );
+		RefHandle<Buffer> buffer = Buffer::Create( desc, "GlobalConstant" );
 
 		singleShaderBindings.AddConstantBuffer( parameter, buffer.Get() );
 

@@ -15,9 +15,9 @@ namespace rendercore
 		return m_state.Get();
 	}
 
-	BlendState::BlendState( const agl::BlendStateTrait& trait )
+	BlendState::BlendState( const agl::BlendStateDesc& desc )
 	{
-		InitResource( trait );
+		InitResource( desc );
 	}
 
 	BlendState::BlendState( agl::BlendState* state ) noexcept
@@ -25,9 +25,9 @@ namespace rendercore
 	{
 	}
 
-	void BlendState::InitResource( const agl::BlendStateTrait& trait )
+	void BlendState::InitResource( const agl::BlendStateDesc& desc )
 	{
-		m_state = agl::BlendState::Create( trait );
+		m_state = agl::BlendState::Create( desc );
 	}
 
 	agl::DepthStencilState* DepthStencilState::Resource()
@@ -40,9 +40,9 @@ namespace rendercore
 		return m_state.Get();
 	}
 
-	DepthStencilState::DepthStencilState( const agl::DepthStencilStateTrait& trait )
+	DepthStencilState::DepthStencilState( const agl::DepthStencilStateDesc& desc )
 	{
-		InitResource( trait );
+		InitResource( desc );
 	}
 
 	DepthStencilState::DepthStencilState( agl::DepthStencilState* state ) noexcept
@@ -50,9 +50,9 @@ namespace rendercore
 	{
 	}
 
-	void DepthStencilState::InitResource( const agl::DepthStencilStateTrait& trait )
+	void DepthStencilState::InitResource( const agl::DepthStencilStateDesc& desc )
 	{
-		m_state = agl::DepthStencilState::Create( trait );
+		m_state = agl::DepthStencilState::Create( desc );
 	}
 
 	agl::RasterizerState* RasterizerState::Resource()
@@ -65,9 +65,9 @@ namespace rendercore
 		return m_state.Get();
 	}
 
-	RasterizerState::RasterizerState( const agl::RasterizerStateTrait& trait )
+	RasterizerState::RasterizerState( const agl::RasterizerStateDesc& desc )
 	{
-		InitResource( trait );
+		InitResource( desc );
 	}
 
 	RasterizerState::RasterizerState( agl::RasterizerState* state ) noexcept
@@ -75,9 +75,9 @@ namespace rendercore
 	{
 	}
 
-	void RasterizerState::InitResource( const agl::RasterizerStateTrait& trait )
+	void RasterizerState::InitResource( const agl::RasterizerStateDesc& desc )
 	{
-		m_state = agl::RasterizerState::Create( trait );
+		m_state = agl::RasterizerState::Create( desc );
 	}
 
 	agl::SamplerState* SamplerState::Resource()
@@ -90,9 +90,9 @@ namespace rendercore
 		return m_state.Get();
 	}
 
-	SamplerState::SamplerState( const agl::SamplerStateTrait& trait )
+	SamplerState::SamplerState( const agl::SamplerStateDesc& desc )
 	{
-		InitResource( trait );
+		InitResource( desc );
 	}
 
 	SamplerState::SamplerState( agl::SamplerState* state ) noexcept
@@ -100,8 +100,8 @@ namespace rendercore
 	{
 	}
 
-	void SamplerState::InitResource( const agl::SamplerStateTrait& trait )
+	void SamplerState::InitResource( const agl::SamplerStateDesc& desc )
 	{
-		m_state = agl::SamplerState::Create( trait );
+		m_state = agl::SamplerState::Create( desc );
 	}
 }

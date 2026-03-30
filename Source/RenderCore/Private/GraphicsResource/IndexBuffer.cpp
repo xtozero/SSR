@@ -76,7 +76,7 @@ namespace rendercore
 			bindType |= agl::ResourceBindType::ShaderResource;
 		}
 
-		agl::BufferTrait trait = {
+		agl::BufferDesc desc = {
 			.m_stride = m_isDWORD ? sizeof( uint32 ) : sizeof( uint16 ),
 			.m_count = m_numElement,
 			.m_access = resourceAccess,
@@ -85,6 +85,6 @@ namespace rendercore
 			.m_format = m_isDWORD ? agl::ResourceFormat::R32_UINT : agl::ResourceFormat::R16_UINT
 		};
 
-		m_buffer = agl::Buffer::Create( trait, "Index", initialState, initData );
+		m_buffer = agl::Buffer::Create( desc, "Index", initialState, initData );
 	}
 }

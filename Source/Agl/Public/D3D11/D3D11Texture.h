@@ -18,12 +18,12 @@ namespace agl
 			return m_texture;
 		}
 
-		void Reconstruct( const TextureTrait& trait, const ResourceInitData* initData )
+		void Reconstruct( const TextureDesc& desc, const ResourceInitData* initData )
 		{
 			delete[] m_dataStorage;
 
-			m_trait = trait;
-			ConvertToDesc( trait );
+			m_desc = desc;
+			BuildD3DDesc( desc );
 			m_initData.clear();
 
 			if ( initData )
@@ -45,8 +45,8 @@ namespace agl
 			}
 		}
 
-		D3D11Texture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
-			: TextureBase( trait, debugName, initialState, initData )
+		D3D11Texture( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+			: TextureBase( desc, debugName, initialState, initData )
 		{
 			if ( initData )
 			{
@@ -90,29 +90,29 @@ namespace agl
 				CreateTexture();
 			}
 
-			if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate | ResourceMisc::WithoutViews ) )
+			if ( HasAnyFlags( m_desc.m_miscFlag, ResourceMisc::Intermediate | ResourceMisc::WithoutViews ) )
 			{
 				return;
 			}
 
 			if ( m_texture )
 			{
-				if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::ShaderResource ) )
+				if ( HasAnyFlags( m_desc.m_bindType, ResourceBindType::ShaderResource ) )
 				{
 					CreateShaderResource();
 				}
 
-				if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::RandomAccess ) )
+				if ( HasAnyFlags( m_desc.m_bindType, ResourceBindType::RandomAccess ) )
 				{
 					CreateUnorderedAccess();
 				}
 
-				if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::RenderTarget ) )
+				if ( HasAnyFlags( m_desc.m_bindType, ResourceBindType::RenderTarget ) )
 				{
 					CreateRenderTarget();
 				}
 
-				if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::DepthStencil ) )
+				if ( HasAnyFlags( m_desc.m_bindType, ResourceBindType::DepthStencil ) )
 				{
 					CreateDepthStencil();
 				}
@@ -130,7 +130,7 @@ namespace agl
 			}
 		}
 
-		virtual void ConvertToDesc( const TextureTrait& trait ) = 0;
+		virtual void BuildD3DDesc( const TextureDesc& desc ) = 0;
 	};
 
 	class D3D11Texture2D final : public D3D11Texture<ID3D11Texture2D>
@@ -141,16 +141,16 @@ namespace agl
 		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override;
 		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override;
 
-		D3D11Texture2D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
+		D3D11Texture2D( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
 		D3D11Texture2D( ID3D11Texture2D* texture, const char* debugName, const float4& clearColor, const D3D11_TEXTURE2D_DESC* desc = nullptr );
 
 	protected:
 		virtual void CreateTexture() override;
 
 	private:
-		virtual void ConvertToDesc( const TextureTrait& trait ) override;
+		virtual void BuildD3DDesc( const TextureDesc& desc ) override;
 
-		D3D11_TEXTURE2D_DESC m_desc = {};
+		D3D11_TEXTURE2D_DESC m_d3dDesc = {};
 	};
 
 	class D3D11Texture3D final : public D3D11Texture<ID3D11Texture3D>
@@ -161,14 +161,14 @@ namespace agl
 		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override;
 		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
 
-		D3D11Texture3D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
+		D3D11Texture3D( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
 
 	protected:
 		virtual void CreateTexture() override;
 
 	private:
-		virtual void ConvertToDesc( const TextureTrait& trait ) override;
+		virtual void BuildD3DDesc( const TextureDesc& desc ) override;
 
-		D3D11_TEXTURE3D_DESC m_desc = {};
+		D3D11_TEXTURE3D_DESC m_d3dDesc = {};
 	};
 }

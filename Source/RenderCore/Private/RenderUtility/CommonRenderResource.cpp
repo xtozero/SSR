@@ -14,7 +14,7 @@ namespace
 {
 	RefHandle<agl::Texture> CreateTexture( Color color, const char* debugName )
 	{
-		agl::TextureTrait trait = {
+		agl::TextureDesc desc = {
 				.m_width = 1,
 				.m_height = 1,
 				.m_depth = 1,
@@ -37,13 +37,13 @@ namespace
 		section.m_offset = 0;
 		section.m_pitch = section.m_slicePitch = sizeof( uint32 );
 
-		RefHandle<agl::Texture> texture = agl::Texture::Create( trait, debugName, &initData );
+		RefHandle<agl::Texture> texture = agl::Texture::Create( desc, debugName, &initData );
 		return texture;
 	}
 
 	RefHandle<agl::Texture> CreateCubeTexture( Color color, const char* debugName )
 	{
-		agl::TextureTrait trait = {
+		agl::TextureDesc desc = {
 				.m_width = 1,
 				.m_height = 1,
 				.m_depth = 6,
@@ -71,7 +71,7 @@ namespace
 			section.m_pitch = section.m_slicePitch = sizeof( uint32 );
 		}
 
-		RefHandle<agl::Texture> cubeTexture = agl::Texture::Create( trait, debugName, &initData );
+		RefHandle<agl::Texture> cubeTexture = agl::Texture::Create( desc, debugName, &initData );
 		return cubeTexture;
 	}
 
@@ -127,7 +127,7 @@ namespace rendercore
 
 	RefHandle<agl::Texture> CreateBRDFLookUpTexture()
 	{
-		agl::TextureTrait trait = {
+		agl::TextureDesc desc = {
 			.m_width = 512,
 			.m_height = 512,
 			.m_depth = 1,
@@ -140,7 +140,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::None
 		};
 
-		RefHandle<agl::Texture> brdfLUT = agl::Texture::Create( trait, "BrdfLookUpTexture", nullptr );
+		RefHandle<agl::Texture> brdfLUT = agl::Texture::Create( desc, "BrdfLookUpTexture", nullptr );
 		EnqueueRenderTask(
 			[brdfLUT]()
 			{
@@ -166,9 +166,9 @@ namespace rendercore
 	bool DenoisePassParams::IsValid() const
 	{
 		return ( m_prevImage != nullptr )
-				&& HasAnyFlags( m_prevImage->GetTrait().m_bindType, agl::ResourceBindType::ShaderResource )
+				&& HasAnyFlags( m_prevImage->GetDesc().m_bindType, agl::ResourceBindType::ShaderResource )
 				&& ( m_image != nullptr )
-				&& HasAnyFlags( m_image->GetTrait().m_bindType, agl::ResourceBindType::RandomAccess )
+				&& HasAnyFlags( m_image->GetDesc().m_bindType, agl::ResourceBindType::RandomAccess )
 				&& ( m_prevViewSpaceDistance != nullptr )
 				&& ( m_viewSpaceDistance != nullptr )
 				&& ( m_velocity != nullptr )
@@ -181,10 +181,10 @@ namespace rendercore
 	{
 		assert( params.IsValid() );
 
-		auto denoisedTrait = params.m_image->GetTrait();
-		denoisedTrait.m_bindType |= agl::ResourceBindType::RandomAccess;
+		auto denoisedDesc = params.m_image->GetDesc();
+		denoisedDesc.m_bindType |= agl::ResourceBindType::RandomAccess;
 
-		auto rgDenoised = renderGraph.CreateTexture( denoisedTrait, "Denoised" );
+		auto rgDenoised = renderGraph.CreateTexture( denoisedDesc, "Denoised" );
 
 		BEGIN_RG_RESOURCE_STRUCT( DenoisePassResource )
 			DECLARE_RG_TEXTURE_NONPIXEL_SRV( prevImage )

@@ -149,7 +149,7 @@ namespace rendercore
 
 		if ( constantBufferSize > 0 )
 		{
-			agl::BufferTrait trait = {
+			agl::BufferDesc desc = {
 			   .m_stride = constantBufferSize,
 			   .m_count = 1,
 			   .m_access = agl::ResourceAccess::Upload,
@@ -158,7 +158,7 @@ namespace rendercore
 			   .m_format = agl::ResourceFormat::Unknown
 			};
 
-			m_buffer = agl::Buffer::Create( trait, m_metaData.GetName().CStr(), initData.data() );
+			m_buffer = agl::Buffer::Create( desc, m_metaData.GetName().CStr(), initData.data() );
 		}
 	}
 

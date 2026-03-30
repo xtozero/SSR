@@ -31,16 +31,16 @@ namespace agl
 	{
 	}
 
-	Texture* D3D12ResourceManager::CreateTexture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData ) const
+	Texture* D3D12ResourceManager::CreateTexture( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData ) const
 	{
 		Texture* newTexture = nullptr;
-		if ( IsTexture2D( trait ) )
+		if ( IsTexture2D( desc ) )
 		{
-			newTexture = new D3D12Texture2D( trait, debugName, initialState, initData );
+			newTexture = new D3D12Texture2D( desc, debugName, initialState, initData );
 		}
-		else if ( IsTexture3D( trait ) )
+		else if ( IsTexture3D( desc ) )
 		{
-			newTexture = new D3D12Texture3D( trait, debugName, initialState, initData );
+			newTexture = new D3D12Texture3D( desc, debugName, initialState, initData );
 		}
 		else
 		{
@@ -50,39 +50,39 @@ namespace agl
 		return newTexture;
 	}
 
-	Buffer* D3D12ResourceManager::CreateBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData ) const
+	Buffer* D3D12ResourceManager::CreateBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData ) const
 	{
 		Buffer* newBuffer = nullptr;
-		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::ConstantBuffer ) )
+		if ( HasAnyFlags( desc.m_bindType, ResourceBindType::ConstantBuffer ) )
 		{
-			if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Disposable ) )
+			if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Disposable ) )
 			{
-				newBuffer = new D3D12DisposableConstantBuffer( trait, debugName );
+				newBuffer = new D3D12DisposableConstantBuffer( desc, debugName );
 			}
 			else
 			{
-				newBuffer = new D3D12ConstantBuffer( trait, debugName, initialState, initData );
+				newBuffer = new D3D12ConstantBuffer( desc, debugName, initialState, initData );
 			}
 		}
-		else if ( HasAnyFlags( trait.m_bindType, ResourceBindType::IndexBuffer ) )
+		else if ( HasAnyFlags( desc.m_bindType, ResourceBindType::IndexBuffer ) )
 		{
-			newBuffer = new D3D12IndexBuffer( trait, debugName, initialState, initData );
+			newBuffer = new D3D12IndexBuffer( desc, debugName, initialState, initData );
 		}
-		else if ( HasAnyFlags( trait.m_bindType, ResourceBindType::VertexBuffer ) )
+		else if ( HasAnyFlags( desc.m_bindType, ResourceBindType::VertexBuffer ) )
 		{
-			newBuffer = new D3D12VertexBuffer( trait, debugName, initialState, initData );
+			newBuffer = new D3D12VertexBuffer( desc, debugName, initialState, initData );
 		} 
 		else
 		{
-			newBuffer = new D3D12Buffer( trait, debugName, initialState, initData );
+			newBuffer = new D3D12Buffer( desc, debugName, initialState, initData );
 		}
 
 		return newBuffer;
 	}
 
-	VertexLayout* D3D12ResourceManager::CreateVertexLayout( [[maybe_unused]] const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size ) const
+	VertexLayout* D3D12ResourceManager::CreateVertexLayout( [[maybe_unused]] const VertexShader* vs, const VertexLayoutData* layoutData, uint32 size ) const
 	{
-		return new D3D12VertexLayout( trait, size );
+		return new D3D12VertexLayout( layoutData, size );
 	}
 
 	ComputeShader* D3D12ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
@@ -145,24 +145,24 @@ namespace agl
 		return new D3D12CallableShader( byteCode, byteCodeSize, paramInfo, exportName );
 	}
 
-	BlendState* D3D12ResourceManager::CreateBlendState( const BlendStateTrait& trait ) const
+	BlendState* D3D12ResourceManager::CreateBlendState( const BlendStateDesc& desc ) const
 	{
-		return new D3D12BlendState( trait );
+		return new D3D12BlendState( desc );
 	}
 
-	DepthStencilState* D3D12ResourceManager::CreateDepthStencilState( const DepthStencilStateTrait& trait ) const
+	DepthStencilState* D3D12ResourceManager::CreateDepthStencilState( const DepthStencilStateDesc& desc ) const
 	{
-		return new D3D12DepthStencilState( trait );
+		return new D3D12DepthStencilState( desc );
 	}
 
-	RasterizerState* D3D12ResourceManager::CreateRasterizerState( const RasterizerStateTrait& trait ) const
+	RasterizerState* D3D12ResourceManager::CreateRasterizerState( const RasterizerStateDesc& desc ) const
 	{
-		return new D3D12RasterizerState( trait );
+		return new D3D12RasterizerState( desc );
 	}
 
-	SamplerState* D3D12ResourceManager::CreateSamplerState( const SamplerStateTrait& trait ) const
+	SamplerState* D3D12ResourceManager::CreateSamplerState( const SamplerStateDesc& desc ) const
 	{
-		return new D3D12SamplerState( trait );
+		return new D3D12SamplerState( desc );
 	}
 
 	GraphicsPipelineState* D3D12ResourceManager::CreatePipelineState( const GraphicsPipelineStateDesc& desc )
@@ -528,7 +528,7 @@ namespace agl
 						.BytecodeLength = desc.m_pixelShader.Get() ? desc.m_pixelShader->ByteCodeSize() : 0
 					},
 					.BlendState = desc.m_blendState.Get()
-								? desc.m_blendState->GetDesc()
+								? desc.m_blendState->GetD3DDesc()
 								: D3D12_BLEND_DESC{
 									.AlphaToCoverageEnable = false,
 									.IndependentBlendEnable = false,
@@ -549,7 +549,7 @@ namespace agl
 								},
 					.SampleMask = desc.m_blendState.Get() ? desc.m_blendState->SamplerMask() : D3D12_DEFAULT_SAMPLE_MASK,
 					.RasterizerState = desc.m_rasterizerState.Get()
-									? desc.m_rasterizerState->GetDesc()
+									? desc.m_rasterizerState->GetD3DDesc()
 									: D3D12_RASTERIZER_DESC{
 										.FillMode = D3D12_FILL_MODE_SOLID,
 										.CullMode = D3D12_CULL_MODE_BACK,
@@ -564,7 +564,7 @@ namespace agl
 										.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF
 									},
 					.DepthStencilState = desc.m_depthStencilState.Get()
-										? desc.m_depthStencilState->GetDesc()
+										? desc.m_depthStencilState->GetD3DDesc()
 										: D3D12_DEPTH_STENCIL_DESC{
 											.DepthEnable = true,
 											.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL,
@@ -642,7 +642,7 @@ namespace agl
 						.RasterizedStream = 0
 					},
 					.BlendState = desc.m_blendState.Get()
-								? desc.m_blendState->GetDesc()
+								? desc.m_blendState->GetD3DDesc()
 								: D3D12_BLEND_DESC{
 									.AlphaToCoverageEnable = false,
 									.IndependentBlendEnable = false,
@@ -663,7 +663,7 @@ namespace agl
 								},
 					.SampleMask = desc.m_blendState.Get() ? desc.m_blendState->SamplerMask() : D3D12_DEFAULT_SAMPLE_MASK,
 					.RasterizerState = desc.m_rasterizerState.Get()
-									? desc.m_rasterizerState->GetDesc()
+									? desc.m_rasterizerState->GetD3DDesc()
 									: D3D12_RASTERIZER_DESC{
 										.FillMode = D3D12_FILL_MODE_SOLID,
 										.CullMode = D3D12_CULL_MODE_BACK,
@@ -678,7 +678,7 @@ namespace agl
 										.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF
 									},
 					.DepthStencilState = desc.m_depthStencilState.Get()
-										? desc.m_depthStencilState->GetDesc()
+										? desc.m_depthStencilState->GetD3DDesc()
 										: D3D12_DEPTH_STENCIL_DESC{
 											.DepthEnable = true,
 											.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL,
@@ -700,8 +700,8 @@ namespace agl
 											},
 										},
 					.InputLayout = {
-						.pInputElementDescs = desc.m_vertexLayout.Get() ? desc.m_vertexLayout->GetDesc().data() : nullptr,
-						.NumElements = desc.m_vertexLayout.Get() ? static_cast<uint32>( desc.m_vertexLayout->GetDesc().size() ) : 0
+						.pInputElementDescs = desc.m_vertexLayout.Get() ? desc.m_vertexLayout->GetD3DDescs().data() : nullptr,
+						.NumElements = desc.m_vertexLayout.Get() ? static_cast<uint32>( desc.m_vertexLayout->GetD3DDescs().size() ) : 0
 					},
 					.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED,
 					.PrimitiveTopologyType = ConvertPrimToD3D12PrimType( desc.m_primitiveType ),

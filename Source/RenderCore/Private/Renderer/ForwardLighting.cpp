@@ -11,13 +11,13 @@ namespace rendercore
 		uint32 curSize = 0;
 		if ( m_buffer.Get() )
 		{
-			const agl::BufferTrait& trait = m_buffer->GetTrait();
-			curSize = trait.m_count * trait.m_stride;
+			const agl::BufferDesc& desc = m_buffer->GetDesc();
+			curSize = desc.m_count * desc.m_stride;
 		}
 
 		if ( newSize > curSize )
 		{
-			agl::BufferTrait trait = {
+			agl::BufferDesc desc = {
 				.m_stride = bytePerElement,
 				.m_count = numElements,
 				.m_access = agl::ResourceAccess::Upload,
@@ -26,7 +26,7 @@ namespace rendercore
 				.m_format = format
 			};
 
-			m_buffer = agl::Buffer::Create( trait, "ForwardLight" );
+			m_buffer = agl::Buffer::Create( desc, "ForwardLight" );
 		}
 	}
 

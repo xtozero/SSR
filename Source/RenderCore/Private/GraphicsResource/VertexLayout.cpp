@@ -49,6 +49,6 @@ namespace rendercore
 	void VertexLayout::InitResource( const VertexShader& vs, const VertexLayoutDesc& desc )
 	{
 		assert( IsInRenderThread() );
-		m_layout = agl::VertexLayout::Create( vs.Resource(), desc.Data(), desc.Size() );
+		m_layout = agl::VertexLayout::Create( vs.Resource(), desc.GetData(), desc.Size() );
 	}
 }

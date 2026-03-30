@@ -204,14 +204,14 @@ namespace agl
 		}
 		else
 		{
-			if ( HasAnyFlags( d3d12Dest->GetTrait().m_access, ResourceAccess::CpuRead ) )
+			if ( HasAnyFlags( d3d12Dest->GetDesc().m_access, ResourceAccess::CpuRead ) )
 			{
 				D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout = {};
 				uint32 numRows = 0;
 				uint64 rowSize = 0;
 				uint64 totalSize = 0;
 
-				D3D12Device().GetCopyableFootprints( &d3d12Src->GetDesc(), 0, 1, 0, &layout, &numRows, &rowSize, &totalSize );
+				D3D12Device().GetCopyableFootprints( &d3d12Src->GetD3DDesc(), 0, 1, 0, &layout, &numRows, &rowSize, &totalSize );
 
 				D3D12_TEXTURE_COPY_LOCATION destLocation = {
 					.pResource = static_cast<ID3D12Resource*>( d3d12Dest->Resource() ),
@@ -340,8 +340,8 @@ namespace agl
 				numByte = dest->Size();
 			}
 
-			BufferTrait trait = {
-				.m_stride = static_cast<uint32>( numByte ),
+			BufferDesc desc = {
+				.m_stride = numByte,
 				.m_count = 1,
 				.m_access = ResourceAccess::Upload,
 				.m_bindType = ResourceBindType::None,
@@ -349,7 +349,7 @@ namespace agl
 				.m_format = ResourceFormat::Unknown
 			};
 
-			auto intermediate = Buffer::Create( trait, "Uploader.Buffer.Intermediate" );
+			auto intermediate = Buffer::Create( desc, "Uploader.Buffer.Intermediate" );
 
 			auto resource = static_cast<ID3D12Resource*>( intermediate->Resource() );
 			void* mappedData = nullptr;
@@ -635,9 +635,9 @@ namespace agl
 			return false;
 		}
 
-		const TextureTrait& trait = texture->GetTrait();
+		const TextureDesc& desc = texture->GetDesc();
 
-		bool isCubeMap = HasAnyFlags( trait.m_miscFlag, ResourceMisc::TextureCube );
+		bool isCubeMap = HasAnyFlags( desc.m_miscFlag, ResourceMisc::TextureCube );
 		auto resource = static_cast<ID3D12Resource *>( texture->Resource() );
 		if ( resource == nullptr )
 		{

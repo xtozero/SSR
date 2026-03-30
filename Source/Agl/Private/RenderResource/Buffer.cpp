@@ -5,9 +5,9 @@
 
 namespace agl
 {
-	RefHandle<Buffer> Buffer::Create( const BufferTrait& trait, const char* debugName )
+	RefHandle<Buffer> Buffer::Create( const BufferDesc& desc, const char* debugName )
 	{
-		auto newBuffer = GetInterface<IResourceManager>()->CreateBuffer( trait, debugName, ResourceState::Common, nullptr );
+		auto newBuffer = GetInterface<IResourceManager>()->CreateBuffer( desc, debugName, ResourceState::Common, nullptr );
 		EnqueueRenderTask(
 			[buffer = newBuffer]()
 			{
@@ -17,9 +17,9 @@ namespace agl
 		return newBuffer;
 	}
 
-	RefHandle<Buffer> Buffer::Create( const BufferTrait& trait, const char* debugName, ResourceState initialState )
+	RefHandle<Buffer> Buffer::Create( const BufferDesc& desc, const char* debugName, ResourceState initialState )
 	{
-		auto newBuffer = GetInterface<IResourceManager>()->CreateBuffer( trait, debugName, initialState, nullptr );
+		auto newBuffer = GetInterface<IResourceManager>()->CreateBuffer( desc, debugName, initialState, nullptr );
 		EnqueueRenderTask(
 			[buffer = newBuffer]()
 			{
@@ -29,9 +29,9 @@ namespace agl
 		return newBuffer;
 	}
 
-	RefHandle<Buffer> Buffer::Create( const BufferTrait& trait, const char* debugName, const void* initData )
+	RefHandle<Buffer> Buffer::Create( const BufferDesc& desc, const char* debugName, const void* initData )
 	{
-		auto newBuffer = GetInterface<IResourceManager>()->CreateBuffer( trait, debugName, ResourceState::Common, initData );
+		auto newBuffer = GetInterface<IResourceManager>()->CreateBuffer( desc, debugName, ResourceState::Common, initData );
 		EnqueueRenderTask(
 			[buffer = newBuffer]()
 			{
@@ -41,9 +41,9 @@ namespace agl
 		return newBuffer;
 	}
 
-	RefHandle<Buffer> Buffer::Create( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
+	RefHandle<Buffer> Buffer::Create( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData )
 	{
-		auto newBuffer = GetInterface<IResourceManager>()->CreateBuffer( trait, debugName, initialState, initData );
+		auto newBuffer = GetInterface<IResourceManager>()->CreateBuffer( desc, debugName, initialState, initData );
 		EnqueueRenderTask(
 			[buffer = newBuffer]()
 			{
@@ -63,25 +63,25 @@ namespace agl
 		m_state = state;
 	}
 
-	const BufferTrait& Buffer::GetTrait() const
+	const BufferDesc& Buffer::GetDesc() const
 	{
-		return m_trait;
+		return m_desc;
 	}
 
 	uint32 Buffer::Stride() const
 	{
-		return m_trait.m_stride;
+		return m_desc.m_stride;
 	}
 
 	uint32 Buffer::Size() const
 	{
-		return m_trait.m_stride * m_trait.m_count;
+		return m_desc.m_stride * m_desc.m_count;
 	}
 
 	bool Buffer::IsDynamic() const
 	{
-		return HasAnyFlags( m_trait.m_access, ResourceAccess::CpuRead )
-			|| HasAnyFlags( m_trait.m_access, ResourceAccess::CpuWrite );
+		return HasAnyFlags( m_desc.m_access, ResourceAccess::CpuRead )
+			|| HasAnyFlags( m_desc.m_access, ResourceAccess::CpuWrite );
 	}
 	
 	Buffer::Buffer( ResourceState initialState ) noexcept

@@ -6,10 +6,10 @@
 
 namespace agl
 {
-	RefHandle<BlendState> BlendState::Create( const BlendStateTrait& trait )
+	RefHandle<BlendState> BlendState::Create( const BlendStateDesc& desc )
 	{
-		auto newState = GetInterface<IResourceManager>()->CreateBlendState( trait );
-		newState->SetHash( trait.GetHash() );
+		auto newState = GetInterface<IResourceManager>()->CreateBlendState( desc );
+		newState->SetHash( desc.GetHash() );
 
 		EnqueueRenderTask(
 			[state = newState]()
@@ -20,10 +20,10 @@ namespace agl
 		return newState;
 	}
 
-	RefHandle<DepthStencilState> DepthStencilState::Create( const DepthStencilStateTrait& trait )
+	RefHandle<DepthStencilState> DepthStencilState::Create( const DepthStencilStateDesc& desc )
 	{
-		auto newState = GetInterface<IResourceManager>()->CreateDepthStencilState( trait );
-		newState->SetHash( trait.GetHash() );
+		auto newState = GetInterface<IResourceManager>()->CreateDepthStencilState( desc );
+		newState->SetHash( desc.GetHash() );
 
 		EnqueueRenderTask(
 			[state = newState]()
@@ -34,10 +34,10 @@ namespace agl
 		return newState;
 	}
 
-	RefHandle<RasterizerState> RasterizerState::Create( const RasterizerStateTrait& trait )
+	RefHandle<RasterizerState> RasterizerState::Create( const RasterizerStateDesc& desc )
 	{
-		auto newState = GetInterface<IResourceManager>()->CreateRasterizerState( trait );
-		newState->SetHash( trait.GetHash() );
+		auto newState = GetInterface<IResourceManager>()->CreateRasterizerState( desc );
+		newState->SetHash( desc.GetHash() );
 
 		EnqueueRenderTask(
 			[state = newState]()
@@ -48,9 +48,9 @@ namespace agl
 		return newState;
 	}
 
-	RefHandle<SamplerState> SamplerState::Create( const SamplerStateTrait& trait )
+	RefHandle<SamplerState> SamplerState::Create( const SamplerStateDesc& desc )
 	{
-		auto newState = GetInterface<IResourceManager>()->CreateSamplerState( trait );
+		auto newState = GetInterface<IResourceManager>()->CreateSamplerState( desc );
 		EnqueueRenderTask(
 			[state = newState]()
 			{
@@ -60,14 +60,14 @@ namespace agl
 		return newState;
 	}
 
-	RefHandle<VertexLayout> VertexLayout::Create( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size )
+	RefHandle<VertexLayout> VertexLayout::Create( const VertexShader* vs, const VertexLayoutData* layoutData, uint32 size )
 	{
-		auto layout = GetInterface<IResourceManager>()->CreateVertexLayout( vs, trait, size );
+		auto layout = GetInterface<IResourceManager>()->CreateVertexLayout( vs, layoutData, size );
 
 		size_t hash = 0;
 		for ( uint32 i = 0; i < size; ++i )
 		{
-			HashCombine( hash, trait[i].GetHash() );
+			HashCombine( hash, layoutData[i].GetHash() );
 		}
 		layout->SetHash( hash );
 

@@ -87,8 +87,7 @@ namespace rendercore
         GPU_PROFILE_EVENT( renderGraph, RTAO );
 
         // Render RTAO
-
-        agl::TextureTrait trait = {
+        agl::TextureDesc desc = {
             .m_width = params.m_screenWidth,
             .m_height = params.m_screenHeight,
             .m_depth = 1,
@@ -104,7 +103,7 @@ namespace rendercore
         auto rgAccelerationStructure = renderGraph.RegisterExternalResource( params.m_raytracingScene->Resource() );
         auto rgViewSpaceDistance = renderGraph.RegisterExternalResource( params.m_viewSpaceDistance.Get() );
         auto rgWorldNormal = renderGraph.RegisterExternalResource( params.m_worldNormal.Get() );
-        auto rgAmbientOcclusion = renderGraph.CreateTexture( trait, "RTAO.AmbientOcclusion" );
+        auto rgAmbientOcclusion = renderGraph.CreateTexture( desc, "RTAO.AmbientOcclusion" );
 
         BEGIN_RG_RESOURCE_STRUCT( RTAOPassResource )
             DECLARE_RG_BUFFER_ACCELERATION_STRUCTURE( accelerationStructure )

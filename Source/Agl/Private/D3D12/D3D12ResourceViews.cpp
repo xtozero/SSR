@@ -14,8 +14,8 @@ namespace agl
 	{
 		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1 );
 
-		ID3D12Resource* resource = ( m_desc.ViewDimension == D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE ) ? nullptr : m_d3d12Resource;
-		D3D12Device().CreateShaderResourceView( resource, &m_desc, m_descriptorHeap.GetCpuHandle().At() );
+		ID3D12Resource* resource = ( m_d3dDesc.ViewDimension == D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE ) ? nullptr : m_d3d12Resource;
+		D3D12Device().CreateShaderResourceView( resource, &m_d3dDesc, m_descriptorHeap.GetCpuHandle().At() );
 
 		m_bindlessHandle = D3D12BindlessMgr().AddResourceDescriptor( m_descriptorHeap.GetCpuHandle() );
 	}
@@ -35,7 +35,7 @@ namespace agl
 	void D3D12UnorderedAccessView::InitResource()
 	{
 		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1 );
-		D3D12Device().CreateUnorderedAccessView( m_d3d12Resource, nullptr, &m_desc, m_descriptorHeap.GetCpuHandle().At() );
+		D3D12Device().CreateUnorderedAccessView( m_d3d12Resource, nullptr, &m_d3dDesc, m_descriptorHeap.GetCpuHandle().At() );
 
 		m_bindlessHandle = D3D12BindlessMgr().AddResourceDescriptor( m_descriptorHeap.GetCpuHandle() );
 	}
@@ -61,7 +61,7 @@ namespace agl
 	void D3D12RenderTargetView::InitResource()
 	{
 		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 1 );
-		D3D12Device().CreateRenderTargetView( m_d3d12Resource, &m_desc, m_descriptorHeap.GetCpuHandle().At() );
+		D3D12Device().CreateRenderTargetView( m_d3d12Resource, &m_d3dDesc, m_descriptorHeap.GetCpuHandle().At() );
 	}
 
 	D3D12DepthStencilView::D3D12DepthStencilView( GraphicsApiResource* owner, ID3D12Resource* d3d12Resource, const D3D12_DEPTH_STENCIL_VIEW_DESC& desc, float depthValue, uint8 stencilValue )
@@ -84,7 +84,7 @@ namespace agl
 	void D3D12DepthStencilView::InitResource()
 	{
 		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1 );
-		D3D12Device().CreateDepthStencilView( m_d3d12Resource, &m_desc, m_descriptorHeap.GetCpuHandle().At() );
+		D3D12Device().CreateDepthStencilView( m_d3d12Resource, &m_d3dDesc, m_descriptorHeap.GetCpuHandle().At() );
 	}
 
 	int32 D3D12ConstantBufferView::GetBindlessHandle() const
@@ -95,7 +95,7 @@ namespace agl
 	void D3D12ConstantBufferView::InitResource()
 	{
 		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1 );
-		D3D12Device().CreateConstantBufferView( &m_desc, m_descriptorHeap.GetCpuHandle().At() );
+		D3D12Device().CreateConstantBufferView( &m_d3dDesc, m_descriptorHeap.GetCpuHandle().At() );
 
 		m_bindlessHandle = D3D12BindlessMgr().AddResourceDescriptor( m_descriptorHeap.GetCpuHandle() );
 	}

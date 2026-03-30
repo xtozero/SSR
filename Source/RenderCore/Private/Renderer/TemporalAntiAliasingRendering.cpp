@@ -135,8 +135,8 @@ namespace rendercore
 			.m_velocityTex = rgVelocityTex
 		};
 
-		auto width = resolveTex->GetTrait().m_width;
-		auto height = resolveTex->GetTrait().m_height;
+		auto width = resolveTex->GetDesc().m_width;
+		auto height = resolveTex->GetDesc().m_height;
 
 		RasterOutput rasterOutput;
 		rasterOutput.SetRenderTarget( 0, rgResolveTex, RasterOutputLoadAction::Clear );

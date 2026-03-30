@@ -44,11 +44,11 @@ namespace agl
 	public:
 		virtual void Shutdown() = 0;
 
-		virtual Texture* CreateTexture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData ) const = 0;
+		virtual Texture* CreateTexture( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData ) const = 0;
 
-		virtual Buffer* CreateBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData ) const = 0;
+		virtual Buffer* CreateBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData ) const = 0;
 
-		virtual VertexLayout* CreateVertexLayout( const VertexShader* vs, const VertexLayoutTrait* trait, uint32 size ) const = 0;
+		virtual VertexLayout* CreateVertexLayout( const VertexShader* vs, const VertexLayoutData* layoutData, uint32 size ) const = 0;
 		virtual ComputeShader* CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
 		virtual VertexShader* CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
 		virtual GeometryShader* CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const = 0;
@@ -62,10 +62,10 @@ namespace agl
 		virtual MissShader* CreateMissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const = 0;
 		virtual CallableShader* CreateCallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const = 0;
 
-		virtual BlendState* CreateBlendState( const BlendStateTrait& trait ) const = 0;
-		virtual DepthStencilState* CreateDepthStencilState( const DepthStencilStateTrait& trait ) const = 0;
-		virtual RasterizerState* CreateRasterizerState( const RasterizerStateTrait& trait ) const = 0;
-		virtual SamplerState* CreateSamplerState( const SamplerStateTrait& trait ) const = 0;
+		virtual BlendState* CreateBlendState( const BlendStateDesc& desc ) const = 0;
+		virtual DepthStencilState* CreateDepthStencilState( const DepthStencilStateDesc& desc ) const = 0;
+		virtual RasterizerState* CreateRasterizerState( const RasterizerStateDesc& desc ) const = 0;
+		virtual SamplerState* CreateSamplerState( const SamplerStateDesc& desc ) const = 0;
 		virtual GraphicsPipelineState* CreatePipelineState( const GraphicsPipelineStateDesc& desc ) = 0;
 		virtual ComputePipelineState* CreatePipelineState( const ComputePipelineStateDesc& desc ) = 0;
 

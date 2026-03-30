@@ -15,10 +15,10 @@ namespace agl
 	class Texture : public GraphicsApiResource, public IResourceViews, public ITransitionable
 	{
 	public:
-		AGL_DLL static RefHandle<Texture> Create( const TextureTrait& trait, const char* debugName );
-		AGL_DLL static RefHandle<Texture> Create( const TextureTrait& trait, const char* debugName, ResourceState initialState );
-		AGL_DLL static RefHandle<Texture> Create( const TextureTrait& trait, const char* debugName, const ResourceInitData* initData );
-		AGL_DLL static RefHandle<Texture> Create( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
+		AGL_DLL static RefHandle<Texture> Create( const TextureDesc& desc, const char* debugName );
+		AGL_DLL static RefHandle<Texture> Create( const TextureDesc& desc, const char* debugName, ResourceState initialState );
+		AGL_DLL static RefHandle<Texture> Create( const TextureDesc& desc, const char* debugName, const ResourceInitData* initData );
+		AGL_DLL static RefHandle<Texture> Create( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
 
 		virtual void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
 		virtual void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
@@ -43,14 +43,14 @@ namespace agl
 		virtual ResourceState GetResourceState() const override;
 		virtual void SetResourceState( ResourceState state ) override;
 
-		AGL_DLL const TextureTrait& GetTrait() const;
+		AGL_DLL const TextureDesc& GetDesc() const;
 		AGL_DLL bool IsCubeMap() const;
 
-		Texture( const TextureTrait& trait, ResourceState initialState, const char* debugName ) noexcept;
+		Texture( const TextureDesc& desc, ResourceState initialState, const char* debugName ) noexcept;
 		Texture() noexcept;
 
 	protected:
-		TextureTrait m_trait = {};
+		TextureDesc m_desc = {};
 
 		RefHandle<ShaderResourceView> m_srv;
 		std::vector<RefHandle<UnorderedAccessView>, InlineAllocator<RefHandle<UnorderedAccessView>, 1>> m_uav;
@@ -66,11 +66,11 @@ namespace agl
 	public:
 		virtual std::pair<uint32, uint32> Size() const override
 		{
-			return { m_trait.m_width, m_trait.m_height };
+			return { m_desc.m_width, m_desc.m_height };
 		}
 
-		TextureBase( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
-			: Texture( trait, initialState, debugName )
+		TextureBase( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+			: Texture( desc, initialState, debugName )
 		{
 			if ( initData )
 			{
@@ -105,6 +105,6 @@ namespace agl
 		uint8* m_dataStorage = nullptr;
 	};
 
-	bool IsTexture2D( const TextureTrait& trait );
-	bool IsTexture3D( const TextureTrait& trait );
+	bool IsTexture2D( const TextureDesc& desc );
+	bool IsTexture3D( const TextureDesc& desc );
 }

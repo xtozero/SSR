@@ -120,7 +120,7 @@ namespace agl
 		void InitializeForBindless( ShaderParameterInfoArray& paramInfoArray );
 
 		ID3D12RootSignature* m_rootSignature = nullptr;
-		D3D12_ROOT_SIGNATURE_DESC m_desc = {};
+		D3D12_ROOT_SIGNATURE_DESC m_d3dDesc = {};
 		std::vector<D3D12_ROOT_PARAMETER> m_parameters;
 		std::vector<D3D12_DESCRIPTOR_RANGE> m_descritorRange;
 	};

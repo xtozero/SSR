@@ -5,28 +5,28 @@
 
 namespace agl
 {
-	D3D11_TEXTURE2D_DESC ConvertTraitTo2DDesc( const TextureTrait& trait )
+	D3D11_TEXTURE2D_DESC ConvertToTex2DDesc( const TextureDesc& desc )
 	{
-		DXGI_FORMAT format = ConvertFormatToDxgiFormat( trait.m_format );
+		DXGI_FORMAT format = ConvertFormatToDxgiFormat( desc.m_format );
 		DXGI_SAMPLE_DESC SampleDesc = {
-			.Count = trait.m_sampleCount,
-			.Quality = trait.m_sampleQuality 
+			.Count = desc.m_sampleCount,
+			.Quality = desc.m_sampleQuality
 		};
-		D3D11_USAGE usage = ConvertToUsage( trait.m_access );
-		uint32 bindFlag = ConvertTypeToBind( trait.m_bindType );
-		uint32 cpuAccessFlag = ConvertToCpuFlag( trait.m_access );
-		uint32 miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
+		D3D11_USAGE usage = ConvertToUsage( desc.m_access );
+		uint32 bindFlag = ConvertTypeToBind( desc.m_bindType );
+		uint32 cpuAccessFlag = ConvertToCpuFlag( desc.m_access );
+		uint32 miscFlags = ConvertMicsToDXMisc( desc.m_miscFlag );
 
-		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Intermediate ) )
+		if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Intermediate ) )
 		{
 			bindFlag |= D3D11_BIND_SHADER_RESOURCE;
 		}
 
 		return D3D11_TEXTURE2D_DESC{
-			.Width = trait.m_width,
-			.Height = trait.m_height,
-			.MipLevels = trait.m_mipLevels,
-			.ArraySize = trait.m_depth,
+			.Width = desc.m_width,
+			.Height = desc.m_height,
+			.MipLevels = desc.m_mipLevels,
+			.ArraySize = desc.m_depth,
 			.Format = format,
 			.SampleDesc = SampleDesc,
 			.Usage = usage,
@@ -36,24 +36,24 @@ namespace agl
 		};
 	}
 
-	D3D11_TEXTURE3D_DESC ConvertTraitTo3DDesc( const TextureTrait& trait )
+	D3D11_TEXTURE3D_DESC ConvertToTex3DDesc( const TextureDesc& desc )
 	{
-		DXGI_FORMAT format = ConvertFormatToDxgiFormat( trait.m_format );
-		D3D11_USAGE usage = ConvertToUsage( trait.m_access );
-		uint32 bindFlag = ConvertTypeToBind( trait.m_bindType );
-		uint32 cpuAccessFlag = ConvertToCpuFlag( trait.m_access );
-		uint32 miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
+		DXGI_FORMAT format = ConvertFormatToDxgiFormat( desc.m_format );
+		D3D11_USAGE usage = ConvertToUsage( desc.m_access );
+		uint32 bindFlag = ConvertTypeToBind( desc.m_bindType );
+		uint32 cpuAccessFlag = ConvertToCpuFlag( desc.m_access );
+		uint32 miscFlags = ConvertMicsToDXMisc( desc.m_miscFlag );
 
-		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Intermediate ) )
+		if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Intermediate ) )
 		{
 			bindFlag |= D3D11_BIND_SHADER_RESOURCE;
 		}
 
 		return D3D11_TEXTURE3D_DESC{
-			.Width = trait.m_width,
-			.Height = trait.m_height,
-			.Depth = trait.m_depth,
-			.MipLevels = trait.m_mipLevels,
+			.Width = desc.m_width,
+			.Height = desc.m_height,
+			.Depth = desc.m_depth,
+			.MipLevels = desc.m_mipLevels,
 			.Format = format,
 			.Usage = usage,
 			.BindFlags = bindFlag,
@@ -62,14 +62,14 @@ namespace agl
 		};
 	}
 
-	TextureTrait ConvertDescToTrait( const D3D11_TEXTURE2D_DESC& desc )
+	TextureDesc ConvertToTextureDesc( const D3D11_TEXTURE2D_DESC& desc )
 	{
 		ResourceFormat format = ConvertDxgiFormatToFormat( desc.Format );
 		ResourceAccess access = ConvertToResourceAccess( desc.Usage );
 		ResourceBindType bindType = ConvertBindToType( desc.BindFlags );
 		ResourceMisc miscFlag = ConvertDXMiscToMisc( desc.MiscFlags );
 
-		return TextureTrait{
+		return TextureDesc{
 			.m_width = desc.Width,
 			.m_height = desc.Height,
 			.m_depth = desc.ArraySize,
@@ -83,7 +83,7 @@ namespace agl
 		};
 	}
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC ConvertDescToSRV( const D3D11_TEXTURE2D_DESC& desc )
+	D3D11_SHADER_RESOURCE_VIEW_DESC ConvertToSRVDesc( const D3D11_TEXTURE2D_DESC& desc )
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
 
@@ -134,7 +134,7 @@ namespace agl
 		return srv;
 	}
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC ConvertDescToSRV( const D3D11_TEXTURE3D_DESC& desc )
+	D3D11_SHADER_RESOURCE_VIEW_DESC ConvertToSRVDesc( const D3D11_TEXTURE3D_DESC& desc )
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
 
@@ -145,7 +145,7 @@ namespace agl
 		return srv;
 	}
 
-	D3D11_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const D3D11_TEXTURE2D_DESC& desc, uint32 mipSlice )
+	D3D11_UNORDERED_ACCESS_VIEW_DESC ConvertToUAVDesc( const D3D11_TEXTURE2D_DESC& desc, uint32 mipSlice )
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uav = {};
 
@@ -171,7 +171,7 @@ namespace agl
 		return uav;
 	}
 
-	D3D11_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const D3D11_TEXTURE3D_DESC& desc, uint32 mipSlice )
+	D3D11_UNORDERED_ACCESS_VIEW_DESC ConvertToUAVDesc( const D3D11_TEXTURE3D_DESC& desc, uint32 mipSlice )
 	{
 		D3D11_UNORDERED_ACCESS_VIEW_DESC uav = {};
 
@@ -186,7 +186,7 @@ namespace agl
 		return uav;
 	}
 
-	D3D11_RENDER_TARGET_VIEW_DESC ConvertDescToRTV( const D3D11_TEXTURE2D_DESC& desc )
+	D3D11_RENDER_TARGET_VIEW_DESC ConvertToRTVDesc( const D3D11_TEXTURE2D_DESC& desc )
 	{
 		D3D11_RENDER_TARGET_VIEW_DESC rtv = {};
 
@@ -220,7 +220,7 @@ namespace agl
 		return rtv;
 	}
 
-	D3D11_RENDER_TARGET_VIEW_DESC ConvertDescToRTV( const D3D11_TEXTURE3D_DESC& desc )
+	D3D11_RENDER_TARGET_VIEW_DESC ConvertToRTVDesc( const D3D11_TEXTURE3D_DESC& desc )
 	{
 		D3D11_RENDER_TARGET_VIEW_DESC rtv = {};
 
@@ -235,7 +235,7 @@ namespace agl
 		return rtv;
 	}
 
-	D3D11_DEPTH_STENCIL_VIEW_DESC ConvertDescToDSV( const D3D11_TEXTURE2D_DESC& desc )
+	D3D11_DEPTH_STENCIL_VIEW_DESC ConvertToDSVDesc( const D3D11_TEXTURE2D_DESC& desc )
 	{
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsv = {};
 
@@ -271,7 +271,7 @@ namespace agl
 
 	void D3D11Texture2D::CreateShaderResource( std::optional<ResourceFormat> overrideFormat )
 	{
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertToSRVDesc( m_d3dDesc );
 		if ( overrideFormat.has_value() )
 		{
 			srvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
@@ -282,10 +282,10 @@ namespace agl
 
 	void D3D11Texture2D::CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat )
 	{
-		m_uav.resize( m_trait.m_mipLevels );
-		for ( uint32 mipSlice = 0; mipSlice < m_trait.m_mipLevels; ++mipSlice )
+		m_uav.resize( m_desc.m_mipLevels );
+		for ( uint32 mipSlice = 0; mipSlice < m_desc.m_mipLevels; ++mipSlice )
 		{
-			D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc, mipSlice );
+			D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertToUAVDesc( m_d3dDesc, mipSlice );
 			if ( overrideFormat.has_value() )
 			{
 				uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
@@ -298,16 +298,16 @@ namespace agl
 
 	void D3D11Texture2D::CreateRenderTarget( std::optional<ResourceFormat> overrideFormat )
 	{
-		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertDescToRTV( m_desc );
+		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertToRTVDesc( m_d3dDesc );
 		if ( overrideFormat.has_value() )
 		{
 			rtvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
 		}
 
 		ColorF clearColor = ColorF::Black;
-		if ( m_trait.m_clearValue )
+		if ( m_desc.m_clearValue )
 		{
-			clearColor = m_trait.m_clearValue->m_color;
+			clearColor = m_desc.m_clearValue->m_color;
 		}
 
 		m_rtv = new D3D11RenderTargetView( this, m_texture, rtvDesc, clearColor );
@@ -316,7 +316,7 @@ namespace agl
 
 	void D3D11Texture2D::CreateDepthStencil( std::optional<ResourceFormat> overrideFormat )
 	{
-		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = ConvertDescToDSV( m_desc );
+		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = ConvertToDSVDesc( m_d3dDesc );
 		if ( overrideFormat.has_value() )
 		{
 			dsvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
@@ -324,18 +324,18 @@ namespace agl
 
 		float depthClearValue = 0;
 		uint8 stencilClearValue = 0;
-		if ( m_trait.m_clearValue )
+		if ( m_desc.m_clearValue )
 		{
-			depthClearValue = m_trait.m_clearValue->m_depthStencil.m_depth;
-			stencilClearValue = m_trait.m_clearValue->m_depthStencil.m_stencil;
+			depthClearValue = m_desc.m_clearValue->m_depthStencil.m_depth;
+			stencilClearValue = m_desc.m_clearValue->m_depthStencil.m_stencil;
 		}
 
 		m_dsv = new D3D11DepthStencilView( this, m_texture, dsvDesc, depthClearValue, stencilClearValue );
 		m_dsv->Init();
 	}
 
-	D3D11Texture2D::D3D11Texture2D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
-		: D3D11Texture<ID3D11Texture2D>( trait, debugName, initialState, initData )
+	D3D11Texture2D::D3D11Texture2D( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+		: D3D11Texture<ID3D11Texture2D>( desc, debugName, initialState, initData )
 	{
 	}
 
@@ -349,16 +349,16 @@ namespace agl
 
 			if ( desc == nullptr )
 			{
-				m_texture->GetDesc( &m_desc );
+				m_texture->GetDesc( &m_d3dDesc );
 			}
 			else
 			{
-				m_desc = *desc;
+				m_d3dDesc = *desc;
 			}
 
-			m_trait = ConvertDescToTrait( m_desc );
-			m_trait.m_clearValue = ResourceClearValue{
-				.m_format = m_trait.m_format,
+			m_desc = ConvertToTextureDesc( m_d3dDesc );
+			m_desc.m_clearValue = ResourceClearValue{
+				.m_format = m_desc.m_format,
 				.m_color = { clearColor[0], clearColor[1], clearColor[2], clearColor[3] },
 			};
 		}
@@ -366,22 +366,22 @@ namespace agl
 
 	void D3D11Texture2D::CreateTexture()
 	{
-		ConvertToDesc( m_trait );
+		BuildD3DDesc( m_desc );
 
-		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture2D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
+		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture2D( &m_d3dDesc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
 		assert( SUCCEEDED( hr ) );
 
 		SetDebugObjectName();
 	}
 
-	void D3D11Texture2D::ConvertToDesc( const TextureTrait& trait )
+	void D3D11Texture2D::BuildD3DDesc( const TextureDesc& desc )
 	{
-		m_desc = ConvertTraitTo2DDesc( trait );
+		m_d3dDesc = ConvertToTex2DDesc( desc );
 	}
 
 	void D3D11Texture3D::CreateShaderResource( std::optional<ResourceFormat> overrideFormat )
 	{
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc );
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertToSRVDesc( m_d3dDesc );
 		if ( overrideFormat.has_value() )
 		{
 			srvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
@@ -392,10 +392,10 @@ namespace agl
 
 	void D3D11Texture3D::CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat )
 	{
-		m_uav.resize( m_trait.m_mipLevels );
-		for ( uint32 mipSlice = 0; mipSlice < m_trait.m_mipLevels; ++mipSlice )
+		m_uav.resize( m_desc.m_mipLevels );
+		for ( uint32 mipSlice = 0; mipSlice < m_desc.m_mipLevels; ++mipSlice )
 		{
-			D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc, mipSlice );
+			D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertToUAVDesc( m_d3dDesc, mipSlice );
 			if ( overrideFormat.has_value() )
 			{
 				uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
@@ -408,39 +408,39 @@ namespace agl
 
 	void D3D11Texture3D::CreateRenderTarget( std::optional<ResourceFormat> overrideFormat )
 	{
-		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertDescToRTV( m_desc );
+		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertToRTVDesc( m_d3dDesc );
 		if ( overrideFormat.has_value() )
 		{
 			rtvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
 		}
 
 		ColorF clearColor = ColorF::Black;
-		if ( m_trait.m_clearValue )
+		if ( m_desc.m_clearValue )
 		{
-			clearColor = m_trait.m_clearValue->m_color;
+			clearColor = m_desc.m_clearValue->m_color;
 		}
 
 		m_rtv = new D3D11RenderTargetView( this, m_texture, rtvDesc, clearColor );
 		m_rtv->Init();
 	}
 
-	D3D11Texture3D::D3D11Texture3D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
-		: D3D11Texture<ID3D11Texture3D>( trait, debugName, initialState, initData )
+	D3D11Texture3D::D3D11Texture3D( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+		: D3D11Texture<ID3D11Texture3D>( desc, debugName, initialState, initData )
 	{
 	}
 
 	void D3D11Texture3D::CreateTexture()
 	{
-		ConvertToDesc( m_trait );
+		BuildD3DDesc( m_desc );
 
-		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture3D( &m_desc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
+		[[maybe_unused]] HRESULT hr = D3D11Device().CreateTexture3D( &m_d3dDesc, m_dataStorage ? m_initData.data() : nullptr, &m_texture );
 		assert( SUCCEEDED( hr ) );
 
 		SetDebugObjectName();
 	}
 
-	void D3D11Texture3D::ConvertToDesc( const TextureTrait& trait )
+	void D3D11Texture3D::BuildD3DDesc( const TextureDesc& desc )
 	{
-		m_desc = ConvertTraitTo3DDesc( trait );
+		m_d3dDesc = ConvertToTex3DDesc( desc );
 	}
 }

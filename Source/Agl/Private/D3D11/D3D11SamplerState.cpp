@@ -6,30 +6,30 @@
 using ::agl::ConvertToComparisionFunc;
 using ::agl::ConvertToFilter;
 using ::agl::ConvertToTextureAddress;
-using ::agl::SamplerStateTrait;
+using ::agl::SamplerStateDesc;
 
 namespace
 {
-	D3D11_SAMPLER_DESC ConvertTraitToDesc( const SamplerStateTrait& trait )
+	D3D11_SAMPLER_DESC ConvertToD3DDesc( const SamplerStateDesc& desc )
 	{
-		ColorF borderColor = trait.m_borderColor.ToColorF();
+		ColorF borderColor = desc.m_borderColor.ToColorF();
 
 		return D3D11_SAMPLER_DESC{
-			.Filter = ConvertToFilter( trait.m_filter ),
-			.AddressU = ConvertToTextureAddress( trait.m_addressU ),
-			.AddressV = ConvertToTextureAddress( trait.m_addressV ),
-			.AddressW = ConvertToTextureAddress( trait.m_addressW ),
-			.MipLODBias = trait.m_mipLODBias,
-			.MaxAnisotropy = trait.m_maxAnisotropy,
-			.ComparisonFunc = ConvertToComparisionFunc( trait.m_comparisonFunc ),
+			.Filter = ConvertToFilter( desc.m_filter ),
+			.AddressU = ConvertToTextureAddress( desc.m_addressU ),
+			.AddressV = ConvertToTextureAddress( desc.m_addressV ),
+			.AddressW = ConvertToTextureAddress( desc.m_addressW ),
+			.MipLODBias = desc.m_mipLODBias,
+			.MaxAnisotropy = desc.m_maxAnisotropy,
+			.ComparisonFunc = ConvertToComparisionFunc( desc.m_comparisonFunc ),
 			.BorderColor = {
 				borderColor[0],
 				borderColor[1],
 				borderColor[2],
 				borderColor[3]
 			},
-			.MinLOD = trait.m_minLOD,
-			.MaxLOD = trait.m_maxLOD
+			.MinLOD = desc.m_minLOD,
+			.MaxLOD = desc.m_maxLOD
 		};
 	}
 }
@@ -46,11 +46,11 @@ namespace agl
 		return m_samplerState;
 	}
 
-	D3D11SamplerState::D3D11SamplerState( const SamplerStateTrait& trait ) : m_desc( ConvertTraitToDesc( trait ) ) {}
+	D3D11SamplerState::D3D11SamplerState( const SamplerStateDesc& desc ) : m_d3dDesc( ConvertToD3DDesc( desc ) ) {}
 
 	void D3D11SamplerState::InitResource()
 	{
-		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateSamplerState( &m_desc, &m_samplerState ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateSamplerState( &m_d3dDesc, &m_samplerState ) );
 		assert( result );
 	}
 

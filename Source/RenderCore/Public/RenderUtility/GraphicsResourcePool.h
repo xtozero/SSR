@@ -36,7 +36,7 @@ namespace rendercore
 	{
 	public:
 		size_t GetHash() const;
-		const agl::BufferTrait& GetTrait() const;
+		const agl::BufferDesc& GetDesc() const;
 		RefHandle<agl::Buffer> Get() const;
 
 		explicit PooledBuffer( agl::Buffer& buffer );
@@ -46,14 +46,14 @@ namespace rendercore
 		PooledBuffer& operator=( PooledBuffer&& other ) noexcept;
 
 	private:
-		agl::BufferTrait m_trait;
+		agl::BufferDesc m_desc;
 	};
 
 	class PooledTexture final : public PooledResource
 	{
 	public:
 		size_t GetHash() const;
-		const agl::TextureTrait& GetTrait() const;
+		const agl::TextureDesc& GetDesc() const;
 		RefHandle<agl::Texture> Get() const;
 
 		explicit PooledTexture( agl::Texture& texture );
@@ -63,7 +63,7 @@ namespace rendercore
 		PooledTexture& operator=( PooledTexture&& other ) noexcept;
 
 	private:
-		agl::TextureTrait m_trait;
+		agl::TextureDesc m_desc;
 	};
 
 	class GraphicsResourcePool final
@@ -77,8 +77,8 @@ namespace rendercore
 
 		void Tick();
 
-		RefHandle<agl::Buffer> FindFreeBuffer( const agl::BufferTrait& trait, const char* debugName );
-		RefHandle<agl::Texture> FindFreeTexture( const agl::TextureTrait& trait, const char* debugName );
+		RefHandle<agl::Buffer> FindFreeBuffer( const agl::BufferDesc& desc, const char* debugName );
+		RefHandle<agl::Texture> FindFreeTexture( const agl::TextureDesc& desc, const char* debugName );
 		void Shutdown();
 
 	private:

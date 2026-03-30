@@ -142,7 +142,7 @@ namespace rendercore
 	{
 		SkyAtmosphereRenderSceneInfo& info = *scene.SkyAtmosphereSceneInfo();
 
-		agl::TextureTrait transmittanceLut = {
+		agl::TextureDesc transmittanceLut = {
 			.m_width = TRANSMITTANCE_W,
 			.m_height = TRANSMITTANCE_H,
 			.m_depth = 1,
@@ -157,7 +157,7 @@ namespace rendercore
 
 		info.GetTransmittanceLutTexture() = agl::Texture::Create( transmittanceLut, "Atmosphere.TransmittanceLUT" );
 
-		agl::TextureTrait irradianceLut = {
+		agl::TextureDesc irradianceLut = {
 			.m_width = IRRADIANCE_W,
 			.m_height = IRRADIANCE_H,
 			.m_depth = 1,
@@ -172,7 +172,7 @@ namespace rendercore
 
 		info.GetIrradianceLutTexture() = agl::Texture::Create( irradianceLut, "Atmosphere.IrradianceLUT" );
 
-		agl::TextureTrait inscatterLut = {
+		agl::TextureDesc inscatterLut = {
 			.m_width = RES_MU_S * RES_NU,
 			.m_height = RES_MU,
 			.m_depth = RES_R,
@@ -233,7 +233,7 @@ namespace rendercore
 			} );
 
 		// 2. Ground irradiance due to direct sunlight
-		agl::TextureTrait deltaE = {
+		agl::TextureDesc deltaE = {
 			.m_width = IRRADIANCE_W,
 			.m_height = IRRADIANCE_H,
 			.m_depth = 1,
@@ -278,7 +278,7 @@ namespace rendercore
 			} );
 
 		// 3. Compute single scattering texture deltaS
-		agl::TextureTrait deltaS = {
+		agl::TextureDesc deltaS = {
 			.m_width = RES_MU_S * RES_NU,
 			.m_height = RES_MU,
 			.m_depth = RES_R,
@@ -327,7 +327,7 @@ namespace rendercore
 			} );
 
 		// 4. Copy deltaS into inscatter texture S
-		agl::BufferTrait inscatter = {
+		agl::BufferDesc inscatter = {
 			.m_stride = sizeof( Vector4 ),
 			.m_count = RES_MU_S * RES_NU * RES_MU * RES_R,
 			.m_access = agl::ResourceAccess::Default,
@@ -374,7 +374,7 @@ namespace rendercore
 		// Irradiance
 		auto rgDeltaJ = renderGraph.CreateTexture( deltaS, "Atmosphere.DeltaJ" );
 
-		agl::BufferTrait irradiance = {
+		agl::BufferDesc irradiance = {
 			.m_stride = sizeof( Vector4 ),
 			.m_count = IRRADIANCE_W * IRRADIANCE_H,
 			.m_access = agl::ResourceAccess::Default,
@@ -573,7 +573,7 @@ namespace rendercore
 
 		// copy irradiance buffer to texture
 		{
-			agl::BufferTrait readBack = {
+			agl::BufferDesc readBack = {
 				.m_stride = sizeof( Vector4 ),
 				.m_count = IRRADIANCE_W * IRRADIANCE_H,
 				.m_access = agl::ResourceAccess::Download,
@@ -620,7 +620,7 @@ namespace rendercore
 
 		// copy inscatter buffer to texture
 		{
-			agl::BufferTrait readBack = {
+			agl::BufferDesc readBack = {
 				.m_stride = sizeof( Vector4 ),
 				.m_count = RES_MU_S * RES_NU * RES_MU * RES_R,
 				.m_access = agl::ResourceAccess::Download,

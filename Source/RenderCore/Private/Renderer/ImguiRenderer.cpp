@@ -316,7 +316,7 @@ namespace rendercore
 		int32 width, height;
 		io.Fonts->GetTexDataAsRGBA32( &pixels, &width, &height );
 
-		agl::TextureTrait trait = {
+		agl::TextureDesc desc = {
 			.m_width = static_cast<uint32>( width ),
 			.m_height = static_cast<uint32>( height ),
 			.m_depth = 1,
@@ -329,7 +329,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::None
 		};
 
-		const uint32 formatSize = ( agl::BitPerPixel( trait.m_format ) + 7 ) / 8;
+		const uint32 formatSize = ( agl::BitPerPixel( desc.m_format ) + 7 ) / 8;
 
 		agl::ResourceInitData initData;
 		initData.m_srcData = pixels;
@@ -343,7 +343,7 @@ namespace rendercore
 			}
 		);
 
-		m_imguiRenderResource.m_fontAtlas = agl::Texture::Create( trait, "UI.FontAtlas", &initData );
+		m_imguiRenderResource.m_fontAtlas = agl::Texture::Create( desc, "UI.FontAtlas", &initData );
 
 		static_assert( sizeof( ImTextureID ) >= sizeof( m_imguiRenderResource.m_fontAtlas.Get() ), "Can't pack descriptor handle into TexID" );
 		io.Fonts->SetTexID( reinterpret_cast<ImTextureID>( m_imguiRenderResource.m_fontAtlas.Get() ) );
@@ -364,8 +364,8 @@ namespace rendercore
 
 		if ( m_renderResourceCreated == false )
 		{
-			agl::VertexLayoutTrait trait[agl::MaxVertexLayouts] = {};
-			uint32 traitSize = 0;
+			agl::VertexLayoutData layoutData[agl::MaxVertexLayouts] = {};
+			uint32 numLayoutData = 0;
 			uint32 slot = 0;
 
 			// Only Position
@@ -374,7 +374,7 @@ namespace rendercore
 
 				vertexCollection.AddStream( std::move( posStream ) );
 
-				trait[traitSize++] = {
+				layoutData[numLayoutData++] = {
 					.m_isInstanceData = false,
 					.m_index = 0,
 					.m_format = agl::ResourceFormat::R32G32_FLOAT,
@@ -383,7 +383,7 @@ namespace rendercore
 					.m_name = positionName
 				};
 
-				vertexCollection.InitLayout( trait, traitSize, VertexStreamLayoutType::PositionOnly );
+				vertexCollection.InitLayout( layoutData, numLayoutData, VertexStreamLayoutType::PositionOnly );
 			}
 
 			// Color
@@ -392,7 +392,7 @@ namespace rendercore
 
 				vertexCollection.AddStream( std::move( colorStream ) );
 
-				trait[traitSize++] = {
+				layoutData[numLayoutData++] = {
 					.m_isInstanceData = false,
 					.m_index = 0,
 					.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
@@ -408,7 +408,7 @@ namespace rendercore
 
 				vertexCollection.AddStream( std::move( texCoordStream ) );
 
-				trait[traitSize++] = {
+				layoutData[numLayoutData++] = {
 					.m_isInstanceData = false,
 					.m_index = 0,
 					.m_format = agl::ResourceFormat::R32G32_FLOAT,
@@ -418,7 +418,7 @@ namespace rendercore
 				};
 			}
 
-			vertexCollection.InitLayout( trait, traitSize, VertexStreamLayoutType::Default );
+			vertexCollection.InitLayout( layoutData, numLayoutData, VertexStreamLayoutType::Default );
 
 			vertexCollection.InitResource();
 

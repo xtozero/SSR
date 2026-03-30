@@ -102,7 +102,7 @@ namespace rendercore
 	{
 		auto resourceAccess = m_isDynamic ? agl::ResourceAccess::Upload : agl::ResourceAccess::Default;
 
-		agl::BufferTrait trait = {
+		agl::BufferDesc desc = {
 			.m_stride = 1,
 			.m_count = size,
 			.m_access = resourceAccess,
@@ -111,6 +111,6 @@ namespace rendercore
 			.m_format = agl::ResourceFormat::Unknown
 		};
 
-		m_buffer = agl::Buffer::Create( trait, "Byte", initialState, initData );
+		m_buffer = agl::Buffer::Create( desc, "Byte", initialState, initData );
 	}
 }

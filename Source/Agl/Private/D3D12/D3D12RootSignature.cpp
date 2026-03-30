@@ -181,11 +181,11 @@ namespace agl
 			}
 		}
 
-		m_desc.NumParameters = static_cast<uint32>( m_parameters.size() );
-		m_desc.pParameters = m_parameters.data();
-		m_desc.NumStaticSamplers = 0;
-		m_desc.pStaticSamplers = nullptr;
-		m_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+		m_d3dDesc.NumParameters = static_cast<uint32>( m_parameters.size() );
+		m_d3dDesc.pParameters = m_parameters.data();
+		m_d3dDesc.NumStaticSamplers = 0;
+		m_d3dDesc.pStaticSamplers = nullptr;
+		m_d3dDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 	}
 
 	D3D12RootSignature::D3D12RootSignature( const ComputePipelineStateDesc& desc )
@@ -218,11 +218,11 @@ namespace agl
 			InitializeSampler( ShaderType::Compute, paramInfo );
 		}
 
-		m_desc.NumParameters = static_cast<uint32>( m_parameters.size() );
-		m_desc.pParameters = m_parameters.data();
-		m_desc.NumStaticSamplers = 0;
-		m_desc.pStaticSamplers = nullptr;
-		m_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
+		m_d3dDesc.NumParameters = static_cast<uint32>( m_parameters.size() );
+		m_d3dDesc.pParameters = m_parameters.data();
+		m_d3dDesc.NumStaticSamplers = 0;
+		m_d3dDesc.pStaticSamplers = nullptr;
+		m_d3dDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
 	}
 
 	D3D12RootSignature::D3D12RootSignature( const D3D12RaytracingShaderTable& shaderTable )
@@ -250,11 +250,11 @@ namespace agl
 			InitializeSampler( RayTracingBindingStage, paramInfo );
 		}
 
-		m_desc.NumParameters = static_cast<uint32>( m_parameters.size() );
-		m_desc.pParameters = m_parameters.data();
-		m_desc.NumStaticSamplers = 0;
-		m_desc.pStaticSamplers = nullptr;
-		m_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
+		m_d3dDesc.NumParameters = static_cast<uint32>( m_parameters.size() );
+		m_d3dDesc.pParameters = m_parameters.data();
+		m_d3dDesc.NumStaticSamplers = 0;
+		m_d3dDesc.pStaticSamplers = nullptr;
+		m_d3dDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
 	}
 
 	void D3D12RootSignature::InitResource()
@@ -262,7 +262,7 @@ namespace agl
 		ComPtr<ID3DBlob> signature;
 		ComPtr<ID3DBlob> error;
 
-		HRESULT hr = D3D12SerializeRootSignature( &m_desc, D3D_ROOT_SIGNATURE_VERSION_1, signature.GetAddressOf(), error.GetAddressOf() );
+		HRESULT hr = D3D12SerializeRootSignature( &m_d3dDesc, D3D_ROOT_SIGNATURE_VERSION_1, signature.GetAddressOf(), error.GetAddressOf() );
 		assert( SUCCEEDED( hr ) && "Fail to serialize root signature" );
 
 		hr = D3D12Device().CreateRootSignature( 0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS( &m_rootSignature ) );

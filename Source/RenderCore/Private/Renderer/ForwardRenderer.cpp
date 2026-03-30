@@ -95,7 +95,7 @@ namespace rendercore
 		if ( m_sceneColor.Get() == nullptr )
 		{
 			const float4& clearColor = DefaultRenderCore::GetDefaultBackgroundColor();
-			agl::TextureTrait trait = {
+			agl::TextureDesc desc = {
 				.m_width = m_bufferSize.first,
 				.m_height = m_bufferSize.second,
 				.m_depth = 1,
@@ -111,7 +111,7 @@ namespace rendercore
 				}
 			};
 
-			m_sceneColor = agl::Texture::Create( trait, "Scene.SceneColor" );
+			m_sceneColor = agl::Texture::Create( desc, "Scene.SceneColor" );
 		}
 	}
 
@@ -119,7 +119,7 @@ namespace rendercore
 	{
 		if ( m_depthStencil == nullptr )
 		{
-			agl::TextureTrait trait = {
+			agl::TextureDesc desc = {
 				.m_width = m_bufferSize.first,
 				.m_height = m_bufferSize.second,
 				.m_depth = 1,
@@ -138,7 +138,7 @@ namespace rendercore
 				}
 			};
 
-			m_depthStencil = agl::Texture::Create( trait, "Scene.DepthStencil" );
+			m_depthStencil = agl::Texture::Create( desc, "Scene.DepthStencil" );
 		}
 	}
 
@@ -146,7 +146,7 @@ namespace rendercore
 	{
 		if ( m_linearDepth[0] == nullptr || m_linearDepth[1] == nullptr )
 		{
-			agl::TextureTrait trait = {
+			agl::TextureDesc desc = {
 				.m_width = m_bufferSize.first,
 				.m_height = m_bufferSize.second,
 				.m_depth = 1,
@@ -162,8 +162,8 @@ namespace rendercore
 				}
 			};
 
-			m_linearDepth[0] = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "Scene.ViewSpaceDistance" );
-			m_linearDepth[1] = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "Scene.PrevViewSpaceDistance" );
+			m_linearDepth[0] = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "Scene.ViewSpaceDistance" );
+			m_linearDepth[1] = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "Scene.PrevViewSpaceDistance" );
 		}
 	}
 
@@ -171,7 +171,7 @@ namespace rendercore
 	{
 		if ( m_taaHistory == nullptr )
 		{
-			agl::TextureTrait trait = {
+			agl::TextureDesc desc = {
 				.m_width = m_bufferSize.first,
 				.m_height = m_bufferSize.second,
 				.m_depth = 1,
@@ -184,12 +184,12 @@ namespace rendercore
 				.m_miscFlag = agl::ResourceMisc::None
 			};
 
-			m_taaHistory = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "TAA.History" );
+			m_taaHistory = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "TAA.History" );
 		}
 
 		if ( m_taaResolve == nullptr )
 		{
-			agl::TextureTrait trait = {
+			agl::TextureDesc desc = {
 				.m_width = m_bufferSize.first,
 				.m_height = m_bufferSize.second,
 				.m_depth = 1,
@@ -205,7 +205,7 @@ namespace rendercore
 				}
 			};
 
-			m_taaResolve = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "TAA.Resolve" );
+			m_taaResolve = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "TAA.Resolve" );
 		}
 	}
 
@@ -213,7 +213,7 @@ namespace rendercore
 	{
 		if ( m_worldNormal == nullptr )
 		{
-			agl::TextureTrait trait = {
+			agl::TextureDesc desc = {
 				.m_width = m_bufferSize.first,
 				.m_height = m_bufferSize.second,
 				.m_depth = 1,
@@ -229,7 +229,7 @@ namespace rendercore
 				}
 			};
 
-			m_worldNormal = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "Scene.WorldNormal" );
+			m_worldNormal = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "Scene.WorldNormal" );
 		}
 	}
 
@@ -237,7 +237,7 @@ namespace rendercore
 	{
 		if ( m_velocity == nullptr )
 		{
-			agl::TextureTrait trait = {
+			agl::TextureDesc desc = {
 				.m_width = m_bufferSize.first,
 				.m_height = m_bufferSize.second,
 				.m_depth = 1,
@@ -253,7 +253,7 @@ namespace rendercore
 				}
 			};
 
-			m_velocity = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "Scene.Velocity" );
+			m_velocity = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "Scene.Velocity" );
 		}
 	}
 
@@ -261,7 +261,7 @@ namespace rendercore
 	{
 		if ( m_visibility == nullptr )
 		{
-			agl::TextureTrait trait = {
+			agl::TextureDesc desc = {
 				.m_width = m_bufferSize.first,
 				.m_height = m_bufferSize.second,
 				.m_depth = 1,
@@ -277,7 +277,7 @@ namespace rendercore
 				}
 			};
 
-			m_visibility = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "Scene.Visibility" );
+			m_visibility = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "Scene.Visibility" );
 		}
 	}
 
@@ -744,8 +744,8 @@ namespace rendercore
 				m_resourceBinder.Add( StaticName( "SceneColor" ), passResource.m_sceneColor->SRV() );
 				m_resourceBinder.Add( StaticName( "PrimitiveIds" ), passResource.m_primitiveIds->SRV() );
 
-				uint32 width = passResource.m_visibility->GetTrait().m_width;
-				uint32 height = passResource.m_visibility->GetTrait().m_height;
+				uint32 width = passResource.m_visibility->GetDesc().m_width;
+				uint32 height = passResource.m_visibility->GetDesc().m_height;
 
 				const RenderFrameArray<VisibleShadingSnapshot>& shadingSnapshots = visibilityPassData.m_shadingSnapshots;
 				for ( size_t i = 0; i < shadingSnapshots.size(); ++i )
@@ -877,7 +877,7 @@ namespace rendercore
 			RefHandle<agl::Texture> prefilteredColor = texturedSkyProxy.PrefilteredColor();
 			if ( prefilteredColor.Get() )
 			{
-				lightParams.ReflectionMipLevels = static_cast<float>( prefilteredColor->GetTrait().m_mipLevels );
+				lightParams.ReflectionMipLevels = static_cast<float>( prefilteredColor->GetDesc().m_mipLevels );
 			}
 		}
 

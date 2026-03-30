@@ -11,7 +11,7 @@
 #include "Math/Util.h"
 #include "Multithread/TaskScheduler.h"
 
-using ::agl::BufferTrait;
+using ::agl::BufferDesc;
 using ::agl::ConvertToHeapType;
 using ::agl::D3D12HeapProperties;
 using ::agl::ResourceAccess;
@@ -20,22 +20,22 @@ using ::agl::ResourceMisc;
 
 namespace
 {
-	D3D12HeapProperties ConvertToHeapProperties( const BufferTrait& trait )
+	D3D12HeapProperties ConvertToHeapProperties( const BufferDesc& desc )
 	{
 		D3D12HeapProperties properties = {
 			.m_alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
-			.m_heapType = ConvertToHeapType( trait.m_access ),
+			.m_heapType = ConvertToHeapType( desc.m_access ),
 			.m_heapFlags = D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS
 		};
 
 		return properties;
 	}
 
-	D3D12_RESOURCE_FLAGS GetResourceFlags( const BufferTrait& trait )
+	D3D12_RESOURCE_FLAGS GetResourceFlags( const BufferDesc& desc )
 	{
 		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
 
-		if ( HasAnyFlags( trait.m_bindType, ResourceBindType::RandomAccess ) )
+		if ( HasAnyFlags( desc.m_bindType, ResourceBindType::RandomAccess ) )
 		{
 			flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 		}
@@ -43,15 +43,15 @@ namespace
 		return flags;
 	}
 
-	D3D12_RESOURCE_DESC ConvertTraitToDesc( const BufferTrait& trait )
+	D3D12_RESOURCE_DESC ConvertToD3DDesc( const BufferDesc& desc )
 	{
-		uint64 bufferSize = trait.m_stride * trait.m_count;
-		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferAllowRawViews ) )
+		uint64 bufferSize = desc.m_stride * desc.m_count;
+		if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::BufferAllowRawViews ) )
 		{
 			bufferSize = CalcAlignment<uint64>( bufferSize, 4 );
 		}
 
-		D3D12_RESOURCE_DESC desc = {
+		D3D12_RESOURCE_DESC d3dDesc = {
 			.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
 			.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
 			.Width = bufferSize,
@@ -64,21 +64,21 @@ namespace
 				.Quality = 0
 			},
 			.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
-			.Flags = GetResourceFlags( trait )
+			.Flags = GetResourceFlags( desc )
 		};
 
-		return desc;
+		return d3dDesc;
 	}
 
-	uint32 NumRawViewElements( const BufferTrait& trait )
+	uint32 NumRawViewElements( const BufferDesc& desc )
 	{
-		auto bufferSize = CalcAlignment<uint32>( trait.m_stride * trait.m_count, 4 );
+		auto bufferSize = CalcAlignment<uint32>( desc.m_stride * desc.m_count, 4 );
 		return bufferSize / 4;
 	}
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertDescToSRV( const BufferTrait& trait, DXGI_FORMAT format, ID3D12Resource& resource )
+	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertToSRVDesc( const BufferDesc& desc, DXGI_FORMAT format, ID3D12Resource& resource )
 	{
-		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::RaytracingAccelerationStructure ) )
+		if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::RaytracingAccelerationStructure ) )
 		{
 			return D3D12_SHADER_RESOURCE_VIEW_DESC{
 				.Format = DXGI_FORMAT_UNKNOWN,
@@ -91,8 +91,8 @@ namespace
 		}
 		else
 		{
-			bool bStructured = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferStructured );
-			bool bAllowRawViews = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferAllowRawViews );
+			bool bStructured = HasAnyFlags( desc.m_miscFlag, ResourceMisc::BufferStructured );
+			bool bAllowRawViews = HasAnyFlags( desc.m_miscFlag, ResourceMisc::BufferAllowRawViews );
 
 			DXGI_FORMAT actualFormat = bStructured ? DXGI_FORMAT_UNKNOWN : ( bAllowRawViews ? DXGI_FORMAT_R32_TYPELESS : format );
 
@@ -102,18 +102,18 @@ namespace
 				.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
 				.Buffer = {
 					.FirstElement = 0,
-					.NumElements = bAllowRawViews ? NumRawViewElements( trait ) : trait.m_count,
-					.StructureByteStride = bStructured ? trait.m_stride : 0,
+					.NumElements = bAllowRawViews ? NumRawViewElements( desc ) : desc.m_count,
+					.StructureByteStride = bStructured ? desc.m_stride : 0,
 					.Flags = bAllowRawViews ? D3D12_BUFFER_SRV_FLAG_RAW : D3D12_BUFFER_SRV_FLAG_NONE
 				}
 			};
 		}
 	}
 
-	D3D12_UNORDERED_ACCESS_VIEW_DESC ConvertDescToUAV( const BufferTrait& trait, DXGI_FORMAT format )
+	D3D12_UNORDERED_ACCESS_VIEW_DESC ConvertToUAVDesc( const BufferDesc& desc, DXGI_FORMAT format )
 	{
-		bool bStructured = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferStructured );
-		bool bAllowRawViews = HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferAllowRawViews );
+		bool bStructured = HasAnyFlags( desc.m_miscFlag, ResourceMisc::BufferStructured );
+		bool bAllowRawViews = HasAnyFlags( desc.m_miscFlag, ResourceMisc::BufferAllowRawViews );
 
 		DXGI_FORMAT actualFormat = bStructured ? DXGI_FORMAT_UNKNOWN : ( bAllowRawViews ? DXGI_FORMAT_R32_TYPELESS : format );
 
@@ -122,8 +122,8 @@ namespace
 			.ViewDimension = D3D12_UAV_DIMENSION_BUFFER,
 			.Buffer = {
 				.FirstElement = 0,
-				.NumElements = bAllowRawViews ? NumRawViewElements( trait ) : trait.m_count,
-				.StructureByteStride = bStructured ? trait.m_stride : 0,
+				.NumElements = bAllowRawViews ? NumRawViewElements( desc ) : desc.m_count,
+				.StructureByteStride = bStructured ? desc.m_stride : 0,
 				.CounterOffsetInBytes = 0,
 				.Flags = bAllowRawViews ? D3D12_BUFFER_UAV_FLAG_RAW : D3D12_BUFFER_UAV_FLAG_NONE
 			}
@@ -137,14 +137,14 @@ namespace agl
 {
 	void D3D12Buffer::CreateShaderResource()
 	{
-		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_trait, m_format, *Resource() );
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertToSRVDesc( m_desc, m_format, *Resource() );
 		m_srv = new D3D12ShaderResourceView( this, Resource(), srvDesc );
 		m_srv->Init();
 	}
 
 	void D3D12Buffer::CreateUnorderedAccess()
 	{
-		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_trait, m_format );
+		D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertToUAVDesc( m_desc, m_format );
 		m_uav = new D3D12UnorderedAccessView( this, Resource(), uavDesc );
 		m_uav->Init();
 	}
@@ -166,7 +166,7 @@ namespace agl
 
 	const D3D12_RESOURCE_DESC& D3D12Buffer::Desc() const
 	{
-		return m_desc;
+		return m_d3dDesc;
 	}
 
 	DXGI_FORMAT D3D12Buffer::GetFormat() const
@@ -231,19 +231,19 @@ namespace agl
 		return m_cbv.Get();
 	}
 
-	D3D12Buffer::D3D12Buffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
+	D3D12Buffer::D3D12Buffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData )
 		: Buffer( initialState )
-		, m_desc( ConvertTraitToDesc( trait ) )
+		, m_d3dDesc( ConvertToD3DDesc( desc ) )
 	{
 		m_debugName = Name( debugName );
-		m_trait = trait;
-		m_format = ConvertFormatToDxgiFormat( m_trait.m_format );
+		m_desc = desc;
+		m_format = ConvertFormatToDxgiFormat( m_desc.m_format );
 
 		if ( initData != nullptr )
 		{
 			m_hasInitData = true;
 
-			m_dataStorage = new uint8[m_desc.Width];
+			m_dataStorage = new uint8[m_d3dDesc.Width];
 			std::memcpy( m_dataStorage, initData, Size() );
 		}
 	}
@@ -267,12 +267,12 @@ namespace agl
 	{
 		AdjustInitalResourceStates();
 
-		D3D12HeapProperties properties = ConvertToHeapProperties( m_trait );
+		D3D12HeapProperties properties = ConvertToHeapProperties( m_desc );
 
 		D3D12ResourceAllocator& allocator = D3D12Allocator();
 		m_resourceInfo = allocator.AllocateResource(
 			properties,
-			m_desc,
+			m_d3dDesc,
 			ConvertToResourceStates( GetResourceState() )
 		);
 
@@ -296,17 +296,17 @@ namespace agl
 			}
 		}
 
-		if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate | ResourceMisc::WithoutViews ) )
+		if ( HasAnyFlags( m_desc.m_miscFlag, ResourceMisc::Intermediate | ResourceMisc::WithoutViews ) )
 		{
 			return;
 		}
 
-		if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::ShaderResource ) )
+		if ( HasAnyFlags( m_desc.m_bindType, ResourceBindType::ShaderResource ) )
 		{
 			CreateShaderResource();
 		}
 
-		if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::RandomAccess ) )
+		if ( HasAnyFlags( m_desc.m_bindType, ResourceBindType::RandomAccess ) )
 		{
 			CreateUnorderedAccess();
 		}
@@ -331,24 +331,24 @@ namespace agl
 
 	void D3D12Buffer::AdjustInitalResourceStates()
 	{
-		if ( HasAllFlags( m_trait.m_access, ResourceAccess::Download ) )
+		if ( HasAllFlags( m_desc.m_access, ResourceAccess::Download ) )
 		{
 			SetResourceState( ResourceState::CopyDest );
 		}
-		else if ( HasAllFlags( m_trait.m_access, ResourceAccess::Upload ) )
+		else if ( HasAllFlags( m_desc.m_access, ResourceAccess::Upload ) )
 		{
 			SetResourceState( ResourceState::GenericRead );
 		}
-		else if ( m_hasInitData && HasAllFlags( m_trait.m_access, ResourceAccess::CpuWrite ) == false )
+		else if ( m_hasInitData && HasAllFlags( m_desc.m_access, ResourceAccess::CpuWrite ) == false )
 		{
 			SetResourceState( ResourceState::Common );
 		}
 	}
 
-	D3D12ConstantBuffer::D3D12ConstantBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
-		: D3D12Buffer( trait, debugName, initialState, initData )
+	D3D12ConstantBuffer::D3D12ConstantBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData )
+		: D3D12Buffer( desc, debugName, initialState, initData )
 	{
-		m_desc.Width = CalcAlignment<uint64>( m_desc.Width, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT );
+		m_d3dDesc.Width = CalcAlignment<uint64>( m_d3dDesc.Width, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT );
 	}
 
 	void D3D12ConstantBuffer::CreateBuffer()
@@ -481,8 +481,8 @@ namespace agl
 		};
 	}
 
-	D3D12DisposableConstantBuffer::D3D12DisposableConstantBuffer( const BufferTrait& trait, const char* debugName )
-		: D3D12Buffer( trait, debugName, ResourceState::GenericRead, nullptr )
+	D3D12DisposableConstantBuffer::D3D12DisposableConstantBuffer( const BufferDesc& desc, const char* debugName )
+		: D3D12Buffer( desc, debugName, ResourceState::GenericRead, nullptr )
 	{
 	}
 
@@ -520,8 +520,8 @@ namespace agl
 		return m_view;
 	}
 
-	D3D12IndexBuffer::D3D12IndexBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
-		: D3D12Buffer( trait, debugName, initialState, initData )
+	D3D12IndexBuffer::D3D12IndexBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData )
+		: D3D12Buffer( desc, debugName, initialState, initData )
 	{
 	}
 
@@ -531,7 +531,7 @@ namespace agl
 
 		m_view = {
 			.BufferLocation = Resource()->GetGPUVirtualAddress(),
-			.SizeInBytes = static_cast<uint32>( m_desc.Width ),
+			.SizeInBytes = static_cast<uint32>( m_d3dDesc.Width ),
 			.Format = ( Stride() == sizeof( uint16 ) ) ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT
 		};
 	}
@@ -541,8 +541,8 @@ namespace agl
 		return m_view;
 	}
 
-	D3D12VertexBuffer::D3D12VertexBuffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
-		: D3D12Buffer( trait, debugName, initialState, initData )
+	D3D12VertexBuffer::D3D12VertexBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData )
+		: D3D12Buffer( desc, debugName, initialState, initData )
 	{
 	}
 
@@ -552,7 +552,7 @@ namespace agl
 
 		m_view = {
 			.BufferLocation = Resource()->GetGPUVirtualAddress(),
-			.SizeInBytes = static_cast<uint32>( m_desc.Width ),
+			.SizeInBytes = static_cast<uint32>( m_d3dDesc.Width ),
 			.StrideInBytes = Stride()
 		};
 	}

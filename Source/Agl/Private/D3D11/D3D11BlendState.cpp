@@ -3,7 +3,7 @@
 #include "D3D11Api.h"
 #include "D3D11FlagConvertor.h"
 
-using ::agl::BlendStateTrait;
+using ::agl::BlendStateDesc;
 using ::agl::ConvertToBlend;
 using ::agl::ConvertToBlendOp;
 using ::agl::ConvertToColorWriteEnable;
@@ -11,26 +11,26 @@ using ::agl::MaxRendertagets;
 
 namespace
 {
-	D3D11_BLEND_DESC ConvertTraitToDesc( const BlendStateTrait& trait )
+	D3D11_BLEND_DESC ConvertToD3DDesc( const BlendStateDesc& desc )
 	{
-		D3D11_BLEND_DESC desc;
+		D3D11_BLEND_DESC d3dDesc;
 
-		desc.AlphaToCoverageEnable = trait.m_alphaToConverageEnable;
-		desc.IndependentBlendEnable = trait.m_independentBlendEnable;
+		d3dDesc.AlphaToCoverageEnable = desc.m_alphaToConverageEnable;
+		d3dDesc.IndependentBlendEnable = desc.m_independentBlendEnable;
 
 		for ( uint32 i = 0; i < MaxRendertagets; ++i )
 		{
-			desc.RenderTarget[i].BlendEnable = trait.m_renderTarget[i].m_blendEnable;
-			desc.RenderTarget[i].SrcBlend = ConvertToBlend( trait.m_renderTarget[i].m_srcBlend );
-			desc.RenderTarget[i].DestBlend = ConvertToBlend( trait.m_renderTarget[i].m_destBlend );
-			desc.RenderTarget[i].BlendOp = ConvertToBlendOp( trait.m_renderTarget[i].m_blendOp );
-			desc.RenderTarget[i].SrcBlendAlpha = ConvertToBlend( trait.m_renderTarget[i].m_srcBlendAlpha );
-			desc.RenderTarget[i].DestBlendAlpha = ConvertToBlend( trait.m_renderTarget[i].m_destBlendAlpha );
-			desc.RenderTarget[i].BlendOpAlpha = ConvertToBlendOp( trait.m_renderTarget[i].m_blendOpAlpha );
-			desc.RenderTarget[i].RenderTargetWriteMask = ConvertToColorWriteEnable( trait.m_renderTarget[i].m_renderTargetWriteMask );
+			d3dDesc.RenderTarget[i].BlendEnable = desc.m_renderTarget[i].m_blendEnable;
+			d3dDesc.RenderTarget[i].SrcBlend = ConvertToBlend( desc.m_renderTarget[i].m_srcBlend );
+			d3dDesc.RenderTarget[i].DestBlend = ConvertToBlend( desc.m_renderTarget[i].m_destBlend );
+			d3dDesc.RenderTarget[i].BlendOp = ConvertToBlendOp( desc.m_renderTarget[i].m_blendOp );
+			d3dDesc.RenderTarget[i].SrcBlendAlpha = ConvertToBlend( desc.m_renderTarget[i].m_srcBlendAlpha );
+			d3dDesc.RenderTarget[i].DestBlendAlpha = ConvertToBlend( desc.m_renderTarget[i].m_destBlendAlpha );
+			d3dDesc.RenderTarget[i].BlendOpAlpha = ConvertToBlendOp( desc.m_renderTarget[i].m_blendOpAlpha );
+			d3dDesc.RenderTarget[i].RenderTargetWriteMask = ConvertToColorWriteEnable( desc.m_renderTarget[i].m_renderTargetWriteMask );
 		}
 
-		return desc;
+		return d3dDesc;
 	}
 }
 
@@ -69,11 +69,11 @@ namespace agl
 		m_sampleMask = sampleMask;
 	}
 
-	D3D11BlendState::D3D11BlendState( const BlendStateTrait& trait ) : m_sampleMask( trait.m_sampleMask ), m_desc( ConvertTraitToDesc( trait ) ) {}
+	D3D11BlendState::D3D11BlendState( const BlendStateDesc& desc ) : m_sampleMask( desc.m_sampleMask ), m_d3dDesc( ConvertToD3DDesc( desc ) ) {}
 
 	void D3D11BlendState::InitResource()
 	{
-		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateBlendState( &m_desc, &m_blendState ) );
+		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateBlendState( &m_d3dDesc, &m_blendState ) );
 		assert( result );
 	}
 

@@ -5,11 +5,11 @@
 #include "D3D11Shaders.h"
 
 using ::agl::ConvertFormatToDxgiFormat;
-using ::agl::VertexLayoutTrait;
+using ::agl::VertexLayoutData;
 
 namespace
 {
-	void ConvertVertexLayoutToInputLayout( std::vector<D3D11_INPUT_ELEMENT_DESC>& descs, const VertexLayoutTrait* trait, uint32 size )
+	void ConvertVertexLayoutToInputLayout( std::vector<D3D11_INPUT_ELEMENT_DESC>& descs, const VertexLayoutData* layoutData, uint32 size )
 	{
 		for ( uint32 i = 0; i < size; ++i )
 		{
@@ -17,13 +17,13 @@ namespace
 
 			D3D11_INPUT_ELEMENT_DESC& desc = descs.back();
 
-			desc.SemanticName = trait[i].m_name.Str().data();
-			desc.SemanticIndex = trait[i].m_index;
-			desc.Format = ConvertFormatToDxgiFormat( trait[i].m_format );
-			desc.InputSlot = trait[i].m_slot;
+			desc.SemanticName = layoutData[i].m_name.Str().data();
+			desc.SemanticIndex = layoutData[i].m_index;
+			desc.Format = ConvertFormatToDxgiFormat( layoutData[i].m_format );
+			desc.InputSlot = layoutData[i].m_slot;
 			desc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-			desc.InputSlotClass = trait[i].m_isInstanceData ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
-			desc.InstanceDataStepRate = trait[i].m_instanceDataStep;
+			desc.InputSlotClass = layoutData[i].m_isInstanceData ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
+			desc.InstanceDataStepRate = layoutData[i].m_instanceDataStep;
 		}
 	}
 }
@@ -40,10 +40,10 @@ namespace agl
 		return m_pInputLayout;
 	}
 
-	D3D11VertexLayout::D3D11VertexLayout( const D3D11VertexShader* vs, const VertexLayoutTrait* trait, uint32 size )
+	D3D11VertexLayout::D3D11VertexLayout( const D3D11VertexShader* vs, const VertexLayoutData* layoutData, uint32 size )
 	{
 		m_inputDesc.reserve( size );
-		ConvertVertexLayoutToInputLayout( m_inputDesc, trait, size );
+		ConvertVertexLayoutToInputLayout( m_inputDesc, layoutData, size );
 
 		[[maybe_unused]] bool result = SUCCEEDED( D3D11Device().CreateInputLayout( m_inputDesc.data(), size, vs->ByteCode(), vs->ByteCodeSize(), &m_pInputLayout ) );
 		assert( result );

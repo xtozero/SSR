@@ -9,12 +9,12 @@ namespace agl
 	class D3D12RasterizerState final : public RasterizerState
 	{
 	public:
-		const D3D12_RASTERIZER_DESC& GetDesc() const
+		const D3D12_RASTERIZER_DESC& GetD3DDesc() const
 		{
-			return m_desc;
+			return m_d3dDesc;
 		}
 
-		D3D12RasterizerState( const RasterizerStateTrait& trait );
+		D3D12RasterizerState( const RasterizerStateDesc& desc );
 		D3D12RasterizerState( const D3D12RasterizerState& ) = default;
 		D3D12RasterizerState( D3D12RasterizerState&& ) = default;
 		D3D12RasterizerState& operator=( const D3D12RasterizerState& ) = default;
@@ -25,6 +25,6 @@ namespace agl
 		virtual void InitResource() override;
 		virtual void FreeResource() override;
 
-		D3D12_RASTERIZER_DESC m_desc;
+		D3D12_RASTERIZER_DESC m_d3dDesc;
 	};
 }

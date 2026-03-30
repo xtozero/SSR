@@ -23,8 +23,8 @@ namespace agl
 			numByte = dest.Size();
 		}
 
-		BufferTrait trait = {
-			.m_stride = static_cast<uint32>( numByte ),
+		BufferDesc desc = {
+			.m_stride = numByte,
 			.m_count = 1,
 			.m_access = ResourceAccess::Upload,
 			.m_bindType = ResourceBindType::None,
@@ -32,7 +32,7 @@ namespace agl
 			.m_format = ResourceFormat::Unknown
 		};
 
-		m_intermediateResource = Buffer::Create( trait, "Uploader.Buffer.Intermediate" );
+		m_intermediateResource = Buffer::Create( desc, "Uploader.Buffer.Intermediate" );
 
 		auto resource = static_cast<ID3D12Resource*>( m_intermediateResource->Resource() );
 		void* mappedData = nullptr;
@@ -130,14 +130,14 @@ namespace agl
 		m_destResource = &dest;
 		m_srcResource = &src;
 
-		if ( HasAnyFlags( dest.GetTrait().m_access, ResourceAccess::CpuRead ) )
+		if ( HasAnyFlags( dest.GetDesc().m_access, ResourceAccess::CpuRead ) )
 		{
 			D3D12_PLACED_SUBRESOURCE_FOOTPRINT layout = {};
 			uint32 numRows = 0;
 			uint64 rowSize = 0;
 			uint64 totalSize = 0;
 
-			D3D12Device().GetCopyableFootprints( &src.GetDesc(), 0, 1, 0, &layout, &numRows, &rowSize, &totalSize );
+			D3D12Device().GetCopyableFootprints( &src.GetD3DDesc(), 0, 1, 0, &layout, &numRows, &rowSize, &totalSize );
 
 			D3D12_TEXTURE_COPY_LOCATION destLocation = {
 				.pResource = static_cast<ID3D12Resource*>( dest.Resource() ),
@@ -334,7 +334,7 @@ namespace agl
 		m_copyQueue->ExecuteCommandLists( 1, commandList );
 		m_copyQueue->Signal( context.Fence(), 1 );
 
-		if ( HasAnyFlags( dest.GetTrait().m_access, ResourceAccess::CpuRead ) )
+		if ( HasAnyFlags( dest.GetDesc().m_access, ResourceAccess::CpuRead ) )
 		{
 			WaitUntilCopyCompleted();
 		}
@@ -353,7 +353,7 @@ namespace agl
 		m_copyQueue->ExecuteCommandLists( 1, commandList );
 		m_copyQueue->Signal( context.Fence(), 1);
 
-		if ( HasAnyFlags( dest.GetTrait().m_access, ResourceAccess::CpuRead ) )
+		if ( HasAnyFlags( dest.GetDesc().m_access, ResourceAccess::CpuRead ) )
 		{
 			WaitUntilCopyCompleted();
 		}
@@ -419,8 +419,8 @@ namespace agl
 	{
 		IntermediateInfo intermediate;
 
-		const TextureTrait& destTrait = dest.GetTrait();
-		bool bIsTexture3D = HasAnyFlags( destTrait.m_miscFlag, ResourceMisc::Texture3D );
+		const TextureDesc& destDesc = dest.GetDesc();
+		bool bIsTexture3D = HasAnyFlags( destDesc.m_miscFlag, ResourceMisc::Texture3D );
 
 		if ( pDestArea == nullptr )
 		{
@@ -428,9 +428,9 @@ namespace agl
 				.m_left = 0,
 				.m_top = 0,
 				.m_front = 0,
-				.m_right = destTrait.m_width,
-				.m_bottom = destTrait.m_height,
-				.m_back = bIsTexture3D ? destTrait.m_depth : 1,
+				.m_right = destDesc.m_width,
+				.m_bottom = destDesc.m_height,
+				.m_back = bIsTexture3D ? destDesc.m_depth : 1,
 			};
 		}
 		else
@@ -442,9 +442,9 @@ namespace agl
 		uint64 rowSize = 0;
 		uint64 totalSize = 0;
 
-		D3D12Device().GetCopyableFootprints( &dest.GetDesc(), subresource, 1, 0, &intermediate.m_layout, &numRows, &rowSize, &totalSize );
+		D3D12Device().GetCopyableFootprints( &dest.GetD3DDesc(), subresource, 1, 0, &intermediate.m_layout, &numRows, &rowSize, &totalSize );
 
-		BufferTrait trait = {
+		BufferDesc desc = {
 			.m_stride = static_cast<uint32>( totalSize ),
 			.m_count = 1,
 			.m_access = ResourceAccess::Upload,
@@ -453,7 +453,7 @@ namespace agl
 			.m_format = ResourceFormat::Unknown
 		};
 
-		intermediate.m_buffer = Buffer::Create( trait, "Uploader.Texture.Intermediate" );
+		intermediate.m_buffer = Buffer::Create( desc, "Uploader.Texture.Intermediate" );
 
 		auto resource = static_cast<ID3D12Resource*>( intermediate.m_buffer->Resource() );
 		uint8* mappedData = nullptr;

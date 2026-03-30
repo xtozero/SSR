@@ -134,9 +134,9 @@ namespace agl
 		DXGI_FORMAT rtvFormats[D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT] = {};
 		for ( int32 i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i )
 		{
-			rtvFormats[i] = m_rtvs[i] ? ( static_cast<D3D12RenderTargetView*>( m_rtvs[i] )->GetDesc().Format ) : DXGI_FORMAT_UNKNOWN;
+			rtvFormats[i] = m_rtvs[i] ? ( static_cast<D3D12RenderTargetView*>( m_rtvs[i] )->GetD3DDesc().Format ) : DXGI_FORMAT_UNKNOWN;
 		}
-		DXGI_FORMAT dsvFormat = m_dsv ? ( static_cast<D3D12DepthStencilView*>( m_dsv )->GetDesc().Format ) : DXGI_FORMAT_UNKNOWN;
+		DXGI_FORMAT dsvFormat = m_dsv ? ( static_cast<D3D12DepthStencilView*>( m_dsv )->GetD3DDesc().Format ) : DXGI_FORMAT_UNKNOWN;
 
 		auto& d3d12ResourceManager = *static_cast<D3D12ResourceManager*>( GetInterface<IResourceManager>() );
 		ID3D12PipelineState* graphicsPipelineState = d3d12ResourceManager.FindOrCreate( d3d12GraphicsPipelineState, rtvFormats, dsvFormat );

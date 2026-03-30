@@ -13,7 +13,7 @@ namespace rendercore
 		agl::BlendState* Resource();
 		const agl::BlendState* Resource() const;
 
-		explicit BlendState( const agl::BlendStateTrait& trait );
+		explicit BlendState( const agl::BlendStateDesc& desc );
 		explicit BlendState( agl::BlendState* state ) noexcept;
 
 		BlendState() = default;
@@ -24,7 +24,7 @@ namespace rendercore
 		BlendState& operator=( BlendState&& ) = default;
 
 	private:
-		void InitResource( const agl::BlendStateTrait& trait );
+		void InitResource( const agl::BlendStateDesc& desc );
 
 		RefHandle<agl::BlendState> m_state;
 	};
@@ -35,7 +35,7 @@ namespace rendercore
 		agl::DepthStencilState* Resource();
 		const agl::DepthStencilState* Resource() const;
 
-		explicit DepthStencilState( const agl::DepthStencilStateTrait& trait );
+		explicit DepthStencilState( const agl::DepthStencilStateDesc& desc );
 		explicit DepthStencilState( agl::DepthStencilState* state ) noexcept;
 
 		DepthStencilState() = default;
@@ -46,7 +46,7 @@ namespace rendercore
 		DepthStencilState& operator=( DepthStencilState&& ) = default;
 
 	private:
-		void InitResource( const agl::DepthStencilStateTrait& trait );
+		void InitResource( const agl::DepthStencilStateDesc& desc );
 
 		RefHandle<agl::DepthStencilState> m_state;
 	};
@@ -57,7 +57,7 @@ namespace rendercore
 		agl::RasterizerState* Resource();
 		const agl::RasterizerState* Resource() const;
 
-		explicit RasterizerState( const agl::RasterizerStateTrait& trait );
+		explicit RasterizerState( const agl::RasterizerStateDesc& desc );
 		explicit RasterizerState( agl::RasterizerState* state ) noexcept;
 
 		RasterizerState() = default;
@@ -68,7 +68,7 @@ namespace rendercore
 		RasterizerState& operator=( RasterizerState&& ) = default;
 
 	private:
-		void InitResource( const agl::RasterizerStateTrait& trait );
+		void InitResource( const agl::RasterizerStateDesc& desc );
 
 		RefHandle<agl::RasterizerState> m_state;
 	};
@@ -79,7 +79,7 @@ namespace rendercore
 		agl::SamplerState* Resource();
 		const agl::SamplerState* Resource() const;
 
-		explicit SamplerState( const agl::SamplerStateTrait& trait );
+		explicit SamplerState( const agl::SamplerStateDesc& desc );
 		explicit SamplerState( agl::SamplerState* state ) noexcept;
 
 		SamplerState() = default;
@@ -90,7 +90,7 @@ namespace rendercore
 		SamplerState& operator=( SamplerState&& ) = default;
 
 	private:
-		void InitResource( const agl::SamplerStateTrait& trait );
+		void InitResource( const agl::SamplerStateDesc& desc );
 
 		RefHandle<agl::SamplerState> m_state;
 	};

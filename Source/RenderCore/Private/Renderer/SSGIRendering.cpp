@@ -131,12 +131,12 @@ namespace rendercore
 		auto rgViewSpaceDistance = renderGraph.RegisterExternalResource( param.m_viewSpaceDistance.Get() );
 		auto rgWorldNormal = renderGraph.RegisterExternalResource( param.m_worldNormal.Get() );
 
-		const agl::TextureTrait& sceneTexTrait = param.m_sceneColor->GetTrait();
+		const agl::TextureDesc& sceneTexDesc = param.m_sceneColor->GetDesc();
 
-		agl::TextureTrait ssgiTrait = {
-			.m_width = sceneTexTrait.m_width,
-			.m_height = sceneTexTrait.m_height,
-			.m_depth = sceneTexTrait.m_depth,
+		agl::TextureDesc ssgiDesc = {
+			.m_width = sceneTexDesc.m_width,
+			.m_height = sceneTexDesc.m_height,
+			.m_depth = sceneTexDesc.m_depth,
 			.m_sampleCount = 1,
 			.m_sampleQuality = 0,
 			.m_mipLevels = 1,
@@ -146,7 +146,7 @@ namespace rendercore
 			.m_miscFlag = agl::ResourceMisc::None,
 		};
 
-		auto rgSSGI = renderGraph.CreateTexture( ssgiTrait, "SSGITex" );
+		auto rgSSGI = renderGraph.CreateTexture( ssgiDesc, "SSGITex" );
 
 		BEGIN_RG_RESOURCE_STRUCT( SSGIPassResource )
 			DECLARE_RG_TEXTURE_NONPIXEL_SRV( sceneColor )
@@ -163,8 +163,8 @@ namespace rendercore
 		};
 
 		Vector2 screenSize = {
-			static_cast<float>( sceneTexTrait.m_width ),
-			static_cast<float>( sceneTexTrait.m_height )
+			static_cast<float>( sceneTexDesc.m_width ),
+			static_cast<float>( sceneTexDesc.m_height )
 		};
 
 		renderGraph.AddPass( ssgiPassResource,

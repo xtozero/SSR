@@ -529,7 +529,7 @@ namespace rendercore
 		{
 			auto [width, height] = shadow->ShadowMapSize();
 
-			agl::TextureTrait trait = {
+			agl::TextureDesc desc = {
 				.m_width = width,
 				.m_height = height,
 				.m_depth = CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
@@ -545,9 +545,9 @@ namespace rendercore
 				}
 			};
 
-			shadow->ShadowMap().m_shadowMaps.emplace_back( GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "Shadow.Cascade" ) );
+			shadow->ShadowMap().m_shadowMaps.emplace_back( GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "Shadow.Cascade" ) );
 
-			agl::TextureTrait depthTrait = {
+			agl::TextureDesc depthDesc = {
 				.m_width = width,
 				.m_height = height,
 				.m_depth = CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
@@ -566,11 +566,11 @@ namespace rendercore
 				}
 			};
 
-			shadow->ShadowMap().m_shadowMapDepth = GraphicsResourcePool::GetInstance().FindFreeTexture( depthTrait, "Shadow.Cascade.Depth" );
+			shadow->ShadowMap().m_shadowMapDepth = GraphicsResourcePool::GetInstance().FindFreeTexture( depthDesc, "Shadow.Cascade.Depth" );
 
 			if ( DefaultRenderCore::IsRSMsEnabled() )
 			{
-				agl::TextureTrait positionMapTrait = {
+				agl::TextureDesc positionMapDesc = {
 					.m_width = width,
 					.m_height = height,
 					.m_depth = CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
@@ -586,9 +586,9 @@ namespace rendercore
 					}
 				};
 
-				shadow->ShadowMap().m_shadowMaps.emplace_back( GraphicsResourcePool::GetInstance().FindFreeTexture( positionMapTrait, "RSMs.Position" ) );
+				shadow->ShadowMap().m_shadowMaps.emplace_back( GraphicsResourcePool::GetInstance().FindFreeTexture( positionMapDesc, "RSMs.Position" ) );
 
-				agl::TextureTrait normalMapTrait = {
+				agl::TextureDesc normalMapDesc = {
 					.m_width = width,
 					.m_height = height,
 					.m_depth = CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
@@ -604,9 +604,9 @@ namespace rendercore
 					}
 				};
 
-				shadow->ShadowMap().m_shadowMaps.emplace_back( GraphicsResourcePool::GetInstance().FindFreeTexture( normalMapTrait, "RSMs.Normal" ) );
+				shadow->ShadowMap().m_shadowMaps.emplace_back( GraphicsResourcePool::GetInstance().FindFreeTexture( normalMapDesc, "RSMs.Normal" ) );
 
-				agl::TextureTrait fluxMapTrait = {
+				agl::TextureDesc fluxMapDesc = {
 					.m_width = width,
 					.m_height = height,
 					.m_depth = CascadeShadowSetting::MAX_CASCADE_NUM, // Cascade map count, Right now, it's fixed constant.
@@ -622,7 +622,7 @@ namespace rendercore
 					}
 				};
 
-				shadow->ShadowMap().m_shadowMaps.emplace_back( GraphicsResourcePool::GetInstance().FindFreeTexture( fluxMapTrait, "RSMs.Flux" ) );
+				shadow->ShadowMap().m_shadowMaps.emplace_back( GraphicsResourcePool::GetInstance().FindFreeTexture( fluxMapDesc, "RSMs.Flux" ) );
 			}
 		}
 	}
@@ -633,7 +633,7 @@ namespace rendercore
 		{
 			auto [width, height] = shadow->ShadowMapSize();
 
-			agl::TextureTrait trait = {
+			agl::TextureDesc desc = {
 				.m_width = width,
 				.m_height = height,
 				.m_depth = 6,
@@ -649,9 +649,9 @@ namespace rendercore
 				}
 			};
 
-			shadow->ShadowMap().m_shadowMaps.emplace_back( GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "Shadow.Point" ) );
+			shadow->ShadowMap().m_shadowMaps.emplace_back( GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "Shadow.Point" ) );
 
-			agl::TextureTrait depthTrait = {
+			agl::TextureDesc depthDesc = {
 				.m_width = width,
 				.m_height = height,
 				.m_depth = 6,
@@ -670,7 +670,7 @@ namespace rendercore
 				}
 			};
 
-			shadow->ShadowMap().m_shadowMapDepth = GraphicsResourcePool::GetInstance().FindFreeTexture( depthTrait, "Shadow.Point.Depth" );
+			shadow->ShadowMap().m_shadowMapDepth = GraphicsResourcePool::GetInstance().FindFreeTexture( depthDesc, "Shadow.Point.Depth" );
 		}
 	}
 
@@ -1525,7 +1525,7 @@ namespace rendercore
 
 		auto renderTarget = viewport.GetHitPorxyMap().Texture();
 
-		agl::TextureTrait trait = {
+		agl::TextureDesc desc = {
 				.m_width = width,
 				.m_height = height,
 				.m_depth = 1,
@@ -1544,7 +1544,7 @@ namespace rendercore
 				}
 		};
 
-		auto depthStencil = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "HitProxy.DepthStencil" );
+		auto depthStencil = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "HitProxy.DepthStencil" );
 
 		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
 		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil.Get() );

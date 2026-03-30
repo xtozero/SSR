@@ -361,9 +361,9 @@ namespace rendercore
 
 				agl::LockedResource lockedResource = GraphicsInterface().Lock( hitProxyMap.CpuTexture(), agl::ResourceLockFlag::Read );
 
-				const agl::TextureTrait& cpuTextureTrait = hitProxyMap.CpuTexture()->GetTrait();
-				uint32 width = cpuTextureTrait.m_width;
-				uint32 height = cpuTextureTrait.m_height;
+				const agl::TextureDesc& cpuTextureDesc = hitProxyMap.CpuTexture()->GetDesc();
+				uint32 width = cpuTextureDesc.m_width;
+				uint32 height = cpuTextureDesc.m_height;
 
 				size_t rowSize = sizeof( Color ) * width;
 				auto dest = outHitProxyData.data();
@@ -461,7 +461,7 @@ namespace rendercore
 			{
 				RenderGraph renderGraph;
 
-				agl::BufferTrait laneCountTrait = {
+				agl::BufferDesc laneCountDesc = {
 					.m_stride = sizeof( uint32 ),
 					.m_count = 1,
 					.m_access = agl::ResourceAccess::Default,
@@ -470,7 +470,7 @@ namespace rendercore
 					.m_format = agl::ResourceFormat::Unknown
 				};
 
-				RenderGraphBuffer* rgLaneCount = renderGraph.CreateBuffer( laneCountTrait, "LaneCount" );
+				RenderGraphBuffer* rgLaneCount = renderGraph.CreateBuffer( laneCountDesc, "LaneCount" );
 
 				BEGIN_RG_RESOURCE_STRUCT( QueryLaneCountPassResource )
 					DECLARE_RG_BUFFER_UAV( laneCount )
@@ -497,7 +497,7 @@ namespace rendercore
 						commandList.Dispatch( 1, 1 );
 					} );
 
-				agl::BufferTrait readbackTrait = {
+				agl::BufferDesc readbackDesc = {
 					.m_stride = sizeof( uint32 ),
 					.m_count = 1,
 					.m_access = agl::ResourceAccess::Download,
@@ -506,7 +506,7 @@ namespace rendercore
 					.m_format = agl::ResourceFormat::Unknown
 				};
 
-				RefHandle<agl::Buffer> readBack = GraphicsResourcePool::GetInstance().FindFreeBuffer( readbackTrait, "Readback" );
+				RefHandle<agl::Buffer> readBack = GraphicsResourcePool::GetInstance().FindFreeBuffer( readbackDesc, "Readback" );
 				RenderGraphBuffer* rgReadback = renderGraph.RegisterExternalResource( readBack.Get() );
 
 				BEGIN_RG_RESOURCE_STRUCT( DownloadPassResource )

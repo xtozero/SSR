@@ -65,10 +65,10 @@ namespace rendercore
 
 		auto rgSource = renderGraph.RegisterExternalResource( srcTexture.Get() );
 
-		const agl::TextureTrait& srcTrait = srcTexture->GetTrait();
-		agl::TextureTrait tempTrait = srcTrait;
-		tempTrait.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess;
-		auto rgTemp = renderGraph.CreateTexture( tempTrait, "Blur.Temp" );
+		const agl::TextureDesc& srcDesc = srcTexture->GetDesc();
+		agl::TextureDesc tempDesc = srcDesc;
+		tempDesc.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess;
+		auto rgTemp = renderGraph.CreateTexture( tempDesc, "Blur.Temp" );
 
 		BEGIN_RG_RESOURCE_STRUCT( BlurPassResource )
 			DECLARE_RG_TEXTURE_NONPIXEL_SRV( input )
@@ -82,7 +82,7 @@ namespace rendercore
 
 		renderGraph.AddPass(
 			horizonBlurPassResource,
-			[horizonBlurPassResource, srcTrait, kernel]( ComputeCommandList& commandList )
+			[horizonBlurPassResource, srcDesc, kernel]( ComputeCommandList& commandList )
 			{
 				StaticShaderSwitches horizonSwitches = CascadedESMsBlurCS::GetSwitches();
 				horizonSwitches.On( StaticName( "KernelSize" ), KernelSize );
@@ -103,15 +103,15 @@ namespace rendercore
 
 				commandList.BindShaderResources( shaderBindings );
 
-				uint32 w = srcTrait.m_width;
-				uint32 h = srcTrait.m_height;
+				uint32 w = srcDesc.m_width;
+				uint32 h = srcDesc.m_height;
 
 				assert( ( w % 8 == 0 ) && ( h % 8 == 0 ) );
 
 				const uint32 threadGroupCount[3] = {
 					static_cast<uint32>( std::ceilf( w / 8.f ) ),
 					static_cast<uint32>( std::ceilf( h / 8.f ) ),
-					srcTrait.m_depth
+					srcDesc.m_depth
 				};
 
 				commandList.Dispatch( threadGroupCount[0], threadGroupCount[1], threadGroupCount[2] );
@@ -124,7 +124,7 @@ namespace rendercore
 
 		renderGraph.AddPass(
 			verticalBlurPassResource,
-			[verticalBlurPassResource, srcTrait, kernel]( ComputeCommandList& commandList )
+			[verticalBlurPassResource, srcDesc, kernel]( ComputeCommandList& commandList )
 			{
 				StaticShaderSwitches virticalSwitches = CascadedESMsBlurCS::GetSwitches();
 				virticalSwitches.On( StaticName( "Virtical" ), 1 );
@@ -146,15 +146,15 @@ namespace rendercore
 
 				commandList.BindShaderResources( shaderBindings );
 
-				uint32 w = srcTrait.m_width;
-				uint32 h = srcTrait.m_height;
+				uint32 w = srcDesc.m_width;
+				uint32 h = srcDesc.m_height;
 
 				assert( ( w % 8 == 0 ) && ( h % 8 == 0 ) );
 
 				const uint32 threadGroupCount[3] = {
 					static_cast<uint32>( std::ceilf( w / 8.f ) ),
 					static_cast<uint32>( std::ceilf( h / 8.f ) ),
-					srcTrait.m_depth
+					srcDesc.m_depth
 				};
 
 				commandList.Dispatch( threadGroupCount[0], threadGroupCount[1], threadGroupCount[2] );
@@ -167,12 +167,12 @@ namespace rendercore
 	{
 		assert( IsInRenderThread() );
 
-		const agl::TextureTrait& srcTrait = shadowMap->GetTrait();
-		agl::TextureTrait esmsTrait = srcTrait;
-		esmsTrait.m_format = agl::ResourceFormat::R32_FLOAT;
-		esmsTrait.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess;
+		const agl::TextureDesc& srcDesc = shadowMap->GetDesc();
+		agl::TextureDesc esmsDesc = srcDesc;
+		esmsDesc.m_format = agl::ResourceFormat::R32_FLOAT;
+		esmsDesc.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RandomAccess;
 
-		RefHandle<agl::Texture> esmsTexture = agl::Texture::Create( esmsTrait, "ESMs" );
+		RefHandle<agl::Texture> esmsTexture = agl::Texture::Create( esmsDesc, "ESMs" );
 
 		auto rgShadowMap = renderGraph.RegisterExternalResource( shadowMap.Get() );
 		auto rgEsms = renderGraph.RegisterExternalResource( esmsTexture.Get() );
@@ -189,7 +189,7 @@ namespace rendercore
 
 		renderGraph.AddPass(
 			passResource,
-			[passResource, srcTrait]( ComputeCommandList& commandList )
+			[passResource, srcDesc]( ComputeCommandList& commandList )
 			{
 				CascadedESMsCS cascadedESMsCS;
 
@@ -205,15 +205,15 @@ namespace rendercore
 
 				commandList.BindShaderResources( shaderBindings );
 
-				uint32 w = srcTrait.m_width;
-				uint32 h = srcTrait.m_height;
+				uint32 w = srcDesc.m_width;
+				uint32 h = srcDesc.m_height;
 
 				assert( ( w % 8 == 0 ) && ( h % 8 == 0 ) );
 
 				const uint32 threadGroupCount[3] = {
 					static_cast<uint32>( std::ceilf( w / 8.f ) ),
 					static_cast<uint32>( std::ceilf( h / 8.f ) ),
-					srcTrait.m_depth
+					srcDesc.m_depth
 				};
 
 				commandList.Dispatch( threadGroupCount[0], threadGroupCount[1], threadGroupCount[2] );

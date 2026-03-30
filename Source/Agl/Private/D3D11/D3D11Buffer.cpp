@@ -4,7 +4,7 @@
 #include "D3D11FlagConvertor.h"
 #include "D3D11ResourceViews.h"
 
-using ::agl::BufferTrait;
+using ::agl::BufferDesc;
 using ::agl::ConvertToCpuFlag;
 using ::agl::ConvertToUsage;
 using ::agl::ConvertMicsToDXMisc;
@@ -13,21 +13,21 @@ using ::agl::ResourceMisc;
 
 namespace
 {
-	D3D11_BUFFER_DESC ConvertTraitToDesc( const BufferTrait& trait )
+	D3D11_BUFFER_DESC ConvertToD3DDesc( const BufferDesc& desc )
 	{
-		uint32 byteWidth = trait.m_count * trait.m_stride;
-		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::BufferAllowRawViews ) )
+		uint32 byteWidth = desc.m_count * desc.m_stride;
+		if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::BufferAllowRawViews ) )
 		{
 			byteWidth = CalcAlignment<uint32>( byteWidth, sizeof( int32 ) );
 		}
 
-		D3D11_USAGE usage = ConvertToUsage( trait.m_access );
-		uint32 bindFlag = ConvertTypeToBind( trait.m_bindType );
-		uint32 cpuAccessFlag = ConvertToCpuFlag( trait.m_access );
-		uint32 miscFlags = ConvertMicsToDXMisc( trait.m_miscFlag );
-		uint32 structureByteStride = trait.m_stride;
+		D3D11_USAGE usage = ConvertToUsage( desc.m_access );
+		uint32 bindFlag = ConvertTypeToBind( desc.m_bindType );
+		uint32 cpuAccessFlag = ConvertToCpuFlag( desc.m_access );
+		uint32 miscFlags = ConvertMicsToDXMisc( desc.m_miscFlag );
+		uint32 structureByteStride = desc.m_stride;
 
-		if ( HasAnyFlags( trait.m_miscFlag, ResourceMisc::Intermediate ) )
+		if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Intermediate ) )
 		{
 			bindFlag |= D3D11_BIND_SHADER_RESOURCE;
 		}
@@ -89,14 +89,14 @@ namespace agl
 {
 	void D3D11Buffer::CreateShaderResource()
 	{
-		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_desc, m_format );
+		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertDescToSRV( m_d3dDesc, m_format );
 		m_srv = new D3D11ShaderResourceView( this, m_buffer, srvDesc );
 		m_srv->Init();
 	}
 
 	void D3D11Buffer::CreateUnorderedAccess()
 	{
-		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_desc, m_format );
+		D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertDescToUAV( m_d3dDesc, m_format );
 		m_uav = new D3D11UnorderedAccessView( this, m_buffer, uavDesc );
 		m_uav->Init();
 	}
@@ -111,24 +111,24 @@ namespace agl
 		return m_buffer;
 	}
 
-	const D3D11_BUFFER_DESC& D3D11Buffer::GetDesc() const
+	const D3D11_BUFFER_DESC& D3D11Buffer::GetD3DDesc() const
 	{
-		return m_desc;
+		return m_d3dDesc;
 	}
 
-	D3D11Buffer::D3D11Buffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData )
+	D3D11Buffer::D3D11Buffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData )
 		: Buffer( initialState )
-		, m_desc( ConvertTraitToDesc( trait ) )
+		, m_d3dDesc( ConvertToD3DDesc( desc ) )
 	{
 		m_debugName = Name( debugName );
-		m_trait = trait;
-		m_format = ConvertFormatToDxgiFormat( m_trait.m_format );
+		m_desc = desc;
+		m_format = ConvertFormatToDxgiFormat( m_desc.m_format );
 
 		if ( initData != nullptr )
 		{
 			m_hasInitData = true;
 
-			m_dataStorage = new uint8[m_desc.ByteWidth];
+			m_dataStorage = new uint8[m_d3dDesc.ByteWidth];
 			std::memcpy( m_dataStorage, initData, Size() );
 		}
 	}
@@ -152,26 +152,26 @@ namespace agl
 	{
 		D3D11_SUBRESOURCE_DATA initData = {
 			.pSysMem = m_dataStorage,
-			.SysMemPitch = m_desc.ByteWidth,
-			.SysMemSlicePitch = m_desc.ByteWidth
+			.SysMemPitch = m_d3dDesc.ByteWidth,
+			.SysMemSlicePitch = m_d3dDesc.ByteWidth
 		};
 
-		[[maybe_unused]] HRESULT hr = D3D11Device().CreateBuffer( &m_desc, m_hasInitData ? &initData : nullptr, &m_buffer );
+		[[maybe_unused]] HRESULT hr = D3D11Device().CreateBuffer( &m_d3dDesc, m_hasInitData ? &initData : nullptr, &m_buffer );
 		assert( SUCCEEDED( hr ) );
 
 		SetDebugObjectName();
 
-		if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate | ResourceMisc::WithoutViews ) )
+		if ( HasAnyFlags( m_desc.m_miscFlag, ResourceMisc::Intermediate | ResourceMisc::WithoutViews ) )
 		{
 			return;
 		}
 
-		if ( m_desc.BindFlags & D3D11_BIND_SHADER_RESOURCE )
+		if ( m_d3dDesc.BindFlags & D3D11_BIND_SHADER_RESOURCE )
 		{
 			CreateShaderResource();
 		}
 
-		if ( m_desc.BindFlags & D3D11_BIND_UNORDERED_ACCESS )
+		if ( m_d3dDesc.BindFlags & D3D11_BIND_UNORDERED_ACCESS )
 		{
 			CreateUnorderedAccess();
 		}

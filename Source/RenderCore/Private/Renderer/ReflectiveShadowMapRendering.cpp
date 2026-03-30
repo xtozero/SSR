@@ -66,8 +66,8 @@ namespace rendercore
 		}
 		else
 		{
-			auto texTrait = m_indirectIllumination->GetTrait();
-			std::pair<uint32, uint32> oldRtSize = { texTrait.m_width, texTrait.m_height };
+			auto texDesc = m_indirectIllumination->GetDesc();
+			std::pair<uint32, uint32> oldRtSize = { texDesc.m_width, texDesc.m_height };
 
 			if ( curRtSize != oldRtSize )
 			{
@@ -176,7 +176,7 @@ namespace rendercore
 
 	void RSMRenderPass::AllocTextureForIndirectIllumination( const std::pair<uint32, uint32>& renderTargetSize )
 	{
-		agl::TextureTrait trait = {
+		agl::TextureDesc desc = {
 			.m_width = renderTargetSize.first,
 			.m_height = renderTargetSize.second,
 			.m_depth = 1,
@@ -192,7 +192,7 @@ namespace rendercore
 			}
 		};
 
-		m_indirectIllumination = GraphicsResourcePool::GetInstance().FindFreeTexture( trait, "RSMs.Illumination" );
+		m_indirectIllumination = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "RSMs.Illumination" );
 
 		m_blackBorderSampler = StaticSamplerState<agl::TextureFilter::MinMagMipLinear
 			, agl::TextureAddressMode::Border
@@ -208,7 +208,7 @@ namespace rendercore
 		constexpr uint32 MaxNumSamplingPattern = 400;
 		uint32 numSamplingPattern = std::min( MaxNumSamplingPattern, DefaultRenderCore::RSMsNumSampling() );
 
-		agl::BufferTrait trait = {
+		agl::BufferDesc desc = {
 			.m_stride = sizeof( Vector ),
 			.m_count = numSamplingPattern,
 			.m_access = agl::ResourceAccess::Default,
@@ -235,7 +235,7 @@ namespace rendercore
 			samplingPattern[i][2] = xi1;
 		}
 
-		m_samplingPattern = agl::Buffer::Create( trait, "RSMs.SamplingPattern", samplingPattern );
+		m_samplingPattern = agl::Buffer::Create( desc, "RSMs.SamplingPattern", samplingPattern );
 		assert( m_samplingPattern != nullptr );
 
 		RSMsParameters params = {

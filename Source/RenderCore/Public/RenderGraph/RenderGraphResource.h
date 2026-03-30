@@ -29,9 +29,9 @@ namespace rendercore
 			return m_ref.Get();
 		}
 
-		const auto& GetTrait() const
+		const auto& GetDesc() const
 		{
-			return m_trait;
+			return m_desc;
 		}
 
 		agl::ShaderResourceView* SRV() const
@@ -42,11 +42,11 @@ namespace rendercore
 
 	private:
 		friend RenderGraph;
-		using TraitType = std::remove_cvref_t<decltype( std::declval<T>().GetTrait() )>;
+		using DescType = std::remove_cvref_t<decltype( std::declval<T>().GetDesc() )>;
 
 		const char* m_name = nullptr;
 		RefHandle<T> m_ref;
-		TraitType m_trait = {};
+		DescType m_desc = {};
 	};
 
 	class RenderGraphTexture : public TypedRenderGraphResource<agl::Texture> {};

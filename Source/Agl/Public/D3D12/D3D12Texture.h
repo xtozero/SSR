@@ -17,7 +17,7 @@ namespace agl
 
 		const AllocatedResourceInfo& GetResourceInfo() const;
 
-		const D3D12_RESOURCE_DESC& GetDesc() const;
+		const D3D12_RESOURCE_DESC& GetD3DDesc() const;
 
 		virtual LockedResource Lock( uint32 subResource = 0 );
 		virtual void UnLock( uint32 subResource = 0 );
@@ -25,9 +25,9 @@ namespace agl
 		virtual void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} ) override;
 		virtual void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} ) override;
 
-		void Reconstruct( const TextureTrait& trait, const ResourceInitData* initData );
+		void Reconstruct( const TextureDesc& desc, const ResourceInitData* initData );
 
-		D3D12Texture( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
+		D3D12Texture( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
 		D3D12Texture() = default;
 		D3D12Texture( const D3D12Texture& ) = delete;
 		D3D12Texture& operator=( const D3D12Texture& ) = delete;
@@ -40,7 +40,7 @@ namespace agl
 
 		AllocatedResourceInfo m_resourceInfo;
 
-		D3D12_RESOURCE_DESC m_desc = {};
+		D3D12_RESOURCE_DESC m_d3dDesc = {};
 		D3D12_HEAP_PROPERTIES m_heapProperties = {};
 		D3D12_HEAP_FLAGS m_heapFlags = D3D12_HEAP_FLAG_NONE;
 		std::vector<D3D12_SUBRESOURCE_DATA> m_initData;
@@ -53,29 +53,29 @@ namespace agl
 				CreateTexture();
 			}
 
-			if ( HasAnyFlags( m_trait.m_miscFlag, ResourceMisc::Intermediate | ResourceMisc::WithoutViews ) )
+			if ( HasAnyFlags( m_desc.m_miscFlag, ResourceMisc::Intermediate | ResourceMisc::WithoutViews ) )
 			{
 				return;
 			}
 
 			if ( Resource() )
 			{
-				if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::ShaderResource ) )
+				if ( HasAnyFlags( m_desc.m_bindType, ResourceBindType::ShaderResource ) )
 				{
 					CreateShaderResource();
 				}
 
-				if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::RandomAccess ) )
+				if ( HasAnyFlags( m_desc.m_bindType, ResourceBindType::RandomAccess ) )
 				{
 					CreateUnorderedAccess();
 				}
 
-				if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::RenderTarget ) )
+				if ( HasAnyFlags( m_desc.m_bindType, ResourceBindType::RenderTarget ) )
 				{
 					CreateRenderTarget();
 				}
 
-				if ( HasAnyFlags( m_trait.m_bindType, ResourceBindType::DepthStencil ) )
+				if ( HasAnyFlags( m_desc.m_bindType, ResourceBindType::DepthStencil ) )
 				{
 					CreateDepthStencil();
 				}
@@ -99,7 +99,7 @@ namespace agl
 		virtual void CreateRenderTarget( std::optional<ResourceFormat> overrideFormat = {} ) override;
 		virtual void CreateDepthStencil( std::optional<ResourceFormat> overrideFormat = {} ) override;
 
-		D3D12Texture2D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
+		D3D12Texture2D( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
 		D3D12Texture2D( ID3D12Resource* texture, const char* debugName, const float4& clearColor, const D3D12_RESOURCE_DESC* desc = nullptr );
 
 	private:
@@ -111,7 +111,7 @@ namespace agl
 		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override;
 		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
 
-		D3D12Texture3D( const TextureTrait& trait, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
+		D3D12Texture3D( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
 
 	private:
 	};

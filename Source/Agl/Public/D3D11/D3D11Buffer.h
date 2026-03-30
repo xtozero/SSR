@@ -17,9 +17,9 @@ namespace agl
 
 		ID3D11Buffer* Resource();
 
-		const D3D11_BUFFER_DESC& GetDesc() const;
+		const D3D11_BUFFER_DESC& GetD3DDesc() const;
 
-		D3D11Buffer( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData );
+		D3D11Buffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData );
 		virtual ~D3D11Buffer() override;
 		D3D11Buffer( const D3D11Buffer& ) = delete;
 		D3D11Buffer& operator=( const D3D11Buffer& ) = delete;
@@ -33,7 +33,7 @@ namespace agl
 		void DestroyBuffer();
 
 		ID3D11Buffer* m_buffer = nullptr;
-		D3D11_BUFFER_DESC m_desc = {};
+		D3D11_BUFFER_DESC m_d3dDesc = {};
 		DXGI_FORMAT m_format = DXGI_FORMAT_UNKNOWN;
 		uint8* m_dataStorage = nullptr;
 		bool m_hasInitData = false;

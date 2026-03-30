@@ -10,10 +10,10 @@ namespace agl
 	class Buffer : public GraphicsApiResource, public IResourceViews, public ITransitionable
 	{
 	public:
-		AGL_DLL static RefHandle<Buffer> Create( const BufferTrait& trait, const char* debugName );
-		AGL_DLL static RefHandle<Buffer> Create( const BufferTrait& trait, const char* debugName, ResourceState initialState );
-		AGL_DLL static RefHandle<Buffer> Create( const BufferTrait& trait, const char* debugName, const void* initData );
-		AGL_DLL static RefHandle<Buffer> Create( const BufferTrait& trait, const char* debugName, ResourceState initialState, const void* initData );
+		AGL_DLL static RefHandle<Buffer> Create( const BufferDesc& desc, const char* debugName );
+		AGL_DLL static RefHandle<Buffer> Create( const BufferDesc& desc, const char* debugName, ResourceState initialState );
+		AGL_DLL static RefHandle<Buffer> Create( const BufferDesc& desc, const char* debugName, const void* initData );
+		AGL_DLL static RefHandle<Buffer> Create( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData );
 
 		virtual void CreateShaderResource() = 0;
 		virtual void CreateUnorderedAccess() = 0;
@@ -35,7 +35,7 @@ namespace agl
 		virtual ResourceState GetResourceState() const override;
 		virtual void SetResourceState( ResourceState state ) override;
 
-		AGL_DLL const BufferTrait& GetTrait() const;
+		AGL_DLL const BufferDesc& GetDesc() const;
 
 		uint32 Stride() const;
 		uint32 Size() const;
@@ -45,7 +45,7 @@ namespace agl
 		explicit Buffer( ResourceState initialState ) noexcept;
 
 	protected:
-		BufferTrait m_trait = {};
+		BufferDesc m_desc = {};
 
 		RefHandle<ShaderResourceView> m_srv;
 		RefHandle<UnorderedAccessView> m_uav;

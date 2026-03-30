@@ -16,14 +16,14 @@
 namespace
 {
 	using ::agl::Buffer;
-	using ::agl::BufferTrait;
+	using ::agl::BufferDesc;
 	using ::agl::D3D11Buffer;
 	using ::agl::ResourceAccess;
 	using ::agl::ResourceBindType;
 	using ::agl::ResourceMisc;
 	using ::agl::Texture;
 	using ::agl::TextureBase;
-	using ::agl::TextureTrait;
+	using ::agl::TextureDesc;
 
 	void UpdateSubresource( ID3D11DeviceContext& context, Buffer* dest, const void* src, uint32 destOffset, uint32 numByte )
 	{
@@ -33,22 +33,22 @@ namespace
 			return;
 		}
 
-		const BufferTrait& destTrait = destBuffer->GetTrait();
+		const BufferDesc& destDesc = destBuffer->GetDesc();
 		if ( numByte == 0 )
 		{
-			numByte = destTrait.m_stride * destTrait.m_count;
+			numByte = destDesc.m_stride * destDesc.m_count;
 		}
 
-		BufferTrait intermediateTrait = {
+		BufferDesc intermediateDesc = {
 			.m_stride = numByte,
 			.m_count = 1,
 			.m_access = ResourceAccess::Upload,
 			.m_bindType = ResourceBindType::None,
 			.m_miscFlag = ResourceMisc::Intermediate,
-			.m_format = destTrait.m_format
+			.m_format = destDesc.m_format
 		};
 
-		auto intermediate = RefStaticCast<D3D11Buffer>( Buffer::Create( intermediateTrait, "UpdateSubresource.Intermediate" ) );
+		auto intermediate = RefStaticCast<D3D11Buffer>( Buffer::Create( intermediateDesc, "UpdateSubresource.Intermediate" ) );
 
 		D3D11_MAPPED_SUBRESOURCE lockedResource = {};
 		[[maybe_unused]] HRESULT hr = context.Map( intermediate->Resource(), 0, D3D11_MAP_WRITE_DISCARD, 0, &lockedResource );
@@ -87,8 +87,8 @@ namespace
 			return;
 		}
 
-		const TextureTrait& destTrait = destTexture->GetTrait();
-		bool bIsTexture3D = HasAnyFlags( destTrait.m_miscFlag, ResourceMisc::Texture3D );
+		const TextureDesc& destDesc = destTexture->GetDesc();
+		bool bIsTexture3D = HasAnyFlags( destDesc.m_miscFlag, ResourceMisc::Texture3D );
 
 		CubeArea<uint32> destArea;
 		if ( pDestArea == nullptr )
@@ -97,9 +97,9 @@ namespace
 				.m_left = 0,
 				.m_top = 0,
 				.m_front = 0,
-				.m_right = destTrait.m_width,
-				.m_bottom = destTrait.m_height,
-				.m_back = bIsTexture3D ? destTrait.m_depth : 1,
+				.m_right = destDesc.m_width,
+				.m_bottom = destDesc.m_height,
+				.m_back = bIsTexture3D ? destDesc.m_depth : 1,
 			};
 		}
 		else
@@ -107,20 +107,20 @@ namespace
 			destArea = *pDestArea;
 		}
 
-		TextureTrait intermediateTrait = {
+		TextureDesc intermediateDesc = {
 			.m_width = destArea.m_right - destArea.m_left,
 			.m_height = destArea.m_bottom - destArea.m_top,
 			.m_depth = bIsTexture3D ? ( destArea.m_back - destArea.m_front ) : 1,
-			.m_sampleCount = destTrait.m_sampleCount,
-			.m_sampleQuality = destTrait.m_sampleQuality,
+			.m_sampleCount = destDesc.m_sampleCount,
+			.m_sampleQuality = destDesc.m_sampleQuality,
 			.m_mipLevels = 1,
-			.m_format = destTrait.m_format,
+			.m_format = destDesc.m_format,
 			.m_access = ResourceAccess::Upload,
 			.m_bindType = ResourceBindType::None,
 			.m_miscFlag = bIsTexture3D ? ( ResourceMisc::Texture3D | ResourceMisc::Intermediate ) : ResourceMisc::Intermediate
 		};
 
-		auto intermediate = RefStaticCast<TextureBase>( Texture::Create( intermediateTrait, "UpdateSubresource.Intermediate" ) );
+		auto intermediate = RefStaticCast<TextureBase>( Texture::Create( intermediateDesc, "UpdateSubresource.Intermediate" ) );
 
 		D3D11_MAPPED_SUBRESOURCE lockedResource = {};
 		[[maybe_unused]] HRESULT hr = context.Map( static_cast<ID3D11Resource*>( intermediate->Resource() ), 0, D3D11_MAP_WRITE_DISCARD, 0, &lockedResource );
@@ -129,11 +129,11 @@ namespace
 		auto srcData = static_cast<const uint8*>( src );
 		auto destData = static_cast<uint8*>( lockedResource.pData );
 
-		for ( uint32 z = 0; z < destTrait.m_depth; ++z )
+		for ( uint32 z = 0; z < destDesc.m_depth; ++z )
 		{
 			uint8* row = destData;
 
-			for ( uint32 y = 0; y < destTrait.m_height; ++y )
+			for ( uint32 y = 0; y < destDesc.m_height; ++y )
 			{
 				std::memcpy( row, srcData, srcRowSize );
 				srcData += srcRowSize;
@@ -149,9 +149,9 @@ namespace
 			.left = 0,
 			.top = 0,
 			.front = 0,
-			.right = intermediateTrait.m_width,
-			.bottom = intermediateTrait.m_height,
-			.back = intermediateTrait.m_depth
+			.right = intermediateDesc.m_width,
+			.bottom = intermediateDesc.m_height,
+			.back = intermediateDesc.m_depth
 		};
 
 		context.CopySubresourceRegion(
@@ -278,11 +278,11 @@ namespace agl
 			srcResource = srcBuffer->Resource();
 		}
 
-		const BufferTrait& destTrait = dest->GetTrait();
-		const BufferTrait& srcTrait = src->GetTrait();
+		const BufferDesc& destDesc = dest->GetDesc();
+		const BufferDesc& srcDesc = src->GetDesc();
 
 		if ( ( numByte == 0 )
-			|| ( ( destTrait.m_stride * destTrait.m_count ) == ( srcTrait.m_stride * srcTrait.m_count ) ) )
+			|| ( ( destDesc.m_stride * destDesc.m_count ) == ( srcDesc.m_stride * srcDesc.m_count ) ) )
 		{
 			D3D11Context().CopyResource( destResource, srcResource );
 		}
@@ -613,11 +613,11 @@ namespace agl
 			srcResource = srcBuffer->Resource();
 		}
 
-		const BufferTrait& destTrait = dest->GetTrait();
-		const BufferTrait& srcTrait = src->GetTrait();
+		const BufferDesc& destDesc = dest->GetDesc();
+		const BufferDesc& srcDesc = src->GetDesc();
 
 		if ( ( numByte == 0 )
-			|| ( ( destTrait.m_stride * destTrait.m_stride ) == ( srcTrait.m_stride * srcTrait.m_stride ) ) )
+			|| ( ( destDesc.m_stride * destDesc.m_stride ) == ( srcDesc.m_stride * srcDesc.m_stride ) ) )
 		{
 			m_pContext->CopyResource( destResource, srcResource );
 		}
