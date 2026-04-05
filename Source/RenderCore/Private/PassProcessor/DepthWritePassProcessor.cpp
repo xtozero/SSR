@@ -21,6 +21,9 @@ namespace rendercore
 	class DepthWriteVS final : public GlobalShaderBase<VertexShader, DepthWriteVS>
 	{
 		using GlobalShaderBase::GlobalShaderBase;
+
+	public:
+		using PermutationType = ShaderPermutation<TAADim>;
 	};
 
 	class DepthWritePS final : public GlobalShaderBase<PixelShader, DepthWritePS>
@@ -29,6 +32,9 @@ namespace rendercore
 	class DepthWriteMS final : public GlobalShaderBase<MeshShader, DepthWriteMS>
 	{
 		using GlobalShaderBase::GlobalShaderBase;
+
+	public:
+		using PermutationType = ShaderPermutation<TAADim>;
 	};
 
 	REGISTER_GLOBAL_SHADER( DepthWriteVS, "DepthWrite/VS_DepthWrite.fx", "main" );
@@ -70,21 +76,18 @@ namespace rendercore
 
 	PassShader DepthWritePassProcessor::CollectPassShader( MaterialResource& material ) const
 	{
-		StaticShaderSwitches vsSwitches = DepthWriteVS::GetSwitches();
-		StaticShaderSwitches msSwitches = DepthWriteMS::GetSwitches();
+		DepthWriteVS::PermutationType vsPermutation;
+		DepthWriteMS::PermutationType msPermutation;
 
-		if ( DefaultRenderCore::IsTaaEnabled() )
-		{
-			vsSwitches.On( StaticName( "TAA" ), 1 );
-			msSwitches.On( StaticName( "TAA" ), 1 );
-		}
+		vsPermutation.SetValue<TAADim>( DefaultRenderCore::IsTaaEnabled() );
+		msPermutation.SetValue<TAADim>( DefaultRenderCore::IsTaaEnabled() );
 
 		bool bUseMeshShader = material.UseMeshShader();
 
 		PassShader passShader = {
-			.m_vertexShader = bUseMeshShader ? nullptr : DepthWriteVS( vsSwitches ),
+			.m_vertexShader = bUseMeshShader ? nullptr : DepthWriteVS( vsPermutation ),
 			.m_pixelShader = DepthWritePS(),
-			.m_meshShader = bUseMeshShader ? DepthWriteMS( msSwitches ) : nullptr,
+			.m_meshShader = bUseMeshShader ? DepthWriteMS( msPermutation ) : nullptr,
 			.m_amplificationShader = bUseMeshShader ? DefaultAS() : nullptr,
 		};
 

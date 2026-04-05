@@ -451,7 +451,7 @@ namespace rendercore
 			return;
 		}
 
-		if (engine::CommandLine::Has( StaticName( "AssetBuilder" ) ))
+		if ( engine::CommandLine::Has( StaticName( "AssetBuilder" ) ) )
 		{
 			return;
 		}

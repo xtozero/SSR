@@ -7,9 +7,14 @@
 
 namespace rendercore
 {
+	class TricubicTextureSamplingDim : DEFINE_BOOL_DIMENSION( "TricubicTextureSampling" );
+
 	class DrawVolumetricFogPS final : public GlobalShaderBase<PixelShader, DrawVolumetricFogPS>
 	{
 		using GlobalShaderBase::GlobalShaderBase;
+
+	public:
+		using PermutationType = ShaderPermutation<TricubicTextureSamplingDim>;
 	};
 
 	REGISTER_GLOBAL_SHADER( DrawVolumetricFogPS, "VolumetricFog/PS_DrawVolumetricFog.fx", "main" );
@@ -38,12 +43,12 @@ namespace rendercore
 
 	PassShader VolumetricFogDrawPassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
 	{
-		StaticShaderSwitches switches = DrawVolumetricFogPS::GetSwitches();
-		switches.On( StaticName( "TricubicTextureSampling" ), 1 );
+		DrawVolumetricFogPS::PermutationType permutation;
+		permutation.SetValue<TricubicTextureSamplingDim>( 1 );
 
 		PassShader passShader = {
 			.m_vertexShader = FullScreenQuadVS(),
-			.m_pixelShader = DrawVolumetricFogPS( switches )
+			.m_pixelShader = DrawVolumetricFogPS( permutation )
 		};
 
 		return passShader;

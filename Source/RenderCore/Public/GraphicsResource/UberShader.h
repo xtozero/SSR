@@ -14,7 +14,7 @@ namespace rendercore
 		DECLARE_ASSET( RENDERCORE, UberShader );
 
 	public:
-		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 		RENDERCORE_DLL virtual void RecompileShader() override;
 
 		RENDERCORE_DLL virtual agl::ShaderParameterMap& ParameterMap() override;
@@ -31,18 +31,14 @@ namespace rendercore
 
 		RENDERCORE_DLL void SetShaderCode( const std::string& shaderCode );
 
-		RENDERCORE_DLL void SetSwitches( const StaticShaderSwitches& switches );
+		RENDERCORE_DLL void SetShaderDescriptorHandle( uint32 handle );
 
-		RENDERCORE_DLL void AddValidVariation( uint32 id );
-
-		BinaryChunk ComipeShaderByteCode( const StaticShaderSwitches& switches );
+		BinaryChunk ComipeShaderByteCode( const IShaderPermutation& permutation ) const;
 
 		friend bool operator==( const UberShader& lhs, const UberShader& rhs )
 		{
 			return lhs.m_type == rhs.m_type
-				&& lhs.m_shaderCode == rhs.m_shaderCode
-				&& lhs.m_switches == rhs.m_switches
-				&& lhs.m_validVariation == rhs.m_validVariation;
+				&& lhs.m_shaderCode == rhs.m_shaderCode;
 		}
 
 	protected:
@@ -61,8 +57,8 @@ namespace rendercore
 		PROPERTY( shaderCode )
 		BinaryChunk m_shaderCode{ 0 };
 
-		PROPERTY( validVariation )
-		std::set<uint32> m_validVariation;
+		PROPERTY( shaderDescriptorHandle )
+		uint32 m_shaderDescriptorHandle = 0;
 
 		static agl::ShaderParameterMap m_emptyParameterMap;
 		static agl::ShaderParameterInfo m_emptyParameterInfo;

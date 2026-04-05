@@ -14,21 +14,46 @@ namespace
 
 namespace rendercore
 {
-	class DefaultLitVS : public ShaderTraits<VertexShader> {};
-	class DefaultTexturingVS : public ShaderTraits<VertexShader> {};
+	class EnableRSMsDim : DEFINE_BOOL_DIMENSION( "EnableRSMs" );
+	class UseIrradianceMapSHDim : DEFINE_BOOL_DIMENSION( "UseIrradianceMapSH" );
+	class SupportsBindlessDim : DEFINE_BOOL_DIMENSION( "SupportsBindless" );
+
+	class MaterialVS : public ShaderTraits<VertexShader>
+	{
+	public:
+		using PermutationType = ShaderPermutation<TAADim>;
+	};
+	class DefaultLitVS : public MaterialVS {};
+	class DefaultTexturingVS : public MaterialVS {};
+
 	class SkyboxVS : public ShaderTraits<VertexShader> {};
 
-	class DefaultLitPS : public ShaderTraits<PixelShader> {};
-	class DefaultPBRLitPS : public ShaderTraits<PixelShader> {};
-	class DefaultTexturingPS : public ShaderTraits<PixelShader> {};
-	class DefaultUnlitPS : public ShaderTraits<PixelShader> {};
+	class MaterialPS : public ShaderTraits<PixelShader>
+	{
+	public:
+		using PermutationType = ShaderPermutation<EnableRSMsDim, UseIrradianceMapSHDim, SupportsBindlessDim>;
+	};
+	class DefaultLitPS : public MaterialPS {};
+	class DefaultPBRLitPS : public MaterialPS {};
+	class DefaultTexturingPS : public MaterialPS {};
+	class DefaultUnlitPS : public MaterialPS {};
+
 	class SkyboxPS : public ShaderTraits<PixelShader> {};
 
-	class DefaultLitCS : public ShaderTraits<ComputeShader> {};
-	class DefaultPBRLitCS : public ShaderTraits<ComputeShader> {};
-	class DefaultTexturingCS : public ShaderTraits<ComputeShader> {};
+	class VisibilityShadingCS : public ShaderTraits<ComputeShader>
+	{
+	public:
+		using PermutationType = ShaderPermutation<EnableRSMsDim, UseIrradianceMapSHDim, SupportsBindlessDim>;
+	};
+	class DefaultLitCS : public VisibilityShadingCS {};
+	class DefaultPBRLitCS : public VisibilityShadingCS {};
+	class DefaultTexturingCS : public VisibilityShadingCS {};
 
-	class MeshletMS : public ShaderTraits<MeshShader> {};
+	class MeshletMS : public ShaderTraits<MeshShader>
+	{
+	public:
+		using PermutationType = ShaderPermutation<TAADim>;
+	};
 	class TestMS : public ShaderTraits<MeshShader> {};
 
 	REGISTER_SHADER( DefaultLitVS, "Material/VS_DefaultLit.fx", "main" );

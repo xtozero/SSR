@@ -23,24 +23,38 @@ namespace
 
 namespace rendercore
 {
+	class EnableRSMsDim : DEFINE_BOOL_DIMENSION( "EnableRSMs" );
+
 	class CascadeShadowDepthVS final : public GlobalShaderBase<VertexShader, CascadeShadowDepthVS>
 	{
 		using GlobalShaderBase::GlobalShaderBase;
+
+	public:
+		using PermutationType = ShaderPermutation<EnableRSMsDim>;
 	};
 
 	class CascadeShadowDepthGS final : public GlobalShaderBase<GeometryShader, CascadeShadowDepthGS>
 	{
 		using GlobalShaderBase::GlobalShaderBase;
+
+	public:
+		using PermutationType = ShaderPermutation<EnableRSMsDim>;
 	};
 
 	class CascadeShadowDepthPS final : public GlobalShaderBase<PixelShader, CascadeShadowDepthPS>
 	{
 		using GlobalShaderBase::GlobalShaderBase;
+
+	public:
+		using PermutationType = ShaderPermutation<EnableRSMsDim>;
 	};
 
 	class CascadeShadowDepthMS final : public GlobalShaderBase<MeshShader, CascadeShadowDepthMS>
 	{
 		using GlobalShaderBase::GlobalShaderBase;
+
+	public:
+		using PermutationType = ShaderPermutation<EnableRSMsDim>;
 	};
 
 	class CascadeShadowDepthAS final : public GlobalShaderBase<AmplificationShader, CascadeShadowDepthAS>
@@ -79,26 +93,25 @@ namespace rendercore
 	{
 		bool bIsRSMsEnabled = DefaultRenderCore::IsRSMsEnabled();
 
-		StaticShaderSwitches vsSwitches = CascadeShadowDepthVS::GetSwitches();
-		StaticShaderSwitches gsSwitches = CascadeShadowDepthGS::GetSwitches();
-		StaticShaderSwitches psSwitches = CascadeShadowDepthPS::GetSwitches();
-		StaticShaderSwitches msSwitches = CascadeShadowDepthGS::GetSwitches();
+		CascadeShadowDepthVS::PermutationType vsPermutation;
+		vsPermutation.SetValue<EnableRSMsDim>( bIsRSMsEnabled );
 
-		if ( bIsRSMsEnabled )
-		{
-			vsSwitches.On( StaticName( "EnableRSMs" ), 1 );
-			gsSwitches.On( StaticName( "EnableRSMs" ), 1 );
-			psSwitches.On( StaticName( "EnableRSMs" ), 1 );
-			msSwitches.On( StaticName( "EnableRSMs" ), 1 );
-		}
+		CascadeShadowDepthGS::PermutationType gsPermutation;
+		gsPermutation.SetValue<EnableRSMsDim>( bIsRSMsEnabled );
+
+		CascadeShadowDepthPS::PermutationType psPermutation;
+		psPermutation.SetValue<EnableRSMsDim>( bIsRSMsEnabled );
+
+		CascadeShadowDepthGS::PermutationType msPermutation;
+		msPermutation.SetValue<EnableRSMsDim>( bIsRSMsEnabled );
 
 		bool bUseMeshShader = material.UseMeshShader();
 
 		PassShader passShader = {
-			.m_vertexShader = bUseMeshShader ? nullptr : CascadeShadowDepthVS( vsSwitches ),
-			.m_geometryShader = bUseMeshShader ? nullptr : CascadeShadowDepthGS( gsSwitches ),
-			.m_pixelShader = CascadeShadowDepthPS( psSwitches ),
-			.m_meshShader = bUseMeshShader ? CascadeShadowDepthMS( msSwitches ) : nullptr,
+			.m_vertexShader = bUseMeshShader ? nullptr : CascadeShadowDepthVS( vsPermutation ),
+			.m_geometryShader = bUseMeshShader ? nullptr : CascadeShadowDepthGS( gsPermutation ),
+			.m_pixelShader = CascadeShadowDepthPS( psPermutation ),
+			.m_meshShader = bUseMeshShader ? CascadeShadowDepthMS( msPermutation ) : nullptr,
 			.m_amplificationShader = bUseMeshShader ? CascadeShadowDepthAS() : nullptr
 		};
 

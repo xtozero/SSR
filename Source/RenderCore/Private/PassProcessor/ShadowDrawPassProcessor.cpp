@@ -8,9 +8,14 @@
 
 namespace rendercore
 {
+	class EnableESMDim : DEFINE_BOOL_DIMENSION( "EnableESMs" );
+
 	class DrawCascadeShadowPS final : public GlobalShaderBase<PixelShader, DrawCascadeShadowPS>
 	{
 		using GlobalShaderBase::GlobalShaderBase;
+
+	public:
+		using PermutationType = ShaderPermutation<EnableESMDim>;
 	};
 
 	REGISTER_GLOBAL_SHADER( DrawCascadeShadowPS, "Shadow/PS_DrawCascadeShadow.fx", "main" );
@@ -38,21 +43,15 @@ namespace rendercore
 
 	PassShader CascadeShadowDrawPassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
 	{
-		StaticShaderSwitches vsSwitches = FullScreenQuadVS::GetSwitches();
-		if ( DefaultRenderCore::IsTaaEnabled() )
-		{
-			vsSwitches.On( StaticName( "TAA" ), 1 );
-		}
+		FullScreenQuadVS::PermutationType vsPermutation;
+		vsPermutation.SetValue<TAADim>( DefaultRenderCore::IsTaaEnabled() );
 
-		StaticShaderSwitches psSwitches = DrawCascadeShadowPS::GetSwitches();
-		if ( DefaultRenderCore::IsESMsEnabled() )
-		{
-			psSwitches.On( StaticName( "EnableESMs" ), 1 );
-		}
+		DrawCascadeShadowPS::PermutationType psPermutation;
+		psPermutation.SetValue<EnableESMDim>( DefaultRenderCore::IsESMsEnabled() );
 
 		PassShader passShader = {
-			.m_vertexShader = FullScreenQuadVS( vsSwitches ),
-			.m_pixelShader = DrawCascadeShadowPS( psSwitches )
+			.m_vertexShader = FullScreenQuadVS( vsPermutation ),
+			.m_pixelShader = DrawCascadeShadowPS( psPermutation )
 		};
 
 		return passShader;
@@ -88,17 +87,12 @@ namespace rendercore
 
 	PassShader PointShadowDrawPassProcessor::CollectPassShader( [[maybe_unused]] MaterialResource& material ) const
 	{
-		StaticShaderSwitches vsSwitches = FullScreenQuadVS::GetSwitches();
-		if ( DefaultRenderCore::IsTaaEnabled() )
-		{
-			vsSwitches.On( StaticName( "TAA" ), 1 );
-		}
-
-		StaticShaderSwitches psSwitches = DrawPointShadowPS::GetSwitches();
+		FullScreenQuadVS::PermutationType vsPermutation;
+		vsPermutation.SetValue<TAADim>( DefaultRenderCore::IsTaaEnabled()  );
 
 		PassShader passShader = {
-			.m_vertexShader = FullScreenQuadVS( vsSwitches ),
-			.m_pixelShader = DrawPointShadowPS( psSwitches )
+			.m_vertexShader = FullScreenQuadVS( vsPermutation ),
+			.m_pixelShader = DrawPointShadowPS()
 		};
 
 		return passShader;

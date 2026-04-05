@@ -229,24 +229,13 @@ namespace rendercore
 			}
 
 			MaterialResource& material = *subMesh.m_material;
-			StaticShaderSwitches csSwitches = material.GetShaderSwitches( agl::ShaderType::Compute );
+			IShaderPermutation& csPermutation = material.GetShaderPermutation( agl::ShaderType::Compute );
 
-			if ( DefaultRenderCore::IsRSMsEnabled() )
-			{
-				csSwitches.On( StaticName( "EnableRSMs" ), 1 );
-			}
+			csPermutation.SetValueByName( ShaderDefineNameHash( "EnableRSMs" ), DefaultRenderCore::IsRSMsEnabled() );
+			csPermutation.SetValueByName( ShaderDefineNameHash( "UseIrradianceMapSH" ), DefaultRenderCore::UseIrradianceMapSH() );
+			csPermutation.SetValueByName( ShaderDefineNameHash( "SupportsBindless" ), agl::DefaultAgl::SupportsBindless() );
 
-			if ( DefaultRenderCore::UseIrradianceMapSH() )
-			{
-				csSwitches.On( StaticName( "UseIrradianceMapSH" ), 1 );
-			}
-
-			if ( agl::DefaultAgl::SupportsBindless() )
-			{
-				csSwitches.On( StaticName( "SupportsBindless" ), 1 );
-			}
-
-			auto computeShader = material.GetComputeShader( &csSwitches );
+			auto computeShader = material.GetComputeShader( &csPermutation );
 			if ( computeShader == nullptr )
 			{
 				continue;

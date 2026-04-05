@@ -50,67 +50,67 @@ namespace
 
 namespace rendercore
 {
-	VertexShader* MaterialResource::GetVertexShader( const StaticShaderSwitches* switches ) const
+	VertexShader* MaterialResource::GetVertexShader( const IShaderPermutation* permutation ) const
 	{
 		auto material = m_material.lock();
 		if ( material )
 		{
-			return material->GetVertexShader( switches );
+			return material->GetVertexShader( permutation );
 		}
 
 		return nullptr;
 	}
 
-	GeometryShader* MaterialResource::GetGeometryShader( const StaticShaderSwitches* switches ) const
+	GeometryShader* MaterialResource::GetGeometryShader( const IShaderPermutation* permutation ) const
 	{
 		auto material = m_material.lock();
 		if ( material )
 		{
-			return material->GetGeometryShader( switches );
+			return material->GetGeometryShader( permutation );
 		}
 
 		return nullptr;
 	}
 
-	PixelShader* MaterialResource::GetPixelShader( const StaticShaderSwitches* switches ) const
+	PixelShader* MaterialResource::GetPixelShader( const IShaderPermutation* permutation ) const
 	{
 		auto material = m_material.lock();
 		if ( material )
 		{
-			return material->GetPixelShader( switches );
+			return material->GetPixelShader( permutation );
 		}
 
 		return nullptr;
 	}
 
-	ComputeShader* MaterialResource::GetComputeShader( const StaticShaderSwitches* switches ) const
+	ComputeShader* MaterialResource::GetComputeShader( const IShaderPermutation* permutation ) const
 	{
 		auto material = m_material.lock();
 		if ( material )
 		{
-			return material->GetComputeShader( switches );
+			return material->GetComputeShader( permutation );
 		}
 
 		return nullptr;
 	}
 
-	MeshShader* MaterialResource::GetMeshShader( const StaticShaderSwitches* switches ) const
+	MeshShader* MaterialResource::GetMeshShader( const IShaderPermutation* permutation ) const
 	{
 		auto material = m_material.lock();
 		if ( material )
 		{
-			return material->GetMeshShader( switches );
+			return material->GetMeshShader( permutation );
 		}
 
 		return nullptr;
 	}
 
-	AmplificationShader* MaterialResource::GetAmplificationShader( const StaticShaderSwitches* switches ) const
+	AmplificationShader* MaterialResource::GetAmplificationShader( const IShaderPermutation* permutation ) const
 	{
 		auto material = m_material.lock();
 		if ( material )
 		{
-			return material->GetAmplificationShader( switches );
+			return material->GetAmplificationShader( permutation );
 		}
 
 		return nullptr;
@@ -138,15 +138,16 @@ namespace rendercore
 		return false;
 	}
 
-	StaticShaderSwitches MaterialResource::GetShaderSwitches( agl::ShaderType type ) const
+	IShaderPermutation& MaterialResource::GetShaderPermutation( agl::ShaderType type ) const
 	{
 		auto material = m_material.lock();
 		if ( material )
 		{
-			return material->GetShaderSwitches( type );
+			return material->GetShaderPermutation( type );
 		}
 
-		return StaticShaderSwitches();
+		static ShaderPermutation<> empty;
+		return empty;
 	}
 
 	void MaterialResource::SetMaterial( const std::shared_ptr<Material>& material )

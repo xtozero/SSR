@@ -373,9 +373,9 @@ namespace rendercore
 		m_shaders[static_cast<uint32>( agl::ShaderType::Vertex )] = vertexshader;
 	}
 
-	VertexShader* Material::GetVertexShader( const StaticShaderSwitches* switches ) const
+	VertexShader* Material::GetVertexShader( const IShaderPermutation* permutation ) const
 	{
-		return static_cast<VertexShader*>( GetCompiledShader( agl::ShaderType::Vertex, switches ) );
+		return static_cast<VertexShader*>( GetCompiledShader( agl::ShaderType::Vertex, permutation ) );
 	}
 
 	void Material::SetGeometryShader( const std::shared_ptr<GeometryShader>& geometryShader )
@@ -383,9 +383,9 @@ namespace rendercore
 		m_shaders[static_cast<uint32>( agl::ShaderType::Geometry )] = geometryShader;
 	}
 
-	GeometryShader* Material::GetGeometryShader( const StaticShaderSwitches* switches ) const
+	GeometryShader* Material::GetGeometryShader( const IShaderPermutation* permutation ) const
 	{
-		return static_cast<GeometryShader*>( GetCompiledShader( agl::ShaderType::Geometry, switches ) );
+		return static_cast<GeometryShader*>( GetCompiledShader( agl::ShaderType::Geometry, permutation ) );
 	}
 
 	void Material::SetPixelShader( const std::shared_ptr<PixelShader>& pixelShader )
@@ -393,9 +393,9 @@ namespace rendercore
 		m_shaders[static_cast<uint32>( agl::ShaderType::Pixel )] = pixelShader;
 	}
 
-	PixelShader* Material::GetPixelShader( const StaticShaderSwitches* switches ) const
+	PixelShader* Material::GetPixelShader( const IShaderPermutation* permutation ) const
 	{
-		return static_cast<PixelShader*>( GetCompiledShader( agl::ShaderType::Pixel, switches ) );
+		return static_cast<PixelShader*>( GetCompiledShader( agl::ShaderType::Pixel, permutation ) );
 	}
 
 	void Material::SetComputeShader( const std::shared_ptr<ComputeShader>& computeShader )
@@ -403,9 +403,9 @@ namespace rendercore
 		m_shaders[static_cast<uint32>( agl::ShaderType::Compute )] = computeShader;
 	}
 
-	ComputeShader* Material::GetComputeShader( const StaticShaderSwitches* switches ) const
+	ComputeShader* Material::GetComputeShader( const IShaderPermutation* permutation ) const
 	{
-		return static_cast<ComputeShader*>( GetCompiledShader( agl::ShaderType::Compute, switches ) );
+		return static_cast<ComputeShader*>( GetCompiledShader( agl::ShaderType::Compute, permutation ) );
 	}
 
 	void Material::SetMeshShader( const std::shared_ptr<MeshShader>& meshShader )
@@ -413,9 +413,9 @@ namespace rendercore
 		m_shaders[static_cast<uint32>( agl::ShaderType::Mesh )] = meshShader;
 	}
 
-	MeshShader* Material::GetMeshShader( const StaticShaderSwitches* switches ) const
+	MeshShader* Material::GetMeshShader( const IShaderPermutation* permutation ) const
 	{
-		return static_cast<MeshShader*>( GetCompiledShader( agl::ShaderType::Mesh, switches ) );
+		return static_cast<MeshShader*>( GetCompiledShader( agl::ShaderType::Mesh, permutation ) );
 	}
 
 	void Material::SetAmplificationShader( const std::shared_ptr<AmplificationShader>& amplificationShader )
@@ -423,9 +423,9 @@ namespace rendercore
 		m_shaders[static_cast<uint32>( agl::ShaderType::Amplification )] = amplificationShader;
 	}
 
-	AmplificationShader* Material::GetAmplificationShader( const StaticShaderSwitches* switches ) const
+	AmplificationShader* Material::GetAmplificationShader( const IShaderPermutation* permutation ) const
 	{
-		return static_cast<AmplificationShader*>( GetCompiledShader( agl::ShaderType::Amplification, switches ) );
+		return static_cast<AmplificationShader*>( GetCompiledShader( agl::ShaderType::Amplification, permutation ) );
 	}
 
 	void Material::AddSampler( const std::string& key, const SamplerOption& samplerOption )
@@ -443,15 +443,16 @@ namespace rendercore
 		return DefaultRenderCore::SupportsVisibilityRendering() && HasShaderSource( agl::ShaderType::Compute );
 	}
 
-	StaticShaderSwitches Material::GetShaderSwitches( agl::ShaderType type ) const
+	IShaderPermutation& Material::GetShaderPermutation( agl::ShaderType type ) const
 	{
-		auto& shader = m_shaders[static_cast<uint32>( type )];
-		if ( shader != nullptr )
+		auto permutation = m_permutation[static_cast<uint32>( type )].get();
+		if ( permutation != nullptr )
 		{
-			return shader->GetStaticSwitches();
+			return *permutation;
 		}
 
-		return StaticShaderSwitches();
+		static ShaderPermutation<> empty;
+		return empty;
 	}
 
 	MaterialResource* Material::GetMaterialResource() const
@@ -471,14 +472,17 @@ namespace rendercore
 	{
 		for ( uint32 i = 0; i < agl::NumNonRTShaderTypes<uint32>; ++i )
 		{
-			if ( auto shader = m_shaders[i].get() )
+			auto shader = m_shaders[i].get();
+			if ( shader == nullptr )
 			{
-				m_shaderSwitches[i] = shader->GetStaticSwitches();
+				continue;
 			}
+
+			m_permutation[i] = shader->CreatePermutation();
 
 			for ( const auto& define : m_defines[i] )
 			{
-				m_shaderSwitches[i].On( define.first, define.second );
+				m_permutation[i]->SetValueByName( ShaderDefineNameHash( define.first.CStr() ), define.second );
 			}
 		}
 
@@ -492,15 +496,19 @@ namespace rendercore
 		return m_shaders[index].get() != nullptr;
 	}
 
-	ShaderBase* Material::GetCompiledShader( agl::ShaderType type, const StaticShaderSwitches* switches ) const
+	ShaderBase* Material::GetCompiledShader( agl::ShaderType type, const IShaderPermutation* permutation ) const
 	{
-		auto& shader = m_shaders[static_cast<uint32>( type )];
+		auto index = static_cast<uint32>( type );
+
+		auto& shader = m_shaders[index];
 		if ( shader == nullptr )
 		{
 			return nullptr;
 		}
 
-		const StaticShaderSwitches& compileOption = switches ? *switches : m_shaderSwitches[static_cast<uint32>( type )];
+		ShaderPermutation<> empty;
+		const IShaderPermutation& defaultPermutation = m_permutation[index].get() ? *m_permutation[index] : empty;
+		const IShaderPermutation& compileOption = permutation ? *permutation : defaultPermutation;
 
 		return shader->CompileShader( compileOption );
 	}

@@ -48,15 +48,10 @@ namespace rendercore
 		return m_hash;
 	}
 
-	StaticShaderSwitches ShaderAsset::GetStaticSwitches() const
+	std::shared_ptr<IShaderPermutation> ShaderAsset::CreatePermutation()
 	{
-		return m_switches;
-	}
-
-	ShaderAsset::ShaderAsset( const StaticShaderSwitches& switches )
-		: m_switches( switches )
-	{
-		RegisterShaderAsset( this );
+		assert( m_createPermutationFunc != nullptr );
+		return m_createPermutationFunc();
 	}
 
 	ShaderAsset::ShaderAsset()
@@ -69,7 +64,7 @@ namespace rendercore
 		UnregisterShaderAsset( this );
 	}
 
-	ShaderBase* ShaderBase::CompileShader( [[maybe_unused]] const StaticShaderSwitches& switches )
+	ShaderBase* ShaderBase::CompileShader( [[maybe_unused]] const IShaderPermutation& permutation )
 	{
 		return this;
 	}
@@ -82,9 +77,11 @@ namespace rendercore
 			return;
 		}
 
-		auto uberShader = static_cast<UberShader*>( m_parent.get() );
+		auto permutation = CreatePermutation();
+		permutation->SetPermutationId( m_permutationId );
 
-		BinaryChunk byteCode = uberShader->ComipeShaderByteCode( GetStaticSwitches() );
+		auto uberShader = static_cast<UberShader*>( m_parent.get() );
+		BinaryChunk byteCode = uberShader->ComipeShaderByteCode( *permutation );
 		if (byteCode.Size() == 0)
 		{
 			return;
@@ -178,6 +175,11 @@ namespace rendercore
 		m_parent = parent;
 	}
 
+	void ShaderBase::SetPermutationCreateFunc( ShaderPermutationCreateFunc createFunc )
+	{
+		m_createPermutationFunc = createFunc;
+	}
+
 	void ShaderBase::PostLoadImpl()
 	{
 		CreateShader();
@@ -268,14 +270,14 @@ namespace rendercore
 	}
 
 	REGISTER_ASSET( MeshShader );
-	ShaderBase* MeshShader::CompileShader( const StaticShaderSwitches& switches )
+	ShaderBase* MeshShader::CompileShader( const IShaderPermutation& permutation )
 	{
 		if ( GetInterface<agl::IAgl>()->SupportsMeshShader() == false )
 		{
 			return nullptr;
 		}
 
-		return Super::CompileShader( switches );
+		return ShaderBase::CompileShader( permutation );
 	}
 
 	agl::MeshShader* MeshShader::Resource()
@@ -295,14 +297,14 @@ namespace rendercore
 	}
 
 	REGISTER_ASSET( AmplificationShader );
-	ShaderBase* AmplificationShader::CompileShader( const StaticShaderSwitches& switches )
+	ShaderBase* AmplificationShader::CompileShader( const IShaderPermutation& permutation )
 	{
 		if ( GetInterface<agl::IAgl>()->SupportsMeshShader() == false )
 		{
 			return nullptr;
 		}
 
-		return Super::CompileShader( switches );
+		return ShaderBase::CompileShader( permutation );
 	}
 
 	agl::AmplificationShader* AmplificationShader::Resource()
@@ -322,14 +324,14 @@ namespace rendercore
 	}
 
 	REGISTER_ASSET( RayGenerationShader );
-	ShaderBase* RayGenerationShader::CompileShader( const StaticShaderSwitches& switches )
+	ShaderBase* RayGenerationShader::CompileShader( const IShaderPermutation& permutation )
 	{
 		if ( GetInterface<agl::IAgl>()->SupportsHardwareRaytracing() == false )
 		{
 			return nullptr;
 		}
 
-		return ShaderBase::CompileShader( switches );
+		return RaytracingShaderBase::CompileShader( permutation );
 	}
 
 	agl::RayGenerationShader* RayGenerationShader::Resource()
@@ -349,14 +351,14 @@ namespace rendercore
 	}
 
 	REGISTER_ASSET( IntersectionShader );
-	ShaderBase* IntersectionShader::CompileShader( const StaticShaderSwitches& switches )
+	ShaderBase* IntersectionShader::CompileShader( const IShaderPermutation& permutation )
 	{
 		if ( GetInterface<agl::IAgl>()->SupportsHardwareRaytracing() == false )
 		{
 			return nullptr;
 		}
 
-		return ShaderBase::CompileShader( switches );
+		return RaytracingShaderBase::CompileShader( permutation );
 	}
 
 	agl::IntersectionShader* IntersectionShader::Resource()
@@ -376,14 +378,14 @@ namespace rendercore
 	}
 
 	REGISTER_ASSET( AnyHitShader );
-	ShaderBase* AnyHitShader::CompileShader( const StaticShaderSwitches& switches )
+	ShaderBase* AnyHitShader::CompileShader( const IShaderPermutation& permutation )
 	{
 		if ( GetInterface<agl::IAgl>()->SupportsHardwareRaytracing() == false )
 		{
 			return nullptr;
 		}
 
-		return ShaderBase::CompileShader( switches );
+		return RaytracingShaderBase::CompileShader( permutation );
 	}
 
 	agl::AnyHitShader* AnyHitShader::Resource()
@@ -403,14 +405,14 @@ namespace rendercore
 	}
 
 	REGISTER_ASSET( ClosestHitShader );
-	ShaderBase* ClosestHitShader::CompileShader( const StaticShaderSwitches& switches )
+	ShaderBase* ClosestHitShader::CompileShader( const IShaderPermutation& permutation )
 	{
 		if ( GetInterface<agl::IAgl>()->SupportsHardwareRaytracing() == false )
 		{
 			return nullptr;
 		}
 
-		return ShaderBase::CompileShader( switches );
+		return RaytracingShaderBase::CompileShader( permutation );
 	}
 
 	agl::ClosestHitShader* ClosestHitShader::Resource()
@@ -430,14 +432,14 @@ namespace rendercore
 	}
 
 	REGISTER_ASSET( MissShader );
-	ShaderBase* MissShader::CompileShader( const StaticShaderSwitches& switches )
+	ShaderBase* MissShader::CompileShader( const IShaderPermutation& permutation )
 	{
 		if ( GetInterface<agl::IAgl>()->SupportsHardwareRaytracing() == false )
 		{
 			return nullptr;
 		}
 
-		return ShaderBase::CompileShader( switches );
+		return RaytracingShaderBase::CompileShader( permutation );
 	}
 
 	agl::MissShader* MissShader::Resource()
@@ -457,14 +459,14 @@ namespace rendercore
 	}
 
 	REGISTER_ASSET( CallableShader );
-	ShaderBase* CallableShader::CompileShader( const StaticShaderSwitches& switches )
+	ShaderBase* CallableShader::CompileShader( const IShaderPermutation& permutation )
 	{
 		if ( GetInterface<agl::IAgl>()->SupportsHardwareRaytracing() == false )
 		{
 			return nullptr;
 		}
 
-		return ShaderBase::CompileShader( switches );
+		return RaytracingShaderBase::CompileShader( permutation );
 	}
 
 	agl::CallableShader* CallableShader::Resource()

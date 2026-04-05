@@ -171,23 +171,23 @@ namespace rendercore
 		const ShaderBase* GetShader( agl::ShaderType type ) const;
 
 		RENDERCORE_DLL void SetVertexShader( const std::shared_ptr<VertexShader>& vertexshader );
-		VertexShader* GetVertexShader( const StaticShaderSwitches* switches = nullptr ) const;
+		VertexShader* GetVertexShader( const IShaderPermutation* permutation = nullptr ) const;
 		RENDERCORE_DLL void SetGeometryShader( const std::shared_ptr<GeometryShader>& geometryShader );
-		GeometryShader* GetGeometryShader( const StaticShaderSwitches* switches = nullptr ) const;
+		GeometryShader* GetGeometryShader( const IShaderPermutation* permutation = nullptr ) const;
 		RENDERCORE_DLL void SetPixelShader( const std::shared_ptr<PixelShader>& pixelShader );
-		PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr ) const;
+		PixelShader* GetPixelShader( const IShaderPermutation* permutation = nullptr ) const;
 		RENDERCORE_DLL void SetComputeShader( const std::shared_ptr<ComputeShader>& computeShader );
-		ComputeShader* GetComputeShader( const StaticShaderSwitches* switches = nullptr ) const;
+		ComputeShader* GetComputeShader( const IShaderPermutation* permutation = nullptr ) const;
 		RENDERCORE_DLL void SetMeshShader( const std::shared_ptr<MeshShader>& meshShader );
-		MeshShader* GetMeshShader( const StaticShaderSwitches* switches = nullptr ) const;
+		MeshShader* GetMeshShader( const IShaderPermutation* permutation = nullptr ) const;
 		RENDERCORE_DLL void SetAmplificationShader( const std::shared_ptr<AmplificationShader>& amplificationShader );
-		AmplificationShader* GetAmplificationShader( const StaticShaderSwitches* switches = nullptr ) const;
+		AmplificationShader* GetAmplificationShader( const IShaderPermutation* permutation = nullptr ) const;
 		RENDERCORE_DLL void AddSampler( const std::string& key, const SamplerOption& samplerOption );
 
 		RENDERCORE_DLL bool UseMeshShader() const;
 		RENDERCORE_DLL bool SupportsVisibilityRendering() const;
 
-		StaticShaderSwitches GetShaderSwitches( agl::ShaderType type ) const;
+		IShaderPermutation& GetShaderPermutation( agl::ShaderType type ) const;
 
 		RENDERCORE_DLL MaterialResource* GetMaterialResource() const;
 
@@ -204,7 +204,7 @@ namespace rendercore
 
 	private:
 		bool HasShaderSource( agl::ShaderType type ) const;
-		ShaderBase* GetCompiledShader( agl::ShaderType type, const StaticShaderSwitches* switches = nullptr ) const;
+		ShaderBase* GetCompiledShader( agl::ShaderType type, const IShaderPermutation* permutation = nullptr ) const;
 
 		PROPERTY( name )
 		Name m_name;
@@ -212,7 +212,7 @@ namespace rendercore
 		PROPERTY( shaders )
 		std::shared_ptr<ShaderBase> m_shaders[agl::NumNonRTShaderTypes<uint32>];
 
-		StaticShaderSwitches m_shaderSwitches[agl::NumNonRTShaderTypes<uint32>];
+		std::shared_ptr<IShaderPermutation> m_permutation[agl::NumNonRTShaderTypes<uint32>];
 
 		PROPERTY( defines )
 		std::vector<std::pair<Name, int32>> m_defines[agl::NumNonRTShaderTypes<uint32>];

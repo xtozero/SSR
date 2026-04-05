@@ -20,17 +20,17 @@ namespace rendercore
 	class MaterialResource final
 	{
 	public:
-		VertexShader* GetVertexShader( const StaticShaderSwitches* switches = nullptr ) const;
-		GeometryShader* GetGeometryShader( const StaticShaderSwitches* switches = nullptr ) const;
-		PixelShader* GetPixelShader( const StaticShaderSwitches* switches = nullptr ) const;
-		ComputeShader* GetComputeShader( const StaticShaderSwitches* switches = nullptr ) const;
-		MeshShader* GetMeshShader( const StaticShaderSwitches* switches = nullptr ) const;
-		AmplificationShader* GetAmplificationShader( const StaticShaderSwitches* switches = nullptr ) const;
+		VertexShader* GetVertexShader( const IShaderPermutation* permutation = nullptr ) const;
+		GeometryShader* GetGeometryShader( const IShaderPermutation* permutation = nullptr ) const;
+		PixelShader* GetPixelShader( const IShaderPermutation* permutation = nullptr ) const;
+		ComputeShader* GetComputeShader( const IShaderPermutation* permutation = nullptr ) const;
+		MeshShader* GetMeshShader( const IShaderPermutation* permutation = nullptr ) const;
+		AmplificationShader* GetAmplificationShader( const IShaderPermutation* permutation = nullptr ) const;
 
 		bool UseMeshShader() const;
 		bool SupportsVisibilityRendering() const;
 
-		StaticShaderSwitches GetShaderSwitches( agl::ShaderType type ) const;
+		IShaderPermutation& GetShaderPermutation( agl::ShaderType type ) const;
 
 		void SetMaterial( const std::shared_ptr<Material>& material );
 		std::shared_ptr<Material> GetMaterial();

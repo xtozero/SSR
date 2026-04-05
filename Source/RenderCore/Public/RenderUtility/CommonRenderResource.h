@@ -11,9 +11,14 @@ namespace rendercore
 	class RenderGraph;
 	class RenderGraphTexture;
 
+	class TAADim : DEFINE_BOOL_DIMENSION( "TAA" );
+
 	class FullScreenQuadVS final : public GlobalShaderBase<VertexShader, FullScreenQuadVS>
 	{
 		using GlobalShaderBase::GlobalShaderBase;
+
+	public:
+		using PermutationType = ShaderPermutation<TAADim>;
 	};
 
 	class DefaultAS final : public GlobalShaderBase<AmplificationShader, DefaultAS>

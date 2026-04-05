@@ -58,27 +58,21 @@ namespace rendercore
 	class GlobalShaderBase : public ShaderTraits<ShaderClass>
 	{
 	public:
-		static const StaticShaderSwitches& GetSwitches()
-		{
-			static StaticShaderSwitches staticSwitch = GetGlobalShader<DerivedType>()->GetStaticSwitches();
-			return staticSwitch;
-		}
-
 		GlobalShaderBase()
 		{
 			m_shader = GetGlobalShader<DerivedType>();
 			assert( m_shader != nullptr );
 
-			m_compiledShader = Cast<ShaderClass>( m_shader->CompileShader( {} ) );
+			m_compiledShader = Cast<ShaderClass>( m_shader->CompileShader( ShaderPermutation<>() ) );
 			assert( m_compiledShader != nullptr );
 		}
 
-		explicit GlobalShaderBase( const StaticShaderSwitches& switches )
+		explicit GlobalShaderBase( const IShaderPermutation& permutation )
 		{
 			m_shader = GetGlobalShader<DerivedType>();
 			assert( m_shader != nullptr );
 
-			m_compiledShader = Cast<ShaderClass>( m_shader->CompileShader( switches ) );
+			m_compiledShader = Cast<ShaderClass>( m_shader->CompileShader( permutation ) );
 			assert( m_compiledShader != nullptr );
 		}
 

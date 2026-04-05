@@ -56,6 +56,7 @@ set (HASH
 	Private/Hash/CrcHash.cpp
 	Public/Hash/CrcHash.h
 	Public/Hash/Djb2Hash.h
+	Public/Hash/FnvHash.h
 	Public/Hash/HashUtil.h)
 
 set (INI

@@ -13,6 +13,9 @@ namespace rendercore
 	class DebugOverlayVS final : public GlobalShaderBase<VertexShader, DebugOverlayVS>
 	{
 		using GlobalShaderBase::GlobalShaderBase;
+
+	public:
+		using PermutationType = ShaderPermutation<TAADim>;
 	};
 
 	class DebugOverlayPS final : public GlobalShaderBase<PixelShader, DebugOverlayPS>
@@ -63,13 +66,10 @@ namespace rendercore
 			rasterOutput,
 			[lineVbAllocationInfo, numDebugLine, triangleVbAllocationInfo, numDebugTriangle, &resourceBinder]( CommandList& commandList )
 			{
-				StaticShaderSwitches switches = DebugOverlayVS::GetSwitches();
-				if ( DefaultRenderCore::IsTaaEnabled() )
-				{
-					switches.On( StaticName( "TAA" ), 1 );
-				}
+				DebugOverlayVS::PermutationType permutation;
+				permutation.SetValue<TAADim>( DefaultRenderCore::IsTaaEnabled() );
 
-				DebugOverlayVS debugOverlayVS( switches );
+				DebugOverlayVS debugOverlayVS( permutation );
 				DebugOverlayPS debugOverlayPS;
 
 				VertexStreamLayout vertexlayout;

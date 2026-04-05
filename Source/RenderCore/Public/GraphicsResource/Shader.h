@@ -4,11 +4,12 @@
 #include "IAsyncLoadableAsset.h"
 #include "ShaderParameterInfo.h"
 #include "ShaderParameterMap.h"
+#include "ShaderRegistry.h"
 #include "ShaderResource.h"
-#include "StaticShaderSwitch.h"
 
 namespace rendercore
 {
+	class IShaderPermutation;
 	class ShaderBase;
 
 	class ShaderAsset : public AsyncLoadableAsset
@@ -16,9 +17,9 @@ namespace rendercore
 		GENERATE_CLASS_TYPE_INFO( ShaderAsset );
 
 	public:
-		RENDERCORE_DLL StaticShaderSwitches GetStaticSwitches() const;
+		RENDERCORE_DLL std::shared_ptr<IShaderPermutation> CreatePermutation();
 
-		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) = 0;
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) = 0;
 		RENDERCORE_DLL virtual void RecompileShader() = 0;
 
 		RENDERCORE_DLL virtual agl::ShaderParameterMap& ParameterMap() = 0;
@@ -27,13 +28,11 @@ namespace rendercore
 		RENDERCORE_DLL virtual agl::ShaderParameterInfo& ParameterInfo() = 0;
 		RENDERCORE_DLL virtual const agl::ShaderParameterInfo& ParameterInfo() const = 0;
 
-		explicit ShaderAsset( const StaticShaderSwitches& switches );
 		RENDERCORE_DLL ShaderAsset();
 		RENDERCORE_DLL virtual ~ShaderAsset() override;
 
 	protected:
-		PROPERTY( switches )
-		StaticShaderSwitches m_switches;
+		ShaderPermutationCreateFunc m_createPermutationFunc = nullptr;
 	};
 
 	class ShaderBase : public ShaderAsset
@@ -41,7 +40,7 @@ namespace rendercore
 		GENERATE_CLASS_TYPE_INFO( ShaderBase );
 
 	public:
-		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 		RENDERCORE_DLL virtual void RecompileShader() override;
 
 		bool IsValid() const
@@ -82,11 +81,12 @@ namespace rendercore
 		ShaderAsset* GetParent();
 		const ShaderAsset* GetParent() const;
 		void SetParent( const std::shared_ptr<ShaderAsset>& parent );
+		void SetPermutationCreateFunc( ShaderPermutationCreateFunc createFunc );
 
-		ShaderBase( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
-			: Super( switches )
-			, m_byteCode( std::move( byteCode ) )
+		ShaderBase( BinaryChunk&& byteCode, size_t hash, uint32 permutationId )
+			: m_byteCode( std::move( byteCode ) )
 			, m_hash( hash )
+			, m_permutationId( permutationId )
 		{}
 		ShaderBase() = default;
 
@@ -111,6 +111,9 @@ namespace rendercore
 		PROPERTY( hash )
 		size_t m_hash = 0;
 
+		PROPERTY( permutationId )
+		uint32 m_permutationId = 0;
+
 		std::shared_ptr<ShaderAsset> m_parent = nullptr;
 		RefHandle<agl::Shader> m_shader;
 
@@ -126,8 +129,8 @@ namespace rendercore
 	public:
 		static constexpr agl::ShaderType Type = agl::ShaderType::Vertex;
 
-		VertexShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
-			: ShaderBase( switches, std::move( byteCode ), hash ) {}
+		VertexShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), hash, permutationId ) {}
 		VertexShader() = default;
 
 		agl::VertexShader* Resource();
@@ -144,8 +147,8 @@ namespace rendercore
 	public:
 		static constexpr agl::ShaderType Type = agl::ShaderType::Geometry;
 
-		GeometryShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
-			: ShaderBase( switches, std::move( byteCode ), hash ) {}
+		GeometryShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), hash, permutationId ) {}
 		GeometryShader() = default;
 
 		agl::GeometryShader* Resource();
@@ -162,8 +165,8 @@ namespace rendercore
 	public:
 		static constexpr agl::ShaderType Type = agl::ShaderType::Pixel;
 
-		PixelShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
-			: ShaderBase( switches, std::move( byteCode ), hash ) {}
+		PixelShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), hash, permutationId ) {}
 		PixelShader() = default;
 
 		agl::PixelShader* Resource();
@@ -180,8 +183,8 @@ namespace rendercore
 	public:
 		static constexpr agl::ShaderType Type = agl::ShaderType::Compute;
 
-		ComputeShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
-			: ShaderBase( switches, std::move( byteCode ), hash ) {}
+		ComputeShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), hash, permutationId ) {}
 		ComputeShader() = default;
 
 		agl::ComputeShader* Resource();
@@ -198,10 +201,10 @@ namespace rendercore
 	public:
 		static constexpr agl::ShaderType Type = agl::ShaderType::Mesh;
 
-		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 
-		MeshShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
-			: ShaderBase( switches, std::move( byteCode ), hash ) {}
+		MeshShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), hash, permutationId ) {}
 		MeshShader() = default;
 
 		agl::MeshShader* Resource();
@@ -218,10 +221,10 @@ namespace rendercore
 	public:
 		static constexpr agl::ShaderType Type = agl::ShaderType::Amplification;
 
-		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 
-		AmplificationShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash )
-			: ShaderBase( switches, std::move( byteCode ), hash ) {}
+		AmplificationShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), hash, permutationId ) {}
 		AmplificationShader() = default;
 
 		agl::AmplificationShader* Resource();
@@ -235,8 +238,8 @@ namespace rendercore
 		GENERATE_CLASS_TYPE_INFO( RaytracingShaderBase );
 
 	public:
-		RaytracingShaderBase( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash, Name exportName )
-			: ShaderBase( switches, std::move( byteCode ), hash )
+		RaytracingShaderBase( BinaryChunk&& byteCode, size_t hash, uint32 permutationId, Name exportName )
+			: ShaderBase( std::move( byteCode ), hash, permutationId )
 			, m_exportName( exportName ) {}
 		RaytracingShaderBase() = default;
 
@@ -253,10 +256,10 @@ namespace rendercore
 	public:
 		static constexpr agl::ShaderType Type = agl::ShaderType::RayGen;
 
-		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 
-		RayGenerationShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash, Name exportName )
-			: RaytracingShaderBase( switches, std::move( byteCode ), hash, exportName ) {}
+		RayGenerationShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId, Name exportName )
+			: RaytracingShaderBase( std::move( byteCode ), hash, permutationId, exportName ) {}
 		RayGenerationShader() = default;
 
 		agl::RayGenerationShader* Resource();
@@ -273,10 +276,10 @@ namespace rendercore
 	public:
 		static constexpr agl::ShaderType Type = agl::ShaderType::Intersection;
 
-		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 
-		IntersectionShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash, Name exportName )
-			: RaytracingShaderBase( switches, std::move( byteCode ), hash, exportName ) {}
+		IntersectionShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId, Name exportName )
+			: RaytracingShaderBase( std::move( byteCode ), hash, permutationId, exportName ) {}
 		IntersectionShader() = default;
 
 		agl::IntersectionShader* Resource();
@@ -293,10 +296,10 @@ namespace rendercore
 	public:
 		static constexpr agl::ShaderType Type = agl::ShaderType::AnyHit;
 
-		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 
-		AnyHitShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash, Name exportName )
-			: RaytracingShaderBase( switches, std::move( byteCode ), hash, exportName ) {}
+		AnyHitShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId, Name exportName )
+			: RaytracingShaderBase( std::move( byteCode ), hash, permutationId, exportName ) {}
 		AnyHitShader() = default;
 
 		agl::AnyHitShader* Resource();
@@ -313,10 +316,10 @@ namespace rendercore
 	public:
 		static constexpr agl::ShaderType Type = agl::ShaderType::ClosestHit;
 
-		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 
-		ClosestHitShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash, Name exportName )
-			: RaytracingShaderBase( switches, std::move( byteCode ), hash, exportName ) {}
+		ClosestHitShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId, Name exportName )
+			: RaytracingShaderBase( std::move( byteCode ), hash, permutationId, exportName ) {}
 		ClosestHitShader() = default;
 
 		agl::ClosestHitShader* Resource();
@@ -333,10 +336,10 @@ namespace rendercore
 	public:
 		static constexpr agl::ShaderType Type = agl::ShaderType::Miss;
 
-		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 
-		MissShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash, Name exportName )
-			: RaytracingShaderBase( switches, std::move( byteCode ), hash, exportName ) {}
+		MissShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId, Name exportName )
+			: RaytracingShaderBase( std::move( byteCode ), hash, permutationId, exportName ) {}
 		MissShader() = default;
 
 		agl::MissShader* Resource();
@@ -353,10 +356,10 @@ namespace rendercore
 	public:
 		static constexpr agl::ShaderType Type = agl::ShaderType::Callable;
 
-		RENDERCORE_DLL virtual ShaderBase* CompileShader( const StaticShaderSwitches& switches ) override;
+		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 
-		CallableShader( const StaticShaderSwitches& switches, BinaryChunk&& byteCode, size_t hash, Name exportName )
-			: RaytracingShaderBase( switches, std::move( byteCode ), hash, exportName ) {}
+		CallableShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId, Name exportName )
+			: RaytracingShaderBase( std::move( byteCode ), hash, permutationId, exportName ) {}
 		CallableShader() = default;
 
 		agl::CallableShader* Resource();

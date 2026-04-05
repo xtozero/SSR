@@ -10,7 +10,12 @@ namespace rendercore
 {
     const std::vector<ShaderDescriptor>* ShaderRegistry::Find( const std::filesystem::path& filePath ) const
     {
-        auto found = m_registry.find( filePath );
+        return Find( ShaderDescriptorHandle( filePath.generic_string().c_str() ) );
+    }
+
+    const std::vector<ShaderDescriptor>* ShaderRegistry::Find( uint32 handle ) const
+    {
+        auto found = m_registry.find( handle );
         if ( found != std::end( m_registry ) )
         {
             return &found->second;
@@ -19,22 +24,23 @@ namespace rendercore
         return nullptr;
     }
 
-    void ShaderRegistry::Register( ShaderDescriptor&& descriptor )
+    void ShaderRegistry::Register( uint32 descriptorHandle, ShaderDescriptor&& descriptor )
     {
         assert( fs::exists( engine::Paths::GetShaderSourceRootDir() / descriptor.m_filePath )
             && "The specified shader file does not exist." );
-        m_registry[descriptor.m_filePath].emplace_back( std::move( descriptor ) );
+        m_registry[descriptorHandle].emplace_back( std::move( descriptor ) );
     }
 
-    ShaderRegister::ShaderRegister( const char* filePath, agl::ShaderType shaderType, const char* entryPoint )
+    ShaderRegister::ShaderRegister( uint32 descriptorHandle, const char* filePath, agl::ShaderType shaderType, const char* entryPoint, ShaderPermutationCreateFunc getPermutationFunc )
     {
         ShaderDescriptor shaderDescriptor = {
             .m_filePath = filePath,
             .m_assetName = GetShaderAssetName( filePath, shaderType ),
             .m_type = shaderType,
             .m_entryPoint = entryPoint,
+            .m_createPermutationFunc = getPermutationFunc
         };
-        ShaderRegistry::GetInstance().Register( std::move( shaderDescriptor ) );
+        ShaderRegistry::GetInstance().Register( descriptorHandle, std::move( shaderDescriptor ) );
     }
 
     std::string GetShaderAssetName( const char* filePath, agl::ShaderType shaderType )

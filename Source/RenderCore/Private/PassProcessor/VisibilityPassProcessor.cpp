@@ -19,6 +19,9 @@ namespace rendercore
     class VisibilityVS final : public GlobalShaderBase<VertexShader, VisibilityVS>
     {
         using GlobalShaderBase::GlobalShaderBase;
+
+    public:
+        using PermutationType = ShaderPermutation<TAADim>;
     };
 
     class VisibilityPS final : public GlobalShaderBase<PixelShader, VisibilityPS>
@@ -74,22 +77,19 @@ namespace rendercore
 
     PassShader VisibilityPassProcessor::CollectPassShader( MaterialResource& material ) const
     {
-        StaticShaderSwitches vsSwitches = VisibilityVS::GetSwitches();
-        // StaticShaderSwitches msSwitches = VisibilityMS::GetSwitches();
+        VisibilityVS::PermutationType vsPermutation;
+        vsPermutation.SetValue<TAADim>( DefaultRenderCore::IsTaaEnabled() );
 
-        if ( DefaultRenderCore::IsTaaEnabled() )
-        {
-            vsSwitches.On( StaticName( "TAA" ), 1 );
-            // msSwitches.On( Name( "TAA" ), 1 );
-        }
+        // VisibilityMS::PermutationType msPermutation;
+        // msPermutation.SetValue<TAADim>( DefaultRenderCore::IsTaaEnabled() );
 
         bool bUseMeshShader = material.UseMeshShader();
 
         PassShader passShader = {
-            .m_vertexShader = VisibilityVS( vsSwitches ),
-            // .m_vertexShader = bUseMeshShader ? nullptr : VisibilityVS( vsSwitches ),
+            .m_vertexShader = VisibilityVS( vsPermutation ),
+            // .m_vertexShader = bUseMeshShader ? nullptr : VisibilityVS( vsPermutation ),
             .m_pixelShader = VisibilityPS(),
-            // .m_meshShader = bUseMeshShader ? VisibilityMS( msSwitches ) : nullptr,
+            // .m_meshShader = bUseMeshShader ? VisibilityMS( msPermutation ) : nullptr,
             // .m_amplificationShader = bUseMeshShader ? DefaultAS() : nullptr,
         };
 

@@ -27,11 +27,16 @@ namespace
 
 namespace rendercore
 {
+	class VerticalDim : DEFINE_BOOL_DIMENSION( "Vertical" );
+	class KernelSizeDim : DEFINE_RANGE_DIMENSION( "KernelSize", 0, 127 );
+
 	class CascadedESMsBlurCS final : public GlobalShaderBase<ComputeShader, CascadedESMsBlurCS>
 	{
 		using GlobalShaderBase::GlobalShaderBase;
 
 	public:
+		using PermutationType = ShaderPermutation<VerticalDim, KernelSizeDim>;
+
 		CascadedESMsBlurCS() = default;
 
 	private:
@@ -43,7 +48,6 @@ namespace rendercore
 
 	class CascadedESMsCS final : public GlobalShaderBase<ComputeShader, CascadedESMsCS>
 	{
-	private:
 		DEFINE_SHADER_PARAM( SrcTexture );
 		DEFINE_SHADER_PARAM( ESMsTexture );
 		DEFINE_SHADER_PARAM( ParameterC );
@@ -84,10 +88,10 @@ namespace rendercore
 			horizonBlurPassResource,
 			[horizonBlurPassResource, srcDesc, kernel]( ComputeCommandList& commandList )
 			{
-				StaticShaderSwitches horizonSwitches = CascadedESMsBlurCS::GetSwitches();
-				horizonSwitches.On( StaticName( "KernelSize" ), KernelSize );
+				CascadedESMsBlurCS::PermutationType permutation;
+				permutation.SetValue<KernelSizeDim>( KernelSize );
 
-				CascadedESMsBlurCS horizonBlurCS( horizonSwitches );
+				CascadedESMsBlurCS horizonBlurCS( permutation );
 				RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( horizonBlurCS );
 
 				commandList.BindPipelineState( pso.Get() );
@@ -126,23 +130,23 @@ namespace rendercore
 			verticalBlurPassResource,
 			[verticalBlurPassResource, srcDesc, kernel]( ComputeCommandList& commandList )
 			{
-				StaticShaderSwitches virticalSwitches = CascadedESMsBlurCS::GetSwitches();
-				virticalSwitches.On( StaticName( "Virtical" ), 1 );
-				virticalSwitches.On( StaticName( "KernelSize" ), KernelSize );
+				CascadedESMsBlurCS::PermutationType permutation;
+				permutation.SetValue<VerticalDim>( 1 );
+				permutation.SetValue<KernelSizeDim>( KernelSize );
 
-				CascadedESMsBlurCS virticalBlurCS( virticalSwitches );
-				RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( virticalBlurCS );
+				CascadedESMsBlurCS verticalBlurCS( permutation );
+				RefHandle<agl::ComputePipelineState> pso = PrepareComputePipelineState( verticalBlurCS );
 
 				commandList.BindPipelineState( pso.Get() );
 
 				SamplerState pointSampler = StaticSamplerState<agl::TextureFilter::Point>::Get();
 
-				agl::ShaderBindings shaderBindings = CreateShaderBindings( virticalBlurCS );
-				BindResource( shaderBindings, virticalBlurCS.SrcTexture(), verticalBlurPassResource.m_input->Get() );
-				BindResource( shaderBindings, virticalBlurCS.PointSampler(), pointSampler );
-				BindResource( shaderBindings, virticalBlurCS.DestTexture(), verticalBlurPassResource.m_output->Get() );
+				agl::ShaderBindings shaderBindings = CreateShaderBindings( verticalBlurCS );
+				BindResource( shaderBindings, verticalBlurCS.SrcTexture(), verticalBlurPassResource.m_input->Get() );
+				BindResource( shaderBindings, verticalBlurCS.PointSampler(), pointSampler );
+				BindResource( shaderBindings, verticalBlurCS.DestTexture(), verticalBlurPassResource.m_output->Get() );
 
-				SetShaderValue( commandList, virticalBlurCS.KernelBuffer(), kernel );
+				SetShaderValue( commandList, verticalBlurCS.KernelBuffer(), kernel );
 
 				commandList.BindShaderResources( shaderBindings );
 

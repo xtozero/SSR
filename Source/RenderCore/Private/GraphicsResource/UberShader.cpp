@@ -6,14 +6,14 @@
 
 #include <array>
 
-using ::rendercore::StaticShaderSwitches;
+using ::rendercore::IShaderPermutation;
 
 namespace
 {
-	uint64 ShaderHash( const std::string& name, const StaticShaderSwitches& switches )
+	uint64 ShaderHash( const std::string& name, const IShaderPermutation& permutation )
 	{
 		char buf[1024] = {};
-		int32 len = SPrintf( buf, std::extent_v<decltype(buf)>, "%s_%d", name.c_str(), switches.GetId() );
+		int32 len = SPrintf( buf, std::extent_v<decltype(buf)>, "%s_%d", name.c_str(), permutation.GetPermutationId() );
 
 		return Crc64Hash( buf, len );
 	}
@@ -25,32 +25,23 @@ namespace rendercore
 	agl::ShaderParameterInfo UberShader::m_emptyParameterInfo;
 
 	REGISTER_ASSET( UberShader );
-	ShaderBase* UberShader::CompileShader( const StaticShaderSwitches& switches )
+	ShaderBase* UberShader::CompileShader( const IShaderPermutation& permutation )
 	{
-/*
-* FIX ME
-#ifdef _DEBUG
-		if ( m_validVariation.find( switches.GetId() ) == std::end( m_validVariation ) )
-		{
-			assert( false && "Invalid shader variation" );
-			return nullptr;
-		}
-#endif
-*/
 		auto thisShared = std::reinterpret_pointer_cast<ShaderAsset>( shared_from_this() );
 
-		uint64 shaderHash = ShaderHash( Path().generic_string(), switches );
+		uint64 shaderHash = ShaderHash( Path().generic_string(), permutation );
 		ShaderBase* cache = ShaderCache::GetCachedShader( shaderHash );
 		if ( cache != nullptr )
 		{
 			if ( cache->LastWriteTime() == LastWriteTime() )
 			{
+				cache->SetPermutationCreateFunc( m_createPermutationFunc );
 				cache->SetParent( thisShared );
 				return cache;
 			}
 		}
 
-		BinaryChunk byteCode = ComipeShaderByteCode( switches );
+		BinaryChunk byteCode = ComipeShaderByteCode( permutation );
 		if ( byteCode.Size() == 0 )
 		{
 			return nullptr;
@@ -60,40 +51,40 @@ namespace rendercore
 		switch ( m_type )
 		{
 		case agl::ShaderType::Vertex:
-			shader = new VertexShader( switches, std::move( byteCode ), shaderHash );
+			shader = new VertexShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::Geometry:
-			shader = new GeometryShader( switches, std::move( byteCode ), shaderHash );
+			shader = new GeometryShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::Pixel:
-			shader = new PixelShader( switches, std::move( byteCode ), shaderHash );
+			shader = new PixelShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::Compute:
-			shader = new ComputeShader( switches, std::move( byteCode ), shaderHash );
+			shader = new ComputeShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::Mesh:
-			shader = new MeshShader( switches, std::move( byteCode ), shaderHash );
+			shader = new MeshShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::Amplification:
-			shader = new AmplificationShader( switches, std::move( byteCode ), shaderHash );
+			shader = new AmplificationShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::RayGen:
-			shader = new RayGenerationShader( switches, std::move( byteCode ), shaderHash, Name( m_entryPoint ) );
+			shader = new RayGenerationShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId(), Name( m_entryPoint ) );
 			break;
 		case agl::ShaderType::Intersection:
-			shader = new IntersectionShader( switches, std::move( byteCode ), shaderHash, Name( m_entryPoint ) );
+			shader = new IntersectionShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId(), Name( m_entryPoint ) );
 			break;
 		case agl::ShaderType::AnyHit:
-			shader = new AnyHitShader( switches, std::move( byteCode ), shaderHash, Name( m_entryPoint ) );
+			shader = new AnyHitShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId(), Name( m_entryPoint ) );
 			break;
 		case agl::ShaderType::ClosestHit:
-			shader = new ClosestHitShader( switches, std::move( byteCode ), shaderHash, Name( m_entryPoint ) );
+			shader = new ClosestHitShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId(), Name( m_entryPoint ) );
 			break;
 		case agl::ShaderType::Miss:
-			shader = new MissShader( switches, std::move( byteCode ), shaderHash, Name( m_entryPoint ) );
+			shader = new MissShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId(), Name( m_entryPoint ) );
 			break;
 		case agl::ShaderType::Callable:
-			shader = new CallableShader( switches, std::move( byteCode ), shaderHash, Name( m_entryPoint ) );
+			shader = new CallableShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId(), Name( m_entryPoint ) );
 			break;
 		default:
 			assert( false && "Invalid shader type" );
@@ -101,6 +92,7 @@ namespace rendercore
 		}
 
 		GraphicsInterface().BuildShaderMetaData( shader->ByteCode(), shader->ParameterMap(), shader->ParameterInfo() );
+		shader->SetPermutationCreateFunc( m_createPermutationFunc );
 		shader->CreateShader();
 		shader->SetPath( Path() );
 		shader->SetLastWriteTime( LastWriteTime() );
@@ -156,56 +148,64 @@ namespace rendercore
 		std::memcpy( m_shaderCode.Data(), shaderCode.data(), shaderCode.length() );
 	}
 
-	void UberShader::SetSwitches( const StaticShaderSwitches& switches )
+	void UberShader::SetShaderDescriptorHandle( uint32 handle )
 	{
-		m_switches = switches;
+		m_shaderDescriptorHandle = handle;
 	}
 
-	void UberShader::AddValidVariation( uint32 id )
-	{
-		m_validVariation.emplace( id );
-	}
-
-	BinaryChunk UberShader::ComipeShaderByteCode( const StaticShaderSwitches& switches )
+	BinaryChunk UberShader::ComipeShaderByteCode( const IShaderPermutation& permutation ) const
 	{
 		bool bMeshShader = ( m_type == agl::ShaderType::Mesh ) || ( m_type == agl::ShaderType::Amplification );
-        if ( bMeshShader && ( GetInterface<agl::IAgl>()->SupportsMeshShader() == false ) )
-        {
-        	return {};
-        }
-
-		std::vector<const char*> defines;
-		defines.reserve( ( switches.Configs().size() + 1 ) << 1 );
-
-		std::array<char, 1024> valueBuffer{ '\0' };
-		char* value = valueBuffer.data();
-		size_t valueBufferSize = valueBuffer.size();
-
-		for ( auto& [name, shaderSwitch] : switches.Configs() )
+		if ( bMeshShader && ( GetInterface<agl::IAgl>()->SupportsMeshShader() == false ) )
 		{
-			if ( shaderSwitch.m_on == false )
+			return {};
+		}
+
+		class PermutationVisitor : public IShaderDefineVisitor
+		{
+		public:
+			virtual void Visit( const char* name, [[maybe_unused]] const wchar_t* nameW, int32 value ) override
 			{
-				continue;
+				m_defines.emplace_back( name );
+				m_defines.emplace_back( m_valueStr );
+
+				SPrintf( m_valueStr, m_valueBufferSize, "%d", value );
+				size_t offset = std::strlen( m_valueStr ) + 1;
+
+				assert( ( m_valueBufferSize - offset ) < 1024 );
+
+				m_valueStr += offset;
+				m_valueBufferSize -= offset;
 			}
 
-			defines.emplace_back( name.Str().data() );
-			defines.emplace_back( value );
+			std::vector<const char*> m_defines;
+			std::array<char, 1024> m_valueBuffer{ '\0' };
 
-			SPrintf( value, valueBufferSize, "%d", shaderSwitch.m_current );
-			size_t offset = std::strlen( value ) + 1;
+			char* m_valueStr = m_valueBuffer.data();
+			size_t m_valueBufferSize = m_valueBuffer.size();
+		} visitor;
 
-			assert( ( valueBufferSize - offset ) < 1024 );
+		permutation.ForEachShaderDefine( visitor );
 
-			value += offset;
-			valueBufferSize -= offset;
-		}
-		defines.emplace_back( nullptr );
-		defines.emplace_back( nullptr );
+		visitor.m_defines.emplace_back( nullptr );
+		visitor.m_defines.emplace_back( nullptr );
 
-		return GraphicsInterface().CompieShader( m_shaderCode, defines, m_type, m_entryPoint.c_str() );
+		return GraphicsInterface().CompieShader( m_shaderCode, visitor.m_defines, m_type, m_entryPoint.c_str() );
 	}
 
 	void UberShader::PostLoadImpl()
 	{
+		auto shaderRegistry = GetInterface<IShaderRegistry>();
+		if ( const std::vector<ShaderDescriptor>* shaderDescs = shaderRegistry->Find( m_shaderDescriptorHandle ) )
+		{
+			for ( const ShaderDescriptor& descriptor : *shaderDescs )
+			{
+				if ( m_type == descriptor.m_type )
+				{
+					m_createPermutationFunc = descriptor.m_createPermutationFunc;
+					break;
+				}
+			}
+		}
 	}
 }

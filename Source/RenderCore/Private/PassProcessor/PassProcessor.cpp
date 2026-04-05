@@ -21,39 +21,25 @@ namespace rendercore
 
 	PassShader IPassProcessor::CollectPassShader( MaterialResource& material ) const
 	{
-		StaticShaderSwitches vsSwitches = material.GetShaderSwitches( agl::ShaderType::Vertex );
-		StaticShaderSwitches gsSwitches = material.GetShaderSwitches( agl::ShaderType::Geometry );
-		StaticShaderSwitches psSwitches = material.GetShaderSwitches( agl::ShaderType::Pixel );
-		StaticShaderSwitches msSwitches = material.GetShaderSwitches( agl::ShaderType::Mesh );
-		StaticShaderSwitches asSwitches = material.GetShaderSwitches( agl::ShaderType::Amplification );
+		IShaderPermutation& vsPermutation = material.GetShaderPermutation( agl::ShaderType::Vertex );
+		IShaderPermutation& gsPermutation = material.GetShaderPermutation( agl::ShaderType::Geometry );
+		IShaderPermutation& psPermutation = material.GetShaderPermutation( agl::ShaderType::Pixel );
+		IShaderPermutation& msPermutation = material.GetShaderPermutation( agl::ShaderType::Mesh );
+		IShaderPermutation& asPermutation = material.GetShaderPermutation( agl::ShaderType::Amplification );
 
-		if ( DefaultRenderCore::IsTaaEnabled() )
-		{
-			vsSwitches.On( StaticName( "TAA" ), 1 );
-			msSwitches.On( StaticName( "TAA" ), 1 );
-		}
+		vsPermutation.SetValueByName( ShaderDefineNameHash( "TAA" ), DefaultRenderCore::IsTaaEnabled() );
+		msPermutation.SetValueByName( ShaderDefineNameHash( "TAA" ), DefaultRenderCore::IsTaaEnabled() );
 
-		if ( DefaultRenderCore::IsRSMsEnabled() )
-		{
-			psSwitches.On( StaticName( "EnableRSMs" ), 1 );
-		}
-
-		if ( DefaultRenderCore::UseIrradianceMapSH() )
-		{
-			psSwitches.On( StaticName( "UseIrradianceMapSH" ), 1 );
-		}
-
-		if ( agl::DefaultAgl::SupportsBindless() )
-		{
-			psSwitches.On( StaticName( "SupportsBindless" ), 1 );
-		}
+		psPermutation.SetValueByName( ShaderDefineNameHash( "EnableRSMs" ), DefaultRenderCore::IsRSMsEnabled() );
+		psPermutation.SetValueByName( ShaderDefineNameHash( "UseIrradianceMapSH" ), DefaultRenderCore::UseIrradianceMapSH() );
+		psPermutation.SetValueByName( ShaderDefineNameHash( "SupportsBindless" ), agl::DefaultAgl::SupportsBindless() );
 
 		PassShader passShader = {
-			.m_vertexShader = material.GetVertexShader( &vsSwitches ),
-			.m_geometryShader = material.GetGeometryShader( &gsSwitches ),
-			.m_pixelShader = material.GetPixelShader( &psSwitches ),
-			.m_meshShader = material.GetMeshShader( &msSwitches ),
-			.m_amplificationShader = material.GetAmplificationShader( &asSwitches ),
+			.m_vertexShader = material.GetVertexShader( &vsPermutation ),
+			.m_geometryShader = material.GetGeometryShader( &gsPermutation ),
+			.m_pixelShader = material.GetPixelShader( &psPermutation ),
+			.m_meshShader = material.GetMeshShader( &msPermutation ),
+			.m_amplificationShader = material.GetAmplificationShader( &asPermutation ),
 		};
 
 		return passShader;

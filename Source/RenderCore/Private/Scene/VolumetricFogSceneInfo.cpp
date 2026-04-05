@@ -9,15 +9,21 @@
 #include "RenderGraph.h"
 #include "Scene/Scene.h"
 #include "ShaderParameterUtils.h"
+#include "ShaderPermutation.h"
 #include "StaticState.h"
 #include "TaskScheduler.h"
 #include "VolumetricFogProxy.h"
 
 namespace rendercore
 {
+	class EnableESMDim : DEFINE_BOOL_DIMENSION( "EnableESMs" );
+
 	class InscatteringCS final : public GlobalShaderBase<ComputeShader, InscatteringCS>
 	{
 		using GlobalShaderBase::GlobalShaderBase;
+
+	public:
+		using PermutationType = ShaderPermutation<EnableESMDim>;
 
 	private:
 		DEFINE_SHADER_PARAM( AsymmetryParameterG );
@@ -162,13 +168,10 @@ namespace rendercore
 
 	void VolumetricFogSceneInfo::CalcInscattering( ComputeCommandList& commandList, Scene& scene, ForwardLightingResource& lightingResource, RenderFrameArray<ShadowInfo>& shadowInfos )
 	{
-		StaticShaderSwitches switches = InscatteringCS::GetSwitches();
-		if ( DefaultRenderCore::IsESMsEnabled() )
-		{
-			switches.On( StaticName( "EnableESMs" ), 1 );
-		}
+		InscatteringCS::PermutationType permutation;
+		permutation.SetValue<EnableESMDim>( DefaultRenderCore::IsESMsEnabled() );
 
-		InscatteringCS inscatteringCS( switches );
+		InscatteringCS inscatteringCS( permutation );
 
 		RefHandle<agl::ComputePipelineState> inscatteringPSO = PrepareComputePipelineState( inscatteringCS );
 		commandList.BindPipelineState( inscatteringPSO.Get() );

@@ -12,6 +12,9 @@
 
 namespace rendercore
 {
+	class SupportsBindlessDim : DEFINE_BOOL_DIMENSION( "SupportsBindless" );
+	class UseDiffuseTextureDim : DEFINE_BOOL_DIMENSION( "UseDiffuseTexture" );
+
 	class SSGIPassCS final : public GlobalShaderBase<ComputeShader, SSGIPassCS>
 	{
 		DEFINE_SHADER_PARAM( SceneViewParameters );
@@ -36,11 +39,17 @@ namespace rendercore
 	class SSGICompositeVS final : public GlobalShaderBase<VertexShader, SSGICompositeVS>
 	{
 		using GlobalShaderBase::GlobalShaderBase;
+
+	public:
+		using PermutationType = ShaderPermutation<TAADim, UseDiffuseTextureDim>;
 	};
 
 	class SSGICompositePS final : public GlobalShaderBase<PixelShader, SSGICompositePS>
 	{
 		using GlobalShaderBase::GlobalShaderBase;
+
+	public:
+		using PermutationType = ShaderPermutation<SupportsBindlessDim, UseDiffuseTextureDim>;
 	};
 
 	REGISTER_GLOBAL_SHADER( SSGIPassCS, "SSGI/CS_SSGI.fx", "main" );
@@ -85,29 +94,18 @@ namespace rendercore
 			useDiffuseTexture = material.GetMaterial()->HasProperty( "DiffuseTex" );
 		}
 
-		StaticShaderSwitches vsSwitches = SSGICompositeVS::GetSwitches();
-		StaticShaderSwitches psSwitches = SSGICompositePS::GetSwitches();
+		SSGICompositeVS::PermutationType vsPermutation;
+		vsPermutation.SetValue<TAADim>( DefaultRenderCore::IsTaaEnabled() );
+		vsPermutation.SetValue<UseDiffuseTextureDim>( useDiffuseTexture );
 
-		if ( DefaultRenderCore::IsTaaEnabled() )
-		{
-			vsSwitches.On( StaticName( "TAA" ), 1 );
-		}
-
-		if ( agl::DefaultAgl::SupportsBindless() )
-		{
-			psSwitches.On( StaticName( "SupportsBindless" ), 1 );
-		}
-
-		if ( useDiffuseTexture )
-		{
-			vsSwitches.On( StaticName( "UseDiffuseTexture" ), 1 );
-			psSwitches.On( StaticName( "UseDiffuseTexture" ), 1 );
-		}
+		SSGICompositePS::PermutationType psPermutation;
+		psPermutation.SetValue<SupportsBindlessDim>( agl::DefaultAgl::SupportsBindless() );
+		psPermutation.SetValue<UseDiffuseTextureDim>( useDiffuseTexture );
 
 		PassShader passShader = {
-			.m_vertexShader = SSGICompositeVS( vsSwitches ),
+			.m_vertexShader = SSGICompositeVS( vsPermutation ),
 			.m_geometryShader = nullptr,
-			.m_pixelShader = SSGICompositePS( psSwitches ),
+			.m_pixelShader = SSGICompositePS( psPermutation ),
 			.m_meshShader = nullptr,
 			.m_amplificationShader = nullptr,
 		};
