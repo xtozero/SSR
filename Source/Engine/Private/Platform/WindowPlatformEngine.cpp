@@ -3,6 +3,7 @@
 #include "AppConfig/AppConfig.h"
 #include "CommandLine.h"
 #include "Config/DefaultAppConfig.h"
+#include "ConsoleMessageExecutor.h"
 #include "Core/IEditor.h"
 #include "Core/ILogic.h"
 #include "CpuProfiler.h"
@@ -13,6 +14,22 @@
 #include "TaskScheduler.h"
 
 #include <Windows.h>
+
+namespace
+{
+	void ApplyConsoleVariablesFromConfig()
+	{
+		std::vector<const ini::Section*> sections = GetInterface<IAppConfig>()->GetSection( StaticName( "ConsoleVariables" ) );
+		for ( const ini::Section* section : sections )
+		{
+			for ( const auto& [name, value] : *section )
+			{
+				std::string consoleMessage = std::format( "{} {}", name.CStr(), value );
+				GetInterface<engine::IConsoleMessageExecutor>()->AppendCommand( std::move( consoleMessage ) );
+			}
+		}
+	}
+}
 
 namespace engine
 {
@@ -75,6 +92,8 @@ namespace engine
 		}
 
 		m_platform = &platform;
+
+		ApplyConsoleVariablesFromConfig();
 
 		return m_isAvailable;
 	}

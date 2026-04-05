@@ -31,6 +31,16 @@ namespace ini
 			}
 		}
 
+		std::map<Name, std::string>::const_iterator begin() const noexcept
+		{
+			return std::begin( m_properties );
+		}
+
+		std::map<Name, std::string>::const_iterator end() const noexcept
+		{
+			return std::end( m_properties );
+		}
+
 	private:
 		std::map<Name, std::string> m_properties;
 

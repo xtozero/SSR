@@ -33,6 +33,8 @@ public:
 
 	virtual void SaveConfigToFile() const = 0;
 
+	virtual std::vector<const ini::Section*> GetSection( const Name& sectionName ) const = 0;
+
 	virtual ~IAppConfig() = default;
 };
 

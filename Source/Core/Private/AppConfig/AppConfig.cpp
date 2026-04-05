@@ -28,6 +28,8 @@ public:
 
 	virtual void SaveConfigToFile() const override;
 
+	virtual std::vector<const ini::Section*> GetSection( const Name& sectionName ) const override;
+
 private:
 	std::mutex m_defaultIniLock;
 	std::map<Name, ini::Ini> m_defaultIni;
@@ -186,6 +188,29 @@ void AppConfig::SaveConfigToFile() const
 
 		outputFile << ini::Writer::ToString( userSettings );
 	}
+}
+
+std::vector<const ini::Section*> AppConfig::GetSection( const Name& sectionName ) const
+{
+	std::vector<const ini::Section*> sections;
+
+	for ( auto& [name, ini] : m_defaultIni )
+	{
+		if ( auto section = ini.GetSection( sectionName ) )
+		{
+			sections.emplace_back( section );
+		}
+	}
+
+	for ( const ini::Ini& ini : m_savedIni )
+	{
+		if ( auto section = ini.GetSection( sectionName ) )
+		{
+			sections.emplace_back( section );
+		}
+	}
+
+	return sections;
 }
 
 IAppConfig* CreateAppConfig()
