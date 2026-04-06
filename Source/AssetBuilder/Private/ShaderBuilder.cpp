@@ -82,9 +82,15 @@ namespace
 				m_macros.emplace_back( name, m_valueStrs.back().c_str() );
 			}
 
+			PermutationVisitor( const IShaderPermutation& permutation )
+			{
+				m_valueStrs.reserve( permutation.GetDimensionCount() );
+				m_macros.reserve( permutation.GetDimensionCount() );
+			}
+
 			std::vector<D3D_SHADER_MACRO> m_macros;
 			std::vector<std::string> m_valueStrs;
-		} visitor;
+		} visitor( permutation );
 
 		permutation.ForEachShaderDefine( visitor );
 		visitor.m_macros.emplace_back( nullptr, nullptr );
@@ -233,7 +239,7 @@ std::optional<Products> ShaderBuilder::Build( const PathEnvironment& env, const 
 			auto permutation = shaderDesc.m_createPermutationFunc();
 
 			std::vector<ShaderCompileResult> errorMsgs;
-			bool compileSuccess = CompileShaderCombination( shaderFile, shaderType, entryPoint, *permutation, errorMsgs );
+			bool compileSuccess = CompileShaderCombination( shaderFile, shaderType, entryPoint, *permutation.Get(), errorMsgs );
 			if ( compileSuccess == false )
 			{
 				std::cout << "\nAn error occurred while compiling " << shaderDesc.m_assetName << "\n";
@@ -344,9 +350,15 @@ ShaderCompileResult ShaderBuilder::CompileD3D12Shader( const std::string& shader
 			m_args.push_back( m_defineStorage.back().data() );
 		}
 
+		PermutationVisitor( const IShaderPermutation& permutation )
+		{
+			m_defineStorage.reserve( permutation.GetDimensionCount() );
+			m_args.reserve( permutation.GetDimensionCount() * 2 );
+		}
+
 		std::vector<std::wstring> m_defineStorage;
 		std::vector<const wchar_t*> m_args;
-	} visitor;
+	} visitor( permutation );
 
 	permutation.ForEachShaderDefine( visitor );
 	args.insert( args.end(), visitor.m_args.begin(), visitor.m_args.end() );

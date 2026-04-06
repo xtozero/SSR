@@ -4,6 +4,8 @@
 #include "SizedTypes.h"
 
 #include <cassert>
+#include <memory>
+#include <new>
 #include <type_traits>
 
 namespace rendercore
@@ -86,6 +88,7 @@ namespace rendercore
     {
     public:
         virtual int32 GetPermutationCount() const = 0;
+        virtual int32 GetDimensionCount() const = 0;
 
         virtual uint32 GetPermutationId() const = 0;
         virtual void SetPermutationId( int32 permutationId ) = 0;
@@ -124,6 +127,11 @@ namespace rendercore
         virtual int32 GetPermutationCount() const override
         {
             return PermutationCount;
+        }
+
+        virtual int32 GetDimensionCount() const override
+        {
+            return 0;
         }
 
         virtual uint32 GetPermutationId() const override
@@ -198,6 +206,11 @@ namespace rendercore
         virtual int32 GetPermutationCount() const override
         {
             return PermutationCount;
+        }
+
+        virtual int32 GetDimensionCount() const override
+        {
+            return sizeof...( Types ) + 1;
         }
 
         virtual uint32 GetPermutationId() const override
@@ -280,4 +293,158 @@ namespace rendercore
     {
         typename ShaderClass::PermutationType;
     } && std::derived_from<typename ShaderClass::PermutationType, IShaderPermutation>;
+
+    class ShaderPermutationInstance
+    {
+    public:
+        template <typename T>
+        void Assign()
+        {
+            static_assert( std::is_base_of_v<IShaderPermutation, T> );
+
+            Reset();
+
+            if ( CanInlining<T>() )
+            {
+                static_assert( alignof( T ) <= StackAlign );
+
+                m_inlined = true;
+                m_ptr = new ( m_stackPermutation ) T();
+            }
+            else
+            {
+                m_heapPermutation = std::make_unique<T>();
+                m_ptr = m_heapPermutation.get();
+            }
+
+            m_vtable = &VTableImpl<T>;
+        }
+
+        IShaderPermutation* Get()
+        {
+            return reinterpret_cast<IShaderPermutation*>( m_ptr );
+        }
+
+        const IShaderPermutation* Get() const
+        {
+            return reinterpret_cast<const IShaderPermutation*>( m_ptr );
+        }
+
+        bool IsValid() const
+        {
+            return m_ptr != nullptr;
+        }
+
+        ShaderPermutationInstance() noexcept = default;
+        ~ShaderPermutationInstance()
+        {
+            Reset();
+        }
+
+        ShaderPermutationInstance( const ShaderPermutationInstance& ) = delete;
+        ShaderPermutationInstance& operator=( const ShaderPermutationInstance& ) = delete;
+        ShaderPermutationInstance( ShaderPermutationInstance&& other ) noexcept
+        {
+            *this = std::move( other );
+        }
+
+        ShaderPermutationInstance& operator=( ShaderPermutationInstance&& other ) noexcept
+        {
+            Reset();
+
+            m_vtable = other.m_vtable;
+            m_inlined = other.m_inlined;
+
+            if ( m_inlined )
+            {
+                m_vtable->m_move( m_stackPermutation, other.m_stackPermutation );
+                m_ptr = std::launder( m_stackPermutation );
+            }
+            else
+            {
+                m_heapPermutation = std::move( other.m_heapPermutation );
+                m_ptr = m_heapPermutation.get();
+            }
+
+            other.m_ptr = nullptr;
+            other.m_vtable = nullptr;
+            other.m_inlined = false;
+
+            return *this;
+        }
+
+        IShaderPermutation* operator->()
+        {
+            return Get();
+        }
+
+        const IShaderPermutation* operator->() const
+        {
+            return Get();
+        }
+
+    private:
+        template <typename T>
+        static bool CanInlining()
+        {
+            return alignof( T ) <= StackAlign
+                && sizeof( T ) <= StackSize
+                && std::is_nothrow_move_constructible_v<T>;
+        }
+
+        void Reset()
+        {
+            if ( m_ptr )
+            {
+                if ( m_inlined && m_vtable )
+                {
+                    m_vtable->m_destroy( m_stackPermutation );
+                }
+                else
+                {
+                    m_heapPermutation.reset();
+                }
+            }
+
+            m_ptr = nullptr;
+            m_vtable = nullptr;
+            m_inlined = false;
+        }
+
+        static constexpr uint32 StackAlign = 16;
+        static constexpr uint32 StackSize = 64;
+
+        template <typename T>
+        static void Move( void* dest, void* src )
+        {
+            T* srcPtr = std::launder( reinterpret_cast<T*>( src ) );
+            new ( dest ) T( std::move( *srcPtr ) );
+            srcPtr->~T();
+        }
+
+        template <typename T>
+        static void Destroy( void* ptr )
+        {
+            std::launder( reinterpret_cast<T*>( ptr ) )->~T();
+        }
+
+        struct VTable
+        {
+            void ( *m_move )( void*, void* );
+            void ( *m_destroy )( void* );
+        };
+
+        template <typename T>
+        inline static VTable VTableImpl =
+        {
+            .m_move = &Move<T>,
+            .m_destroy = &Destroy<T>,
+        };
+
+        void* m_ptr = nullptr;
+        std::unique_ptr<IShaderPermutation> m_heapPermutation = nullptr;
+        alignas( StackAlign ) uint8 m_stackPermutation[StackSize] = {};
+        const VTable* m_vtable = nullptr;
+        bool m_inlined = false;
+    };
 }

@@ -13,7 +13,7 @@
 
 namespace rendercore
 {
-    using ShaderPermutationCreateFunc = std::shared_ptr<IShaderPermutation> (*)();
+    using ShaderPermutationCreateFunc = ShaderPermutationInstance (*)();
 
     struct ShaderDescriptor
     {
@@ -74,16 +74,18 @@ namespace rendercore
         filePath, \
         shaderClass::Type, \
         entryPoint, \
-        +[]() -> std::shared_ptr<IShaderPermutation> \
+        +[]() -> ShaderPermutationInstance \
         { \
+            ShaderPermutationInstance permutation; \
             if constexpr ( HasShaderPermutationType<shaderClass> ) \
             { \
-                return std::make_shared<typename shaderClass::PermutationType>(); \
+                permutation.Assign<typename shaderClass::PermutationType>(); \
             } \
             else \
             { \
-                return std::make_shared<ShaderPermutation<>>(); \
+                permutation.Assign<ShaderPermutation<>>(); \
             } \
+            return permutation; \
         } \
     )
 }

@@ -17,7 +17,7 @@ namespace rendercore
 		GENERATE_CLASS_TYPE_INFO( ShaderAsset );
 
 	public:
-		RENDERCORE_DLL std::shared_ptr<IShaderPermutation> CreatePermutation();
+		RENDERCORE_DLL ShaderPermutationInstance CreatePermutation() const;
 
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) = 0;
 		RENDERCORE_DLL virtual void RecompileShader() = 0;

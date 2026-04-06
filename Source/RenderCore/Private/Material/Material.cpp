@@ -443,12 +443,12 @@ namespace rendercore
 		return DefaultRenderCore::SupportsVisibilityRendering() && HasShaderSource( agl::ShaderType::Compute );
 	}
 
-	IShaderPermutation& Material::GetShaderPermutation( agl::ShaderType type ) const
+	IShaderPermutation& Material::GetShaderPermutation( agl::ShaderType type )
 	{
-		auto permutation = m_permutation[static_cast<uint32>( type )].get();
-		if ( permutation != nullptr )
+		auto index = static_cast<uint32>( type );
+		if ( m_permutation[index].IsValid() )
 		{
-			return *permutation;
+			return *m_permutation[index].Get();
 		}
 
 		static ShaderPermutation<> empty;
@@ -507,7 +507,7 @@ namespace rendercore
 		}
 
 		ShaderPermutation<> empty;
-		const IShaderPermutation& defaultPermutation = m_permutation[index].get() ? *m_permutation[index] : empty;
+		const IShaderPermutation& defaultPermutation = m_permutation[index].IsValid() ? *m_permutation[index].Get() : empty;
 		const IShaderPermutation& compileOption = permutation ? *permutation : defaultPermutation;
 
 		return shader->CompileShader( compileOption );

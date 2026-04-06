@@ -166,24 +166,31 @@ namespace rendercore
 		public:
 			virtual void Visit( const char* name, [[maybe_unused]] const wchar_t* nameW, int32 value ) override
 			{
+				char* valueStr = m_valueBuffer.data() + m_offset;
+
 				m_defines.emplace_back( name );
-				m_defines.emplace_back( m_valueStr );
+				m_defines.emplace_back( valueStr );
 
-				SPrintf( m_valueStr, m_valueBufferSize, "%d", value );
-				size_t offset = std::strlen( m_valueStr ) + 1;
+				SPrintf( valueStr, m_valueBufferSize, "%d", value );
+				size_t valueStrLen = std::strlen( valueStr ) + 1;
 
-				assert( ( m_valueBufferSize - offset ) < 1024 );
+				assert( ( m_valueBufferSize - valueStrLen ) < 1024 );
 
-				m_valueStr += offset;
-				m_valueBufferSize -= offset;
+				m_offset += valueStrLen;
+				m_valueBufferSize -= valueStrLen;
+			}
+
+			PermutationVisitor( const IShaderPermutation& permutation )
+			{
+				m_defines.reserve( ( permutation.GetDimensionCount() + 1 ) * 2 );
 			}
 
 			std::vector<const char*> m_defines;
 			std::array<char, 1024> m_valueBuffer{ '\0' };
 
-			char* m_valueStr = m_valueBuffer.data();
 			size_t m_valueBufferSize = m_valueBuffer.size();
-		} visitor;
+			size_t m_offset = 0;
+		} visitor( permutation );
 
 		permutation.ForEachShaderDefine( visitor );
 

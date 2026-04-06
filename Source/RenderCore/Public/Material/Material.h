@@ -187,7 +187,7 @@ namespace rendercore
 		RENDERCORE_DLL bool UseMeshShader() const;
 		RENDERCORE_DLL bool SupportsVisibilityRendering() const;
 
-		IShaderPermutation& GetShaderPermutation( agl::ShaderType type ) const;
+		IShaderPermutation& GetShaderPermutation( agl::ShaderType type );
 
 		RENDERCORE_DLL MaterialResource* GetMaterialResource() const;
 
@@ -212,7 +212,7 @@ namespace rendercore
 		PROPERTY( shaders )
 		std::shared_ptr<ShaderBase> m_shaders[agl::NumNonRTShaderTypes<uint32>];
 
-		std::shared_ptr<IShaderPermutation> m_permutation[agl::NumNonRTShaderTypes<uint32>];
+		ShaderPermutationInstance m_permutation[agl::NumNonRTShaderTypes<uint32>];
 
 		PROPERTY( defines )
 		std::vector<std::pair<Name, int32>> m_defines[agl::NumNonRTShaderTypes<uint32>];

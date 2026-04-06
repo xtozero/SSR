@@ -48,7 +48,7 @@ namespace rendercore
 		return m_hash;
 	}
 
-	std::shared_ptr<IShaderPermutation> ShaderAsset::CreatePermutation()
+	ShaderPermutationInstance ShaderAsset::CreatePermutation() const
 	{
 		assert( m_createPermutationFunc != nullptr );
 		return m_createPermutationFunc();
@@ -81,7 +81,7 @@ namespace rendercore
 		permutation->SetPermutationId( m_permutationId );
 
 		auto uberShader = static_cast<UberShader*>( m_parent.get() );
-		BinaryChunk byteCode = uberShader->ComipeShaderByteCode( *permutation );
+		BinaryChunk byteCode = uberShader->ComipeShaderByteCode( *permutation.Get() );
 		if (byteCode.Size() == 0)
 		{
 			return;
