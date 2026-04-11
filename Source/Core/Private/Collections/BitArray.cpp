@@ -117,14 +117,14 @@ uint64 BitArray::BitMask( size_t index ) const
 }
 
 ConstSetBitIterator::ConstSetBitIterator( const BitArray& array, size_t startIndex )
-	: m_array( array )
+	: m_array( &array )
 	, m_startIndex( startIndex )
 {
 }
 
 bool operator==( const ConstSetBitIterator& lhs, const ConstSetBitIterator& rhs )
 {
-	return ( &lhs.m_array == &rhs.m_array ) && ( lhs.m_startIndex == rhs.m_startIndex );
+	return ( lhs.m_array == rhs.m_array ) && ( lhs.m_startIndex == rhs.m_startIndex );
 }
 
 bool operator!=( const ConstSetBitIterator& lhs, const ConstSetBitIterator& rhs )
@@ -138,6 +138,13 @@ ConstSetBitIterator& ConstSetBitIterator::operator++()
 	return *this;
 }
 
+ConstSetBitIterator ConstSetBitIterator::operator++( int )
+{
+	ConstSetBitIterator temp = *this;
+	++( *this );
+	return temp;
+}
+
 size_t ConstSetBitIterator::operator*() const
 {
 	return m_startIndex;
@@ -145,14 +152,14 @@ size_t ConstSetBitIterator::operator*() const
 
 void ConstSetBitIterator::AdvanceNextSetBit()
 {
-	if ( m_startIndex >= m_array.Size() )
+	if ( m_startIndex >= m_array->Size() )
 	{
 		return;
 	}
 
-	for ( m_startIndex += 1; m_startIndex < m_array.Size(); ++m_startIndex )
+	for ( m_startIndex += 1; m_startIndex < m_array->Size(); ++m_startIndex )
 	{
-		if ( m_array[m_startIndex] )
+		if ( ( *m_array )[m_startIndex] )
 		{
 			break;
 		}

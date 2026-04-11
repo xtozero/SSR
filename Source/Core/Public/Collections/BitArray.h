@@ -53,17 +53,19 @@ public:
 	using reference = const bool&;
 
 	ConstSetBitIterator( const BitArray& array, size_t startIndex );
+	ConstSetBitIterator() = default;
 
 	friend bool operator==( const ConstSetBitIterator& lhs, const ConstSetBitIterator& rhs );
 	friend bool operator!=( const ConstSetBitIterator& lhs, const ConstSetBitIterator& rhs );
 
 	ConstSetBitIterator& operator++();
+	ConstSetBitIterator operator++( int );
 
 	size_t operator*() const;
 
 private:
 	void AdvanceNextSetBit();
 
-	const BitArray& m_array;
+	const BitArray* m_array;
 	size_t m_startIndex = 0;
 };

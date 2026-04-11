@@ -8,6 +8,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
 #include <imgui.h>
+#include <ranges>
 
 using ::engine::UserInput;
 using ::engine::UserInputCode;
@@ -69,29 +70,34 @@ namespace editor
         switch ( data->EventFlag )
         {
         case ImGuiInputTextFlags_CallbackCompletion:
-            if ( thisWidget.m_autoCompletionList.empty() == false )
+            if ( ( thisWidget.GetAutoCompleteStringSize() > 0 ) && ( thisWidget.m_autoCompletionCursor >= 0 ) )
             {
-                int32 actualBufferLen = std::max( 0, data->BufTextLen - static_cast<int32>( BufferStartOffset ) );
-                data->DeleteChars( BufferStartOffset, actualBufferLen );
+                int32 actualBufferLen = std::max( 0, data->BufTextLen - ConsolePromptLength );
+                data->DeleteChars( ConsolePromptLength, actualBufferLen );
 
-                auto maxIndex = static_cast<int32>( thisWidget.m_autoCompletionList.size() ) - 1;
-                int32 index = std::clamp<int32>( thisWidget.m_autoCompletionCursor, 0, maxIndex );
-                data->InsertChars( BufferStartOffset, thisWidget.m_autoCompletionList[index].c_str() );
+                data->InsertChars( ConsolePromptLength, thisWidget.GetAutoCompleteString().c_str() );
 
                 thisWidget.ClearAutoCompletion();
             }
             break;
         case ImGuiInputTextFlags_CallbackHistory:
-            if ( data->EventKey == ImGuiKey_UpArrow )
             {
-                --thisWidget.m_autoCompletionCursor;
-                thisWidget.m_autoCompletionCursor = std::max( thisWidget.m_autoCompletionCursor, 0 );
-            }
-            else
-            {
-                ++thisWidget.m_autoCompletionCursor;
-                auto maxIndex = static_cast<int32>( thisWidget.m_autoCompletionList.size() ) - 1;
-                thisWidget.m_autoCompletionCursor = std::min( thisWidget.m_autoCompletionCursor, maxIndex );
+                auto numAutoCompletion = thisWidget.GetAutoCompleteStringSize();
+                if ( numAutoCompletion > 0 )
+                {
+                    if ( data->EventKey == ImGuiKey_UpArrow )
+                    {
+                        --thisWidget.m_autoCompletionCursor;
+                    }
+                    else
+                    {
+                        ++thisWidget.m_autoCompletionCursor;
+                    }
+
+                    thisWidget.m_autoCompletionCursor = std::max( thisWidget.m_autoCompletionCursor, NoAutoCompleteSelection );
+                    thisWidget.m_autoCompletionCursor += numAutoCompletion;
+                    thisWidget.m_autoCompletionCursor %= numAutoCompletion;
+                }
             }
             break;
         case ImGuiInputTextFlags_CallbackAlways:
@@ -101,18 +107,28 @@ namespace editor
                 thisWidget.m_needClearInputTextSelection = false;
             }
 
-            if ( data->BufTextLen < BufferStartOffset )
+            if ( data->BufTextLen < ConsolePromptLength )
             {
                 data->DeleteChars( 0, data->BufTextLen );
-                data->InsertChars( 0, ConsoleInputDefaultString.data() );
+                data->InsertChars( 0, ConsolePrompt, ConsolePrompt + ConsolePromptLength );
             }
+
+            data->CursorPos = std::max<int32>( data->CursorPos, ConsolePromptLength );
             break;
         case ImGuiInputTextFlags_CallbackCharFilter:
             return ( data->EventChar == '`' ) ? 1 : 0;
         case ImGuiInputTextFlags_CallbackEdit:
-            if ( data->BufTextLen > static_cast<int32>( BufferStartOffset ) )
+            if ( data->BufTextLen > ConsolePromptLength )
             {
-                thisWidget.UpdateAutoCompletion( std::string_view{ data->Buf + BufferStartOffset, static_cast<size_t>( data->BufTextLen - BufferStartOffset ) } );
+                size_t oldAutoCompletionCount = thisWidget.m_autoCompletionList.size();
+                thisWidget.UpdateAutoCompletion( std::string_view{ data->Buf + ConsolePromptLength, static_cast<size_t>( data->BufTextLen - ConsolePromptLength ) } );
+                size_t newAutoCompletionCount = thisWidget.m_autoCompletionList.size();
+
+                bool needResetCursor = oldAutoCompletionCount != newAutoCompletionCount;
+                if ( needResetCursor )
+                {
+                    thisWidget.ResetAutoCompletionCursor();
+                }
             }
             else
             {
@@ -179,12 +195,18 @@ namespace editor
 
     void ConsoleInputWidget::DrawAutoCompletion( float baseY )
     {
-        if ( m_autoCompletionList.empty() )
+        if ( ( m_autoCompletionCursor == NoAutoCompleteSelection ) && m_autoCompletionList.empty() )
         {
             return;
         }
 
-        float contentHeight = ImGui::GetTextLineHeightWithSpacing() * m_autoCompletionList.size();
+        size_t itemSize = GetAutoCompleteStringSize();
+        if ( itemSize == 0 )
+        {
+            return;
+        }
+
+        float contentHeight = ImGui::GetTextLineHeightWithSpacing() * itemSize;
         float cursorPosY = baseY - contentHeight;
         ImGui::SetNextWindowPos( ImVec2( ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMin().x, cursorPosY ) );
 
@@ -201,9 +223,9 @@ namespace editor
 
         ImGui::Begin( "AutoCompletionWindow", nullptr, windowFlags );
         {
-            for ( size_t i = 0; i < m_autoCompletionList.size(); ++i )
+            for ( int32 i = 0; i < itemSize; ++i )
             {
-                const char* name = m_autoCompletionList[i].c_str();
+                const char* name = m_autoCompletionList.empty() ? m_history.At( i ).c_str() : m_autoCompletionList[i].c_str();
 
                 bool selected = m_autoCompletionCursor == i;
                 if ( selected )
@@ -255,21 +277,34 @@ namespace editor
                 | ImGuiInputTextFlags_CallbackEdit;
             if ( ImGui::InputText( "##ConsoleInput", m_buffer, sizeof( m_buffer ), flags, &ConsoleInputTextCallback, this ) )
             {
-                if ( m_autoCompletionList.empty() || ( m_autoCompletionCursor < 0 ) )
+                if ( ( GetAutoCompleteStringSize() < 0 ) || ( m_autoCompletionCursor < 0 ) )
                 {
-                    std::string consoleMessage( m_buffer + BufferStartOffset );
+                    std::string consoleMessage( m_buffer + ConsolePromptLength );
 
                     GetInterface<engine::ILogMessage>()->Log( consoleMessage );
                     GetInterface<engine::IConsoleMessageExecutor>()->AppendCommand( std::move( consoleMessage ) );
 
-                    m_buffer[BufferStartOffset] = '\0';
+                    if ( consoleMessage.empty() == false )
+                    {
+                        if ( std::ranges::find( m_history, consoleMessage ) == std::end( m_history ) )
+                        {
+                            m_history.EnqueueOverwrite( consoleMessage );
+                        }
+                    }
+
+                    m_buffer[ConsolePromptLength] = '\0';
                     ClearAutoCompletion();
+
+                    if ( m_displayMode == DisplayMode::Minimal )
+                    {
+                        SetDisplayMode( DisplayMode::Hidden );
+                    }
                 }
                 else
                 {
-                    char* consoleMessegeBegin = m_buffer + BufferStartOffset;
-                    constexpr size_t actualBufferLen = sizeof( m_buffer ) - BufferStartOffset;
-                    strcpy_s( consoleMessegeBegin, actualBufferLen, m_autoCompletionList[m_autoCompletionCursor].c_str() );
+                    char* consoleMessegeBegin = m_buffer + ConsolePromptLength;
+                    constexpr size_t actualBufferLen = sizeof( m_buffer ) - ConsolePromptLength;
+                    strcpy_s( consoleMessegeBegin, actualBufferLen, GetAutoCompleteString().c_str() );
 
                     ClearAutoCompletion();
                 }
@@ -299,11 +334,31 @@ namespace editor
                 m_autoCompletionList.emplace_back( name );
             }
         }
+
+        if ( m_autoCompletionList.empty() )
+        {
+            ResetAutoCompletionCursor();
+        }
+    }
+
+    void ConsoleInputWidget::ResetAutoCompletionCursor()
+    {
+        m_autoCompletionCursor = NoAutoCompleteSelection;
     }
 
     void ConsoleInputWidget::ClearAutoCompletion()
     {
-        m_autoCompletionCursor = -1;
+        ResetAutoCompletionCursor();
         m_autoCompletionList.clear();
+    }
+
+    const std::string& ConsoleInputWidget::GetAutoCompleteString() const
+    {
+        return m_autoCompletionList.empty() ? m_history.At( m_autoCompletionCursor ) : m_autoCompletionList[m_autoCompletionCursor];
+    }
+
+    int32 ConsoleInputWidget::GetAutoCompleteStringSize() const
+    {
+        return m_autoCompletionList.empty() ? m_history.Size() : static_cast<int32>( m_autoCompletionList.size() );
     }
 }

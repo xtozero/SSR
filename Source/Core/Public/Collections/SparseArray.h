@@ -131,7 +131,7 @@ public:
 		return ( (const T&)GetData( index ).m_data );
 	}
 
-	template <bool IsConst>
+	template <typename Derived, bool IsConst>
 	class IteratorBase
 	{
 	public:
@@ -148,20 +148,27 @@ public:
 			return *m_bitIter;
 		}
 
-		IteratorBase& operator++()
+		Derived& operator++()
 		{
 			++m_bitIter;
-			return *this;
+			return static_cast<Derived&>( *this );
+		}
+
+		Derived operator++(int)
+		{
+			Derived temp = static_cast<Derived&>( *this );
+			++( *this );
+			return temp;
 		}
 
 		reference operator*() const
 		{
-			return m_array[*m_bitIter];
+			return ( *m_array )[*m_bitIter];
 		}
 
 		friend bool operator==( const IteratorBase& lhs, const IteratorBase& rhs )
 		{
-			return ( &lhs.m_array == &rhs.m_array ) && ( lhs.m_bitIter == rhs.m_bitIter );
+			return ( lhs.m_array == rhs.m_array ) && ( lhs.m_bitIter == rhs.m_bitIter );
 		}
 
 		friend bool operator!=( const IteratorBase& lhs, const IteratorBase& rhs )
@@ -169,24 +176,27 @@ public:
 			return !( lhs == rhs );
 		}
 
-		IteratorBase( ArrayType& array, size_t startIndex ) : m_array( array ), m_bitIter( ConstSetBitIterator( array.m_allocationFlag, startIndex ) )
+		IteratorBase( ArrayType& array, size_t startIndex )
+			: m_array( &array )
+			, m_bitIter( ConstSetBitIterator( array.m_allocationFlag, startIndex ) )
 		{}
+		IteratorBase() = default;
 
 	protected:
-		ArrayType& m_array;
+		ArrayType* m_array = nullptr;
 		ConstSetBitIterator m_bitIter;
 	};
 
-	class Iterator : public IteratorBase<false>
+	class Iterator : public IteratorBase<Iterator, false>
 	{
 	public:
-		using IteratorBase<false>::IteratorBase;
+		using IteratorBase<Iterator, false>::IteratorBase;
 	};
 
-	class ConstIterator : public IteratorBase<true>
+	class ConstIterator : public IteratorBase<ConstIterator, true>
 	{
 	public:
-		using IteratorBase<true>::IteratorBase;
+		using IteratorBase<ConstIterator, true>::IteratorBase;
 	};
 
 	Iterator begin() noexcept

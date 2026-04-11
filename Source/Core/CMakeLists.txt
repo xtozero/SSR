@@ -24,6 +24,7 @@ set (COLLECTIONS
 
 set (DATA_STRUCTURE
 	Private/DataStructure/EnumStringMap.cpp
+	Public/DataStructure/CircularBuffer.h
 	Public/DataStructure/DoubleLinkedList.h
 	Public/DataStructure/EnumStringMap.h
 	Public/DataStructure/SingleLInkedList.h)
