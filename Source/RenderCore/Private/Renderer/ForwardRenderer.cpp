@@ -60,18 +60,6 @@ namespace rendercore
 		return m_linearDepth[1].Get();
 	}
 
-	agl::Texture* ForwardRendererRenderTargets::GetTAAHistory()
-	{
-		AllocTAARenderTargets();
-		return m_taaHistory.Get();
-	}
-
-	agl::Texture* ForwardRendererRenderTargets::GetTAAResolve()
-	{
-		AllocTAARenderTargets();
-		return m_taaResolve.Get();
-	}
-
 	agl::Texture* ForwardRendererRenderTargets::GetWorldNormal()
 	{
 		AllocWorldNormal();
@@ -167,48 +155,6 @@ namespace rendercore
 		}
 	}
 
-	void ForwardRendererRenderTargets::AllocTAARenderTargets()
-	{
-		if ( m_taaHistory == nullptr )
-		{
-			agl::TextureDesc desc = {
-				.m_width = m_bufferSize.first,
-				.m_height = m_bufferSize.second,
-				.m_depth = 1,
-				.m_sampleCount = 1,
-				.m_sampleQuality = 0,
-				.m_mipLevels = 1,
-				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
-				.m_access = agl::ResourceAccess::Default,
-				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
-				.m_miscFlag = agl::ResourceMisc::None
-			};
-
-			m_taaHistory = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "TAA.History" );
-		}
-
-		if ( m_taaResolve == nullptr )
-		{
-			agl::TextureDesc desc = {
-				.m_width = m_bufferSize.first,
-				.m_height = m_bufferSize.second,
-				.m_depth = 1,
-				.m_sampleCount = 1,
-				.m_sampleQuality = 0,
-				.m_mipLevels = 1,
-				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
-				.m_access = agl::ResourceAccess::Default,
-				.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::ShaderResource,
-				.m_miscFlag = agl::ResourceMisc::None,
-				.m_clearValue = agl::ResourceClearValue{
-					.m_color = { 0.f, 0.f, 0.f, 0.f }
-				}
-			};
-
-			m_taaResolve = GraphicsResourcePool::GetInstance().FindFreeTexture( desc, "TAA.Resolve" );
-		}
-	}
-
 	void ForwardRendererRenderTargets::AllocWorldNormal()
 	{
 		if ( m_worldNormal == nullptr )
@@ -287,8 +233,6 @@ namespace rendercore
 		m_depthStencil = nullptr;
 		m_linearDepth[0] = nullptr;
 		m_linearDepth[1] = nullptr;
-		m_taaHistory = nullptr;
-		m_taaResolve = nullptr;
 		m_worldNormal = nullptr;
 		m_velocity = nullptr;
 	}
@@ -381,6 +325,8 @@ namespace rendercore
 			RenderVolumetricCloud( renderGraph, renderViewGroup );
 
 			RenderVolumetricFog( renderGraph, renderViewGroup );
+
+			RenderEditorOutline( renderGraph, renderViewGroup );
 		}
 
 		if ( DefaultRenderCore::IsTaaEnabled() )

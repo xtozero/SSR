@@ -56,11 +56,13 @@ namespace rendercore
 			Matrix m_worldTransform;
 			BoxSphereBounds m_worldBounds;
 			BoxSphereBounds m_localBounds;
+			bool m_selected;
 		};
 		AddPrimitiveSceneInfoParams params = {
 			.m_worldTransform = primitive->GetRenderMatrix(),
 			.m_worldBounds = primitive->Bounds(),
 			.m_localBounds = primitive->CalcBounds( Matrix::Identity ),
+			.m_selected = primitive->IsSelected(),
 		};
 
 		EnqueueRenderTask(
@@ -69,6 +71,7 @@ namespace rendercore
 				PrimitiveProxy* proxy = primitiveSceneInfo->Proxy();
 
 				proxy->UpdateTransformAndBounds( params.m_worldTransform, params.m_worldBounds, params.m_localBounds );
+				proxy->m_selected = params.m_selected;
 				proxy->CreateRenderData();
 
 				AddPrimitiveSceneInfo( primitiveSceneInfo );

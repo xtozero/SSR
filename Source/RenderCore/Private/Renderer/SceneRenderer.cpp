@@ -4,6 +4,7 @@
 #include "CommonRenderResource.h"
 #include "Config/DefaultRenderCoreConfig.h"
 #include "CpuProfiler/CpuProfiler.h"
+#include "EditorOutlineRendering.h"
 #include "ExponentialShadowMapRendering.h"
 #include "GpuProfiler.h"
 #include "GraphicsResourcePool.h"
@@ -1559,8 +1560,7 @@ namespace rendercore
 
 		for ( size_t viewIndex = 0; viewIndex < renderViewGroup.NumRenderView(); ++viewIndex )
 		{
-			SceneViewParameters viewParam = GetViewParameters( ( viewIndex < m_prevFrameContext.size() ) ? &m_prevFrameContext[viewIndex] : nullptr
-				, renderViewGroup, viewIndex );
+			SceneViewParameters viewParam = GetViewParameters( ( viewIndex < m_prevFrameContext.size() ) ? &m_prevFrameContext[viewIndex] : nullptr, renderViewGroup, viewIndex );
 
 			viewShaderArguments.Update( viewParam );
 
@@ -1713,6 +1713,17 @@ namespace rendercore
 
 			OcclusionCull( scene, m_dynamicVertexBuffer, viewInfo, m_occlusionRenderData );
 		}
+	}
+
+	void SceneRenderer::RenderEditorOutline( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
+	{
+		EditorOutlineRenderParams params = {
+			.m_scene = &renderViewGroup.Scene(),
+			.m_sceneColor = GetRenderTargets().GetSceneColor(),
+			.m_resourceBinder = &m_resourceBinder,
+		};
+
+		EditorOutlinePass::Render( renderGraph, params );
 	}
 
 	void SceneRenderer::ResetFrameData()

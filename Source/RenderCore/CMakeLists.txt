@@ -177,6 +177,7 @@ set (RENDER_UTILITY_SOURCE
 	Private/RenderUtility/ResourceBarrierUtils.cpp)
 	
 set (RENDERER_SOURCE
+	Private/Renderer/EditorOutlineRendering.cpp
 	Private/Renderer/ExponentialShadowMapRendering.cpp
 	Private/Renderer/ForwardLighting.cpp
 	Private/Renderer/ForwardRenderer.cpp
@@ -192,6 +193,7 @@ set (RENDERER_SOURCE
 	Private/Renderer/SSGIRendering.cpp
 	Private/Renderer/TemporalAntiAliasingRendering.cpp
 	Private/Renderer/VisibilityRendering.cpp
+	Public/Renderer/EditorOutlineRendering.h
 	Public/Renderer/ExponentialShadowMapRendering.h
 	Public/Renderer/ForwardLighting.h
 	Public/Renderer/ForwardRenderer.h

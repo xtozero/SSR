@@ -128,7 +128,7 @@ namespace editor
 
                 if ( auto hitObject = Cast<logic::HitObject>( hitProxy ) )
                 {
-                    sharedCtx.SelectObject( hitObject->GetObject() );
+                    sharedCtx.SelectObject( *hitObject->GetObject() );
                 }
 			}
 			else if ( input.IsKeyJustReleased( UserInputCode::UIC_MOUSE_RIGHT ) )

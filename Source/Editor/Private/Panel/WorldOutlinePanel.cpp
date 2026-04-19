@@ -31,10 +31,10 @@ namespace editor
 				}
 
 				ImGui::PushID( n++ );
-				if ( ImGui::Selectable( object->GetName().c_str(), sharedCtx.IsSelectedObject( object.get() ) ) )
+				if ( ImGui::Selectable( object->GetName().c_str(), sharedCtx.IsSelectedObject( *object ) ) )
 				{
 					sharedCtx.UnselectObject();
-					sharedCtx.SelectObject( object.get() );
+					sharedCtx.SelectObject( *object );
 				}
 				ImGui::PopID();
 			}

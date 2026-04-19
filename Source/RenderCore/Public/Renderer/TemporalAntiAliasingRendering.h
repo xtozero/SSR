@@ -31,14 +31,18 @@ namespace rendercore
 	{
 	public:
 		void Render( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup );
-		void Resovle( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup );
-		void UpdateHistory( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderViewGroup& renderViewGroup );
 
 		TAARenderPass();
 
 	private:
+		void AllocateHistoryTexture( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
+		void Resovle( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderGraphTexture* rgResolveTex, RenderViewGroup& renderViewGroup );
+		void UpdateHistory( RenderGraph& renderGraph, IRendererRenderTargets& renderTargets, RenderGraphTexture* rgResolveTex ) const;
+
 		RefHandle<ShaderArguments> m_shaderArguments;
 		TAAParameters m_parameters;
 		bool m_paramUploaded = false;
+
+		RefHandle<agl::Texture> m_historyTex;
 	};
 }

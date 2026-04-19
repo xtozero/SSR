@@ -12,9 +12,9 @@ namespace editor
 	class PanelSharedContext
 	{
 	public:
-		void SelectObject( logic::GameObject* object );
+		void SelectObject( logic::GameObject& object );
 		void UnselectObject();
-		bool IsSelectedObject( logic::GameObject* object );
+		bool IsSelectedObject( logic::GameObject& object ) const;
 		const std::set<logic::GameObject*>& GetSelectedObjects() const;
 
 		void OpenProfiler( bool open );

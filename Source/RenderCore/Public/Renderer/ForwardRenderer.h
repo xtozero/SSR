@@ -16,8 +16,6 @@ namespace rendercore
 		virtual agl::Texture* GetDepthStencil() override;
 		virtual agl::Texture* GetViewSpaceDistance() override;
 		virtual agl::Texture* GetPrevViewSpaceDistance() override;
-		virtual agl::Texture* GetTAAHistory() override;
-		virtual agl::Texture* GetTAAResolve() override;
 		virtual agl::Texture* GetWorldNormal() override;
 		virtual agl::Texture* GetVelocity() override;
 		virtual agl::Texture* GetVisibility() override;
@@ -26,7 +24,6 @@ namespace rendercore
 		void AllocSceneColor();
 		void AllocDepthStencil();
 		void AllocViewSpaceDistance();
-		void AllocTAARenderTargets();
 		void AllocWorldNormal();
 		void AllocVelocity();
 		void AllocVisibility();
@@ -36,8 +33,6 @@ namespace rendercore
 		RefHandle<agl::Texture> m_sceneColor;
 		RefHandle<agl::Texture> m_depthStencil;
 		RefHandle<agl::Texture> m_linearDepth[2]; // 0 : current frame, 1 : previous frame
-		RefHandle<agl::Texture> m_taaHistory;
-		RefHandle<agl::Texture> m_taaResolve;
 		RefHandle<agl::Texture> m_worldNormal;
 		RefHandle<agl::Texture> m_velocity;
 		RefHandle<agl::Texture> m_visibility;

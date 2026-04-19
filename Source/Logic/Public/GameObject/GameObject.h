@@ -115,6 +115,9 @@ namespace logic
 
 		World* GetWorld() const { return m_pWorld; }
 
+		LOGIC_DLL void SetSelected( bool selected );
+		bool IsSelected() const { return m_selected; }
+
 		GameObject();
 		virtual ~GameObject();
 
@@ -156,6 +159,8 @@ namespace logic
 
 		std::vector<std::unique_ptr<Component>> m_components;
 		std::map<Name, Component*> m_componentMap;
+
+		bool m_selected = false;
 
 	protected:
 		GameObjectThinkFunction m_think;

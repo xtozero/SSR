@@ -59,8 +59,6 @@ namespace rendercore
 		virtual agl::Texture* GetDepthStencil() = 0;
 		virtual agl::Texture* GetPrevViewSpaceDistance() = 0;
 		virtual agl::Texture* GetViewSpaceDistance() = 0;
-		virtual agl::Texture* GetTAAHistory() = 0;
-		virtual agl::Texture* GetTAAResolve() = 0;
 		virtual agl::Texture* GetWorldNormal() = 0;
 		virtual agl::Texture* GetVelocity() = 0;
 		virtual agl::Texture* GetVisibility() = 0;
@@ -175,6 +173,8 @@ namespace rendercore
 		void ResolveSceneColor( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
 
 		void CalcVisibility( RenderViewGroup& renderViewGroup );
+
+		void RenderEditorOutline( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
 
 		ForwardLightingResource m_forwardLighting;
 

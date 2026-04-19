@@ -278,6 +278,15 @@ namespace logic
 		}
 	}
 
+	void GameObject::SetSelected( bool selected )
+	{
+		m_selected = selected;
+		for ( std::unique_ptr<Component>& component : m_components )
+		{
+			component->MarkRenderStateDirty();
+		}
+	}
+
 	GameObject::GameObject()
 	{
 		m_think.m_thinkGroup = ThinkingGroup::PrePhysics;

@@ -227,6 +227,11 @@ namespace logic
 		m_bounds = CalcBounds( GetTransformMatrix() );
 	}
 
+	bool SceneComponent::IsSelected() const
+	{
+		return GetOwner() && GetOwner()->IsSelected();
+	}
+
 	SceneComponent* SceneComponent::GetAttachParent() const
 	{
 		return m_attachParent;

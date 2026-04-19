@@ -21,6 +21,11 @@ namespace rendercore
 		return m_castShadow;
 	}
 
+	bool PrimitiveProxy::IsSelected() const
+	{
+		return m_selected;
+	}
+
 	const Matrix& PrimitiveProxy::WorldTransform() const
 	{
 		assert( IsInRenderThread() );

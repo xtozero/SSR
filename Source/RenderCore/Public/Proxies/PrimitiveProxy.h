@@ -40,6 +40,8 @@ namespace rendercore
 		virtual void AddToRaytracingScene( RaytracingScene& raytracingScene );
 
 		bool CastShadow() const;
+		bool IsSelected() const;
+
 		const Matrix& WorldTransform() const;
 		const BoxSphereBounds& Bounds() const;
 		const BoxSphereBounds& LocalBounds() const;
@@ -54,6 +56,7 @@ namespace rendercore
 		friend Scene;
 
 		bool m_castShadow = true;
+		bool m_selected = false;
 
 		PrimitiveSceneInfo* m_primitiveSceneInfo = nullptr;
 		Matrix m_worldTransform;

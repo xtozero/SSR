@@ -68,6 +68,8 @@ namespace logic
 			return m_bounds;
 		}
 
+		virtual bool IsSelected() const;
+
 		SceneComponent* GetAttachParent() const;
 		bool IsAttachedTo( const SceneComponent& component ) const;
 		bool AttachToComponent( SceneComponent* parent, const AttachmentTrasformRules& attachmentRules );
