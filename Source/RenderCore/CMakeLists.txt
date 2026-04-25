@@ -177,39 +177,41 @@ set (RENDER_UTILITY_SOURCE
 	Private/RenderUtility/ResourceBarrierUtils.cpp)
 	
 set (RENDERER_SOURCE
-	Private/Renderer/EditorOutlineRendering.cpp
-	Private/Renderer/ExponentialShadowMapRendering.cpp
 	Private/Renderer/ForwardLighting.cpp
 	Private/Renderer/ForwardRenderer.cpp
-	Private/Renderer/ImageBasedLightingRendering.cpp
 	Private/Renderer/ImguiRenderer.cpp
-	Private/Renderer/LightPropagationVolume.cpp
-	Private/Renderer/OcclusionRendering.cpp
-	Private/Renderer/ReflectiveShadowMapRendering.cpp
 	Private/Renderer/RenderView.cpp
-	Private/Renderer/RTAORendering.cpp
 	Private/Renderer/SceneRenderer.cpp
-	Private/Renderer/SkyAtmosphereRendering.cpp
-	Private/Renderer/SSGIRendering.cpp
-	Private/Renderer/TemporalAntiAliasingRendering.cpp
-	Private/Renderer/VisibilityRendering.cpp
-	Public/Renderer/EditorOutlineRendering.h
-	Public/Renderer/ExponentialShadowMapRendering.h
 	Public/Renderer/ForwardLighting.h
 	Public/Renderer/ForwardRenderer.h
-	Public/Renderer/ImageBasedLightingRendering.h
 	Public/Renderer/IRenderCore.h
-	Public/Renderer/LightPropagationVolume.h
-	Public/Renderer/OcclusionRendering.h
-	Public/Renderer/ReflectiveShadowMapRendering.h
 	Public/Renderer/RenderView.h
-	Public/Renderer/RTAORendering.h
 	Public/Renderer/SceneRenderer.h
-	Public/Renderer/SkyAtmosphereRendering.h
-	Public/Renderer/SSGIRendering.h
-	Public/Renderer/TemporalAntiAliasingRendering.h
-	Public/Renderer/UserInterfaceRenderer.h
-	Public/Renderer/VisibilityRendering.h)
+	Public/Renderer/UserInterfaceRenderer.h)
+
+set (RENDER_FEATURE_SOURCE
+	Private/RenderFeature/EditorOutlineRendering.cpp
+	Private/RenderFeature/ExponentialShadowMapRendering.cpp
+	Private/RenderFeature/ImageBasedLightingRendering.cpp
+	Private/RenderFeature/LightPropagationVolume.cpp
+	Private/RenderFeature/OcclusionRendering.cpp
+	Private/RenderFeature/ReflectiveShadowMapRendering.cpp
+	Private/RenderFeature/RTAORendering.cpp
+	Private/RenderFeature/SkyAtmosphereRendering.cpp
+	Private/RenderFeature/SSGIRendering.cpp
+	Private/RenderFeature/TemporalAntiAliasingRendering.cpp
+	Private/RenderFeature/VisibilityRendering.cpp
+	Public/RenderFeature/EditorOutlineRendering.h
+	Public/RenderFeature/ExponentialShadowMapRendering.h
+	Public/RenderFeature/ImageBasedLightingRendering.h
+	Public/RenderFeature/LightPropagationVolume.h
+	Public/RenderFeature/OcclusionRendering.h
+	Public/RenderFeature/ReflectiveShadowMapRendering.h
+	Public/RenderFeature/RTAORendering.h
+	Public/RenderFeature/SkyAtmosphereRendering.h
+	Public/RenderFeature/SSGIRendering.h
+	Public/RenderFeature/TemporalAntiAliasingRendering.h
+	Public/RenderFeature/VisibilityRendering.h)
 	
 file(GLOB_RECURSE SHADERS "${CMAKE_SOURCE_DIR}/*.fxh" "${CMAKE_SOURCE_DIR}/*.fx")
 
@@ -221,6 +223,7 @@ source_group("Mesh" FILES ${MESH_SOURCE})
 source_group("PassProcessor" FILES ${PASS_PROCESSOR})
 source_group("Proxies" FILES ${PROXIES_SOURCE})
 source_group("Renderer" FILES ${RENDERER_SOURCE})
+source_group("RenderFeature" FILES ${RENDER_FEATURE_SOURCE})
 source_group("RenderGraph" FILES ${RENDER_GRAPH_HEADER} ${RENDER_GRAPH_SOURCE})
 source_group("RenderUtility" FILES ${RENDER_UTILITY_HEADER} ${RENDER_UTILITY_SOURCE})
 source_group("Scene" FILES ${RENDER_SCENE_SOURCE})
@@ -247,6 +250,7 @@ add_library(RenderCore SHARED 	${CONFIG_SOURCE}
 								${RENDER_UTILITY_HEADER}
 								${RENDER_UTILITY_SOURCE}
 								${RENDERER_SOURCE}
+								${RENDER_FEATURE_SOURCE}
 								${SHADERS})
 
 target_include_directories(RenderCore
@@ -257,6 +261,7 @@ PUBLIC
 	./Public/Material
 	./Public/PassProcessor
 	./Public/Renderer
+	./Public/RenderFeature
 	./Public/RenderUtility
 PRIVATE
 	../../ThirdParty/PIX/Include
@@ -287,7 +292,13 @@ target_precompile_headers(RenderCore
 PUBLIC
 	${GRAPHICS_RESOURCE_HEADER}
 PRIVATE
+	${RENDER_GRAPH_HEADER}
 	${RENDER_UTILITY_HEADER})
+
+target_compile_definitions(RenderCore
+PRIVATE
+	$<$<BOOL:${ENABLE_EDITOR}>:WITH_EDITOR>
+)
 
 add_custom_command(TARGET RenderCore POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/RenderCore.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/RenderCore.dll"

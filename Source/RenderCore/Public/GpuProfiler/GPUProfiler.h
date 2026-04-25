@@ -1,8 +1,8 @@
 #pragma once
 
 #include "CommandList.h"
-#include "GuideTypes.h"
 #include "NameTypes.h"
+#include "Query.h"
 
 #define ENABLE_GPU_PROFILE 1
 #define ENABLE_PIPELINE_STATISTICS 1

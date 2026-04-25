@@ -11,6 +11,16 @@
 
 namespace
 {
+	engine::ConVariable CVarEditorOutlineWidth(
+		"r.Editor.Outline.Width",
+		"3",
+		"Controls the thickness of outlines in the editor (in pixels)." );
+
+	engine::ConVariable CVarEditorOutlineColor(
+		"r.Editor.Outline.Color",
+		"1.0 0.5 0.0",
+		"Specifies the RGB color of the editor outline (format: R G B).");
+
 	void ParseEditorOutlineColor( const std::string& colorStr, float3& outColor )
 	{
 		std::vector<std::string> values = SplitString( colorStr, ' ' );
@@ -25,17 +35,7 @@ namespace
 
 namespace rendercore
 {
-	engine::ConVariable CVarEditorOutlineWidth(
-		"r.Editor.Outline.Width",
-		"3",
-		"Controls the thickness of outlines in the editor (in pixels)." );
-
-	engine::ConVariable CVarEditorOutlineColor(
-		"r.Editor.Outline.Color",
-		"1.0 0.5 0.0",
-		"Specifies the RGB color of the editor outline (format: R G B).");
-
-    class EditorOutlineMaskingVS : public GlobalShaderBase<VertexShader, EditorOutlineMaskingVS>
+	class EditorOutlineMaskingVS : public GlobalShaderBase<VertexShader, EditorOutlineMaskingVS>
     {
         using GlobalShaderBase::GlobalShaderBase;
 
@@ -61,6 +61,7 @@ namespace rendercore
     REGISTER_GLOBAL_SHADER( EditorOutlineMaskingPS, "Common/EditorOutline.fx", "PSMain" );
 	REGISTER_GLOBAL_SHADER( EditorOutlineCS, "Common/EditorOutline.fx", "CSMain" );
 
+#ifdef WITH_EDITOR
 	class EditorOutlinePassProcessor : public IPassProcessor
 	{
 	protected:
@@ -234,4 +235,5 @@ namespace rendercore
     			commandList.Dispatch( numGroupX, numGroupY );
     		});
 	}
+#endif
 }

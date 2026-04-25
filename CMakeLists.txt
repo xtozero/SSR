@@ -4,6 +4,13 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 project (ScreenSpaceReflection LANGUAGES CXX)
 
+# Usage:
+# Enable editor features:
+#   cmake .. -DENABLE_EDITOR=ON
+# Disable editor features:
+#   cmake .. -DENABLE_EDITOR=OFF
+option(ENABLE_EDITOR "Enable editor features (independent of build type)" OFF)
+
 set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")

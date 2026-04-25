@@ -101,6 +101,11 @@ target_precompile_headers(Engine
 PUBLIC
 	${CPU_PROFILER_HEADER}
 	${USER_INPUT_HEADER})
+
+target_compile_definitions(Engine
+PRIVATE
+	$<$<BOOL:${ENABLE_EDITOR}>:WITH_EDITOR>
+)
 							
 add_custom_command(TARGET Engine POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/Engine.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/Engine.dll")

@@ -174,7 +174,9 @@ namespace rendercore
 
 		void CalcVisibility( RenderViewGroup& renderViewGroup );
 
+#ifdef WITH_EDITOR
 		void RenderEditorOutline( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
+#endif
 
 		ForwardLightingResource m_forwardLighting;
 

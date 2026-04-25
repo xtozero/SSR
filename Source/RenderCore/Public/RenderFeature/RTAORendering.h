@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AccelerationStructure.h"
+#include "CommonRenderResource.h"
 #include "Texture.h"
 
 namespace rendercore

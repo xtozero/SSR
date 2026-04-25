@@ -128,7 +128,7 @@ namespace agl
             .m_format = ResourceFormat::Unknown,
         };
 
-        auto scratchBuffer = RefStaticCast<D3D12Buffer>( Buffer::Create( scratchBufferDesc, "TLAS.Scratch" ) );
+        auto scratchBuffer = RefStaticCast<D3D12Buffer>( Buffer::Create( scratchBufferDesc, "TLAS.Scratch", ResourceState::UnorderedAccess ) );
 
         auto numInstances = static_cast<uint32>( m_desc.instanceDescs.size() );
 

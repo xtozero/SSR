@@ -1715,6 +1715,7 @@ namespace rendercore
 		}
 	}
 
+#ifdef WITH_EDITOR
 	void SceneRenderer::RenderEditorOutline( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
 	{
 		EditorOutlineRenderParams params = {
@@ -1725,6 +1726,7 @@ namespace rendercore
 
 		EditorOutlinePass::Render( renderGraph, params );
 	}
+#endif
 
 	void SceneRenderer::ResetFrameData()
 	{

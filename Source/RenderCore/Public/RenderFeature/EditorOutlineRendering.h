@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef WITH_EDITOR
 #include "SceneRenderer.h"
 
 namespace rendercore
@@ -24,3 +25,4 @@ namespace rendercore
         static void Render( RenderGraph& renderGraph, const EditorOutlineRenderParams& params );
     };
 }
+#endif

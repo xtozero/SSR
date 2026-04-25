@@ -4,7 +4,11 @@ namespace engine
 {
 	bool DefaultApp::IsEditor()
 	{
+#ifdef WITH_EDITOR
 		return GetInstance().m_editor;
+#else
+		return false;
+#endif
 	}
 
 	std::pair<int32, int32> DefaultApp::GetClientSize()

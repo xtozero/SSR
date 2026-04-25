@@ -326,7 +326,9 @@ namespace rendercore
 
 			RenderVolumetricFog( renderGraph, renderViewGroup );
 
+#ifdef WITH_EDITOR
 			RenderEditorOutline( renderGraph, renderViewGroup );
+#endif
 		}
 
 		if ( DefaultRenderCore::IsTaaEnabled() )
