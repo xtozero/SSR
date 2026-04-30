@@ -49,9 +49,9 @@ rendercore::DDSTextureDesc ConvertToBCTextureDesc( const DirectX::ScratchImage& 
 			size_t tIdx = meta.ComputeIndex( mip, item, 0 );
 			auto subresources = image.GetImages();
 
-			uint32 rowPitch = static_cast<uint32>( subresources[tIdx].rowPitch );
-			uint32 slicePitch = static_cast<uint32>( subresources[tIdx].slicePitch );
-			uint32 offset = static_cast<uint32>( subresources[tIdx].pixels - desc.m_memory );
+			auto rowPitch = static_cast<uint32>( subresources[tIdx].rowPitch );
+			auto slicePitch = static_cast<uint32>( subresources[tIdx].slicePitch );
+			auto offset = static_cast<uint32>( subresources[tIdx].pixels - desc.m_memory );
 
 			desc.m_sections.emplace_back( rowPitch, slicePitch, offset );
 		}

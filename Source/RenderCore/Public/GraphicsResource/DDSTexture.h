@@ -12,7 +12,10 @@ namespace rendercore
 {
 	struct TextureSection
 	{
-		TextureSection( uint32 rowPitch, uint32 slicePitch, uint32 offset ) : m_rowPitch( rowPitch ), m_slicePitch( slicePitch ), m_offset( offset )
+		TextureSection( uint32 rowPitch, uint32 slicePitch, uint32 offset )
+			: m_rowPitch( rowPitch )
+			, m_slicePitch( slicePitch )
+			, m_offset( offset )
 		{}
 		TextureSection() = default;
 
@@ -81,6 +84,9 @@ namespace rendercore
 
 	protected:
 		RENDERCORE_DLL virtual void PostLoadImpl() override;
+
+	private:
+		void CreateRenderResource( uint32 desiredMipLevel );
 	};
 
 	struct DDSTextureDesc

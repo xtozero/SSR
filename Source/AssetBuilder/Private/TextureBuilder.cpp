@@ -1,10 +1,11 @@
 #include "TextureBuilder.h"
 
 #include "DDSTexture.h"
-#include "DirectXTex.h"
 #include "DirectXTexTool.h"
 
+#include <DirectXTex.h>
 #include <fstream>
+#include <iostream>
 #include <vector>
 
 namespace fs = std::filesystem;
@@ -59,6 +60,35 @@ std::optional<Products> TextureBuilder::Build( [[maybe_unused]] const PathEnviro
 	if ( FAILED( hr ) )
 	{
 		return {};
+	}
+
+	if ( meta.mipLevels == 1 )
+	{
+		DirectX::ScratchImage mipChain;
+		DirectX::TEX_FILTER_FLAGS filterFlag = DirectX::TEX_FILTER_CUBIC | DirectX::TEX_FILTER_FORCE_NON_WIC;
+
+		if ( meta.IsCubemap() )
+		{
+			// Do Nothing
+		}
+		else if ( meta.IsVolumemap() )
+		{
+			hr = DirectX::GenerateMipMaps3D( image.GetImages(), image.GetImageCount(), image.GetMetadata(), filterFlag, 0, mipChain );
+		}
+		else
+		{
+			hr = DirectX::GenerateMipMaps( image.GetImages(), image.GetImageCount(), image.GetMetadata(), filterFlag, 0, mipChain );
+		}
+
+		if ( FAILED( hr ) )
+		{
+			std::cerr << std::format( "Failed to generate mip maps! - {}", path.generic_string() ) << std::endl;
+			return {};
+		}
+		else if (mipChain.GetImageCount() != 0)
+		{
+			image = std::move( mipChain );
+		}
 	}
 
 	rendercore::DDSTextureDesc desc = ConvertToBCTextureDesc( image );
