@@ -1,7 +1,6 @@
 #include "Common/GammaCorrection.fxh"
 #include "Common/PBR.fxh"
 #include "Common/PsCommon.fxh"
-#include "Common/TexCommon.fxh"
 #include "Common/ViewConstant.fxh"
 
 #define MAX_LIGHTS 180
@@ -10,7 +9,9 @@ static const uint LightTypeDirectional = 0;
 static const uint LightTypePoint = 1;
 static const uint LightTypeSpot = 2;
 
+/* Deprecated
 Texture2D lookupTexture : register( t3 );
+*/
 Buffer<float4> ForwardLight : register( t4 );
 
 Texture2D IndirectIllumination : register( t5 );
@@ -55,6 +56,7 @@ cbuffer Material : register( b3 )
 	float		Roughness;
 	float		SpecularExponent;
 	float		Metallic;
+	int			MaterialId;
 };
 
 struct GeometryProperty
@@ -105,6 +107,7 @@ ForwardLightData GetLight( uint index )
 	return light;
 }
 
+/* Deprecated
 float OrenNayarDiffuse( float3 viewDirection, float3 lightDirection, float3 normal, float roughness )
 {
 	float vdotn = dot( viewDirection, normal );
@@ -124,6 +127,7 @@ float OrenNayarDiffuse( float3 viewDirection, float3 lightDirection, float3 norm
 
 	return max( 0.0f, ldotn ) * final;
 }
+*/
 
 float CookTorranceSpecular( float3 viewDirection, float3 lightDirection, float3 normal, float roughness )
 {

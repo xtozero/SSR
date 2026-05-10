@@ -531,7 +531,7 @@ namespace agl
 		{
 			srvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
 		}
-		m_srv = new D3D12ShaderResourceView( this, static_cast<ID3D12Resource*>( Resource() ), srvDesc );
+		m_srv = new D3D12ShaderResourceView( this, Resource(), srvDesc );
 		m_srv->Init();
 	}
 
@@ -545,8 +545,27 @@ namespace agl
 			{
 				uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
 			}
-			m_uav[mipSlice] = new D3D12UnorderedAccessView(this, static_cast<ID3D12Resource*>( Resource() ), uavDesc);
+			m_uav[mipSlice] = new D3D12UnorderedAccessView(this, Resource(), uavDesc );
 			m_uav[mipSlice]->Init();
+		}
+	}
+
+	void D3D12Texture::UpdateTextureMips( uint32 width, uint32 height, int32 mipLevels, const ResourceInitData& initData )
+	{
+		TextureBase::UpdateTextureMips( width, height, mipLevels, initData );
+
+		m_d3dDesc = ConvertToD3DDesc( m_desc );
+
+		SetInitData( initData );
+
+		// Keep the resource alive because it may still be referenced by GPU commands
+		D3D12FrameResources().RegisterResource( this );
+
+		CreateTexture();
+
+		if ( m_srv.Get() )
+		{
+			static_cast<D3D12ShaderResourceView*>( m_srv.Get() )->UpdateTextureMips( Resource(), m_desc.m_mipLevels );
 		}
 	}
 
@@ -563,17 +582,7 @@ namespace agl
 			m_dataStorage = new unsigned char[initData->m_srcSize];
 			std::memcpy( m_dataStorage, initData->m_srcData, initData->m_srcSize );
 
-			size_t numSections = initData->m_sections.size();
-
-			m_initData.resize( numSections );
-			for ( size_t i = 0; i < numSections; ++i )
-			{
-				const ResourceSectionData& section = initData->m_sections[i];
-
-				m_initData[i].pData = static_cast<unsigned char*>( m_dataStorage ) + section.m_offset;
-				m_initData[i].RowPitch = section.m_pitch;
-				m_initData[i].SlicePitch = section.m_slicePitch;
-			}
+			SetInitData( *initData );
 		}
 	}
 
@@ -583,17 +592,7 @@ namespace agl
 	{
 		if ( initData )
 		{
-			size_t numSections = initData->m_sections.size();
-
-			m_initData.resize( numSections );
-			for ( size_t i = 0; i < numSections; ++i )
-			{
-				const ResourceSectionData& section = initData->m_sections[i];
-
-				m_initData[i].pData = static_cast<unsigned char*>( m_dataStorage ) + section.m_offset;
-				m_initData[i].RowPitch = section.m_pitch;
-				m_initData[i].SlicePitch = section.m_slicePitch;
-			}
+			SetInitData( *initData );
 		}
 	}
 
@@ -645,6 +644,21 @@ namespace agl
 		else if ( ( m_dataStorage != nullptr ) && ( HasAllFlags( m_desc.m_access, ResourceAccess::CpuWrite ) == false ) )
 		{
 			SetResourceState( ResourceState::Common );
+		}
+	}
+
+	void D3D12Texture::SetInitData( const ResourceInitData& initData )
+	{
+		size_t numSections = initData.m_sections.size();
+
+		m_initData.resize( numSections );
+		for ( size_t i = 0; i < numSections; ++i )
+		{
+			const ResourceSectionData& section = initData.m_sections[i];
+
+			m_initData[i].pData = m_dataStorage + section.m_offset;
+			m_initData[i].RowPitch = section.m_pitch;
+			m_initData[i].SlicePitch = section.m_slicePitch;
 		}
 	}
 

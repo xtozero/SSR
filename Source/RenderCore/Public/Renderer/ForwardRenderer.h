@@ -47,8 +47,6 @@ namespace rendercore
 		virtual void Render( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup ) override;
 		virtual void RenderHitProxy( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup ) override;
 
-		virtual void RenderDefaultPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex ) override;
-
 		virtual IRendererRenderTargets& GetRenderTargets() override;
 
 	protected:
@@ -56,6 +54,7 @@ namespace rendercore
 
 	private:
 		void RenderDepthPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
+		void RenderDefaultPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
 		void RenderOcclusionTest( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
 		void RenderDefaultPassWithVisibilityBuffer( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex );
 		void RenderAmbientOcclusion( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );

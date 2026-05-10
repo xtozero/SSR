@@ -30,6 +30,11 @@ public:
 	char* Data() { return m_data; }
 	const char* Data() const { return m_data; }
 
+	void Resize( uint32 size )
+	{
+		Alloc( size );
+	}
+
 	BinaryChunk() = default;
 
 	explicit BinaryChunk( uint32 size )
@@ -183,6 +188,18 @@ public:
 		{
 			m_curPos = m_beginPos + offset;
 		}
+	}
+
+	void LoadFromMemory( const BinaryChunk& src )
+	{
+		m_buffer.resize( src.Size() );
+		std::copy_n( src.Data(), src.Size(), std::begin( m_buffer ) );
+	}
+
+	void WriteToMemory( BinaryChunk& dest ) const
+	{
+		dest.Resize( Size() );
+		std::ranges::copy( m_buffer, dest.Data() );
 	}
 
 private:

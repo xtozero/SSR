@@ -100,6 +100,21 @@ namespace agl
 		m_isTexture = true;
 	}
 
+	void TextureBase::UpdateTextureMips( uint32 width, uint32 height, int32 mipLevels, const ResourceInitData& initData )
+	{
+		// Mip streaming is only available for textures used exclusively as shader resources.
+		assert( m_desc.m_bindType == ResourceBindType::ShaderResource );
+
+		m_desc.m_width = width;
+		m_desc.m_height = height;
+		m_desc.m_mipLevels = mipLevels;
+
+		delete[] m_dataStorage;
+
+		m_dataStorage = new uint8[initData.m_srcSize];
+		std::memcpy( m_dataStorage, initData.m_srcData, initData.m_srcSize );
+	}
+
 	bool IsTexture2D( const TextureDesc& desc )
 	{
 		return ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Texture3D ) == false );

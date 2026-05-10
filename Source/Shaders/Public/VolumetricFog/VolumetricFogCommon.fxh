@@ -1,5 +1,5 @@
 #include "Common/Constants.fxh"
-#include "Common/LightCommon.fxh"
+#include "Common/TexCommon.fxh"
 
 struct VolumetricFogParameter
 {

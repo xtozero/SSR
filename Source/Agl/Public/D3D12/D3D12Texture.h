@@ -25,6 +25,8 @@ namespace agl
 		virtual void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} ) override;
 		virtual void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} ) override;
 
+		virtual void UpdateTextureMips( uint32 width, uint32 height, int32 mipLevels, const ResourceInitData& initData ) override;
+
 		void Reconstruct( const TextureDesc& desc, const ResourceInitData* initData );
 
 		D3D12Texture( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
@@ -89,6 +91,7 @@ namespace agl
 		}
 
 		void AdjustInitalResourceStates();
+		void SetInitData( const ResourceInitData& initData );
 
 		D3D12_RESOURCE_DESC GetDescForDownload() const;
 	};

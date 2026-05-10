@@ -33,10 +33,21 @@ public:
 		[[maybe_unused]] bool success = reader.Parse( "Config/Environment.json", m_configRaw );
 		assert( success );
 
-		m_workingDirectory = std::filesystem::absolute( engine::PlatformProcess::GetWorkingDirectory() );
 		if ( const json::Value* pRootDirectory = m_configRaw.Find( "root_directory" ) )
 		{
 			m_rootDirectory = pRootDirectory->AsString();
+		}
+
+		m_workingDirectory = std::filesystem::absolute( engine::PlatformProcess::GetWorkingDirectory() );
+
+		if ( const json::Value* pAssetDirectory = m_configRaw.Find( "asset_directory" ) )
+		{
+			m_assetDirectory = pAssetDirectory->AsString();
+		}
+
+		if ( const json::Value* pRawAssetDirectory = m_configRaw.Find( "raw_asset_directory" ) )
+		{
+			m_rawAssetDirectory = pRawAssetDirectory->AsString();
 		}
 
 		if ( const json::Value* pPathEnvironments = m_configRaw.Find( "path_environments" ) )
@@ -132,6 +143,16 @@ public:
 		return m_workingDirectory;
 	}
 
+	const std::filesystem::path& AssetDirectory() const
+	{
+		return m_assetDirectory;
+	}
+
+	const std::filesystem::path& RawAssetDirectory() const
+	{
+		return m_rawAssetDirectory;
+	}
+
 	std::map<std::string, PathEnvironment>& PathEnvironments()
 	{
 		return m_pathEnvironments;
@@ -167,6 +188,8 @@ private:
 
 	std::filesystem::path m_rootDirectory;
 	std::filesystem::path m_workingDirectory;
+	std::filesystem::path m_assetDirectory;
+	std::filesystem::path m_rawAssetDirectory;
 
 	std::map<std::string, PathEnvironment> m_pathEnvironments;
 	std::map<std::string, PreprocessingEnvironment> m_preprocessingEnvironments;

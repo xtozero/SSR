@@ -419,13 +419,13 @@ namespace rendercore
         {
             T* srcPtr = std::launder( reinterpret_cast<T*>( src ) );
             new ( dest ) T( std::move( *srcPtr ) );
-            srcPtr->~T();
+            std::destroy_at( srcPtr );
         }
 
         template <typename T>
         static void Destroy( void* ptr )
         {
-            std::launder( reinterpret_cast<T*>( ptr ) )->~T();
+            std::destroy_at( std::launder( reinterpret_cast<T*>( ptr ) ) );
         }
 
         struct VTable

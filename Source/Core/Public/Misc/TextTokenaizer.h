@@ -25,10 +25,10 @@ public:
 	{
 		while ( CanRead() )
 		{
-			char c = *m_current;
+			char c = PeekNextChar();
 			if ( c == ' ' || c == '\t' )
 			{
-				++m_current;
+				GetNextChar();
 			}
 			else
 			{
@@ -41,14 +41,30 @@ public:
 	{
 		while ( CanRead() )
 		{
-			char c = *m_current;
+			char c = PeekNextChar();
 			if ( c == ' ' || c == '\t' || c == '\n' || c == '\r' )
 			{
-				++m_current;
+				GetNextChar();
 			}
 			else
 			{
 				break;
+			}
+		}
+	}
+
+	void SkipUntilNewline()
+	{
+		while ( CanRead() )
+		{
+			char c = PeekNextChar();
+			if ( c == '\n' )
+			{
+				break;
+			}
+			else
+			{
+				GetNextChar();
 			}
 		}
 	}
@@ -57,30 +73,43 @@ public:
 	{
 		while ( CanRead() )
 		{
-			char c = *m_current;
+			char c = GetNextChar();
 			if ( c == '\n' )
 			{
 				break;
-			}
-			else
-			{
-				++m_current;
 			}
 		}
 	}
 
 	bool IsLineEnd() const
 	{
-		char c = *m_current;
+		char c = PeekNextChar();
 		return c == '\n' || c == '\r';
+	}
+
+	bool IsWhiteSpace() const
+	{
+		char c = PeekNextChar();
+		return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 	}
 
 	char GetNextChar()
 	{
-		return CanRead() ? *m_current++ : 0;
+		if ( CanRead() )
+		{
+			char c = *m_current++;
+			if ( c == '\n' )
+			{
+				++m_line;
+			}
+
+			return c;
+		}
+
+		return 0;
 	}
 
-	char PeekNextChar()
+	char PeekNextChar() const
 	{
 		return CanRead() ? *m_current : 0;
 	}
@@ -107,10 +136,10 @@ public:
 
 		while ( CanRead() )
 		{
-			char c = *m_current;
+			char c = PeekNextChar();
 			if ( c != ' ' && c != '\t' && c != '\n' && c != '\r' )
 			{
-				++m_current;
+				GetNextChar();
 			}
 			else
 			{
@@ -127,10 +156,10 @@ public:
 
 		while ( CanRead() )
 		{
-			char c = *m_current;
+			char c = PeekNextChar();
 			if ( c != '\n' && c != '\r' )
 			{
-				++m_current;
+				GetNextChar();
 			}
 			else
 			{
@@ -148,10 +177,10 @@ public:
 		{
 			while ( CanRead() )
 			{
-				char c = *m_current;
+				char c = PeekNextChar();
 				if ( c == '\n' || c == '\r' )
 				{
-					++m_current;
+					GetNextChar();
 				}
 				else
 				{
@@ -193,8 +222,15 @@ public:
 		m_current += offset;
 	}
 
+	uint32 GetLineNumber() const
+	{
+		return m_line;
+	}
+
 private:
 	const char* m_begin = nullptr;
 	const char* m_end = nullptr;
 	const char* m_current = nullptr;
+
+	uint32 m_line = 1;
 };

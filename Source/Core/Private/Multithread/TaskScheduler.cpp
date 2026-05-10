@@ -83,10 +83,10 @@ TaskHandle TaskSchedulerImpl::GetExclusiveTaskGroup( ThreadType threadType )
 	return m_taskScheduler.GetExclusiveTaskGroup( static_cast<size_t>( threadType ) );
 }
 
-TaskSchedulerImpl::TaskSchedulerImpl() : m_taskScheduler( MAX_ENGINE_THREAD_GROUP, static_cast<size_t>( ThreadType::WorkerThreadCount ) )
+TaskSchedulerImpl::TaskSchedulerImpl() : m_taskScheduler( MAX_ENGINE_THREAD_GROUP, static_cast<size_t>( ThreadType::NumWorkerThread ) )
 { 
-	static_assert( ( static_cast<uint32>( ThreadType::WorkerThreadCount ) + 1 ) == std::extent_v<decltype( WorkerNames )> );
-	for ( uint32 i = 0; i < static_cast<uint32>( ThreadType::WorkerThreadCount ); ++i )
+	static_assert( ( static_cast<uint32>( ThreadType::NumThread ) ) == std::extent_v<decltype( WorkerNames )> );
+	for ( uint32 i = 0; i < static_cast<uint32>( ThreadType::NumWorkerThread ); ++i )
 	{
 		m_taskScheduler.SetWorkerNameForDebugging( i, WorkerNames[i] );
 	}

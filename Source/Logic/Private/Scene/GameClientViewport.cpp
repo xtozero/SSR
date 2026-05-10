@@ -24,14 +24,7 @@ namespace logic
 			return;
 		}
 
-		EnqueueRenderTask(
-			[renderModule, canvas]() mutable
-			{
-				if ( renderModule )
-				{
-					renderModule->BeginFrameRendering( canvas );
-				}
-			} );
+		renderModule->BeginFrameRendering( canvas );
 	}
 
 	void GameClientViewport::Draw( rendercore::Canvas& canvas, const rendercore::RenderViewShowFlags* showFlags )
@@ -59,14 +52,7 @@ namespace logic
 
 		InitView( renderViewGroup );
 
-		EnqueueRenderTask(
-			[renderModule, renderViewGroup]() mutable
-			{
-				if ( renderModule )
-				{
-					renderModule->BeginRenderingViewGroup( renderViewGroup );
-				}
-			} );
+		renderModule->BeginRenderingViewGroup( renderViewGroup );
 	}
 
 	void GameClientViewport::EndFrameRendering( rendercore::Canvas& canvas )
@@ -77,14 +63,7 @@ namespace logic
 			return;
 		}
 
-		EnqueueRenderTask(
-			[renderModule, canvas]() mutable
-			{
-				if ( renderModule )
-				{
-					renderModule->EndFrameRendering( canvas );
-				}
-			} );
+		renderModule->EndFrameRendering( canvas );
 	}
 
 	World& GameClientViewport::GetWorld()

@@ -3,6 +3,7 @@
 #include "ResourceViews.h"
 
 #include <d3d11.h>
+#include <wrl/client.h>
 
 namespace agl
 {
@@ -10,21 +11,17 @@ namespace agl
 	class D3D11ViewBase : public BaseClass
 	{
 	public:
-		ViewType Resource() { return m_resource; }
-		ViewType Resource() const { return m_resource; }
+		using ViewTypePointer = std::add_pointer_t<ViewType>;
+
+		ViewTypePointer Resource() { return m_resource.Get(); }
+		ViewTypePointer Resource() const { return m_resource.Get(); }
 
 		const IResourceViews* ViewHolder() const { return m_viewHolder; }
 
 		D3D11ViewBase( IResourceViews* viewHolder, ID3D11Resource* d3d11Resource, const DescType& desc ) :
 			m_viewHolder( viewHolder ),
 			m_d3d11Resource( d3d11Resource ),
-			m_d3dDesc( desc )
-		{
-			if ( m_d3d11Resource )
-			{
-				m_d3d11Resource->AddRef();
-			}
-		}
+			m_d3dDesc( desc ) {}
 
 		virtual ~D3D11ViewBase() override
 		{
@@ -40,30 +37,10 @@ namespace agl
 		{
 			if ( this != &other )
 			{
-				if ( m_resource )
-				{
-					m_resource->Release();
-				}
-
-				if ( m_d3d11Resource )
-				{
-					m_d3d11Resource->Release();
-				}
-
 				m_viewHolder = other.m_viewHolder;
 				m_d3d11Resource = other.m_d3d11Resource;
 				m_resource = other.m_resource;
 				m_d3dDesc = other.m_d3dDesc;
-
-				if ( m_d3d11Resource )
-				{
-					m_d3d11Resource->AddRef();
-				}
-
-				if ( m_resource )
-				{
-					m_resource->AddRef();
-				}
 			}
 
 			return *this;
@@ -78,16 +55,6 @@ namespace agl
 		{
 			if ( this != &other )
 			{
-				if ( m_resource )
-				{
-					m_resource->Release();
-				}
-
-				if ( m_d3d11Resource )
-				{
-					m_d3d11Resource->Release();
-				}
-
 				m_viewHolder = other.m_viewHolder;
 				m_d3d11Resource = other.m_d3d11Resource;
 				m_resource = other.m_resource;
@@ -106,53 +73,45 @@ namespace agl
 		virtual void FreeResource() override
 		{
 			m_viewHolder = nullptr;
-
-			if ( m_d3d11Resource )
-			{
-				m_d3d11Resource->Release();
-				m_d3d11Resource = nullptr;
-			}
-
-			if ( m_resource )
-			{
-				m_resource->Release();
-				m_resource = nullptr;
-			}
+			m_d3d11Resource = nullptr;
+			m_resource = nullptr;
 		}
 
 		IResourceViews* m_viewHolder = nullptr;
-		ID3D11Resource* m_d3d11Resource = nullptr;
-		ViewType m_resource = nullptr;
+		Microsoft::WRL::ComPtr<ID3D11Resource> m_d3d11Resource = nullptr;
+		Microsoft::WRL::ComPtr<ViewType> m_resource = nullptr;
 		DescType m_d3dDesc = {};
 	};
 
-	class D3D11ShaderResourceView final : public D3D11ViewBase<ShaderResourceView, ID3D11ShaderResourceView*, D3D11_SHADER_RESOURCE_VIEW_DESC>
+	class D3D11ShaderResourceView final : public D3D11ViewBase<ShaderResourceView, ID3D11ShaderResourceView, D3D11_SHADER_RESOURCE_VIEW_DESC>
 	{
-		using BaseClass = D3D11ViewBase<ShaderResourceView, ID3D11ShaderResourceView*, D3D11_SHADER_RESOURCE_VIEW_DESC>;
+		using BaseClass = D3D11ViewBase<ShaderResourceView, ID3D11ShaderResourceView, D3D11_SHADER_RESOURCE_VIEW_DESC>;
+
+	public:
+		void UpdateTextureMips( ID3D11Resource* d3d11Resource, uint32 mipLevels );
+
+		using BaseClass::BaseClass;
+		using BaseClass::operator=;
+
+	private:
+		virtual void InitResource() override;
+	};
+
+	class D3D11UnorderedAccessView final : public D3D11ViewBase<UnorderedAccessView, ID3D11UnorderedAccessView, D3D11_UNORDERED_ACCESS_VIEW_DESC>
+	{
+		using BaseClass = D3D11ViewBase<UnorderedAccessView, ID3D11UnorderedAccessView, D3D11_UNORDERED_ACCESS_VIEW_DESC>;
 
 	public:
 		using BaseClass::BaseClass;
 		using BaseClass::operator=;
 
-	protected:
+	private:
 		virtual void InitResource() override;
 	};
 
-	class D3D11UnorderedAccessView final : public D3D11ViewBase<UnorderedAccessView, ID3D11UnorderedAccessView*, D3D11_UNORDERED_ACCESS_VIEW_DESC>
+	class D3D11RenderTargetView final : public D3D11ViewBase<RenderTargetView, ID3D11RenderTargetView, D3D11_RENDER_TARGET_VIEW_DESC>
 	{
-		using BaseClass = D3D11ViewBase<UnorderedAccessView, ID3D11UnorderedAccessView*, D3D11_UNORDERED_ACCESS_VIEW_DESC>;
-
-	public:
-		using BaseClass::BaseClass;
-		using BaseClass::operator=;
-
-	protected:
-		virtual void InitResource() override;
-	};
-
-	class D3D11RenderTargetView final : public D3D11ViewBase<RenderTargetView, ID3D11RenderTargetView*, D3D11_RENDER_TARGET_VIEW_DESC>
-	{
-		using BaseClass = D3D11ViewBase<RenderTargetView, ID3D11RenderTargetView*, D3D11_RENDER_TARGET_VIEW_DESC>;
+		using BaseClass = D3D11ViewBase<RenderTargetView, ID3D11RenderTargetView, D3D11_RENDER_TARGET_VIEW_DESC>;
 
 	public:
 		using BaseClass::operator=;
@@ -161,16 +120,15 @@ namespace agl
 
 		ColorF GetClearColor() const;
 
-	protected:
+	private:
 		virtual void InitResource() override;
 
-	private:
 		ColorF m_clearColor = ColorF::Black;
 	};
 
-	class D3D11DepthStencilView final : public D3D11ViewBase<DepthStencilView, ID3D11DepthStencilView*, D3D11_DEPTH_STENCIL_VIEW_DESC>
+	class D3D11DepthStencilView final : public D3D11ViewBase<DepthStencilView, ID3D11DepthStencilView, D3D11_DEPTH_STENCIL_VIEW_DESC>
 	{
-		using BaseClass = D3D11ViewBase<DepthStencilView, ID3D11DepthStencilView*, D3D11_DEPTH_STENCIL_VIEW_DESC>;
+		using BaseClass = D3D11ViewBase<DepthStencilView, ID3D11DepthStencilView, D3D11_DEPTH_STENCIL_VIEW_DESC>;
 
 	public:
 		using BaseClass::operator=;
@@ -180,10 +138,9 @@ namespace agl
 		float GetDepthClearValue() const;
 		uint8 GetStencilClearValue() const;
 
-	protected:
+	private:
 		virtual void InitResource() override;
 
-	private:
 		float m_depthClearValue = 0.f;
 		uint8 m_stencilClearValue = 0;
 	};

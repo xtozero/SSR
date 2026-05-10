@@ -4,6 +4,8 @@
 #include "ArchiveUtility.h"
 #include "Config/DefaultRenderCoreConfig.h"
 #include "Material/MaterialResource.h"
+#include "SparseArray.h"
+#include "TextureStreaming.h"
 
 #include <cassert>
 
@@ -460,16 +462,60 @@ namespace rendercore
 		return m_materialResource.get();
 	}
 
+	int32 Material::GetMaterialId() const
+	{
+		return m_materialId;
+	}
+
+	void Material::RequestMipLevels( int32 desiredMipLevel )
+	{
+		for ( auto& [name, property] : m_properties )
+		{
+			if ( auto textureProperty = Cast<const TextureProperty>( property.get() ) )
+			{
+				if ( Texture* texture = textureProperty->Value().get() )
+				{
+					texture->RequestMipLevels( desiredMipLevel );
+				}
+			}
+		}
+	}
+
 	Material::Material( const char* name ) : m_name( name )
 	{
 	}
 
 	// unique_ptr for incomplete type
 	Material::Material() = default;
-	Material::~Material() = default;
+	Material::~Material()
+	{
+		if ( m_materialId >= 0 )
+		{
+			auto lambda = [id = m_materialId]()
+			{
+				TextureStreamingManager::GetInstance().Unregister( id );
+			};
+
+			if ( IsInGameThread() )
+			{
+				lambda();
+			}
+			else
+			{
+				EnqueueThreadTask<ThreadType::GameThread>( std::move( lambda ) );
+			}
+		}
+	}
 
 	void Material::PostLoadImpl()
 	{
+		if ( HasAnyMipmapTexture() )
+		{
+			TextureStreamingManager::GetInstance().Register( *this );
+		}
+
+		AddProperty( "MaterialId", m_materialId );
+
 		for ( uint32 i = 0; i < agl::NumNonRTShaderTypes<uint32>; ++i )
 		{
 			auto shader = m_shaders[i].get();
@@ -511,5 +557,27 @@ namespace rendercore
 		const IShaderPermutation& compileOption = permutation ? *permutation : defaultPermutation;
 
 		return shader->CompileShader( compileOption );
+	}
+
+	bool Material::HasAnyMipmapTexture() const
+	{
+		for ( const auto& [name, property] : m_properties )
+		{
+			if ( property->Type() != MaterialPropertyType::Texture )
+			{
+				continue;
+			}
+
+			if ( auto textureProperty = Cast<const TextureProperty>( property.get() ) )
+			{
+				const Texture* texture = textureProperty->Value().get();
+				if ( texture && ( texture->GetMipLevels() > 1 ) )
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 }

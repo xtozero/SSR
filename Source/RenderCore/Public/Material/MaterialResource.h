@@ -32,6 +32,8 @@ namespace rendercore
 
 		IShaderPermutation& GetShaderPermutation( agl::ShaderType type ) const;
 
+		int32 GetMaterialId() const;
+
 		void SetMaterial( const std::shared_ptr<Material>& material );
 		std::shared_ptr<Material> GetMaterial();
 

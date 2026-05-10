@@ -15,7 +15,7 @@ public:
 	StackAllocator& GetAllocator( ThreadType threadType );
 
 private:
-	StackAllocator m_allocators[static_cast<int32>(ThreadType::WorkerThreadCount)];
+	StackAllocator m_allocators[static_cast<int32>(ThreadType::NumThread)];
 };
 
 template <typename T, ThreadType LocalThreadType>
@@ -73,16 +73,16 @@ template <typename K, typename P = std::less<K>>
 using RenderFrameSet = std::set<K, P, TransientAllocator<K, ThreadType::RenderThread>>;
 
 template <typename T, ThreadType LocalThreadType>
-class ResetTransientContainerScope
+class ResetFrameArrayScope
 {
 public:
-	explicit ResetTransientContainerScope( std::vector<T, TransientAllocator<T, LocalThreadType>>& container )
+	explicit ResetFrameArrayScope( std::vector<T, TransientAllocator<T, LocalThreadType>>& container )
 		: m_container( &container )
 	{
 		std::destroy_at( m_container );
 	}
 
-	~ResetTransientContainerScope()
+	~ResetFrameArrayScope()
 	{
 		std::construct_at( m_container );
 	}

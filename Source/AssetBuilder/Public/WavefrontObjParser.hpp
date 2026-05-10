@@ -71,6 +71,7 @@ namespace Wavefront
 		std::string m_diffuseTex;
 		std::string m_specularTex;
 		std::string m_bumpTex;
+		std::string m_maskTex;
 	};
 
 	struct ObjMaterialLibrary
@@ -168,6 +169,7 @@ namespace Wavefront
 			DiffuseTexture,		// map_Kd
 			SpecularTexture,	// map_Ks
 			BumpTexture,		// map_bump or bump
+			MaskTexture,		// map_d
 		};
 
 		struct Token
@@ -263,6 +265,10 @@ namespace Wavefront
 				{
 					token.m_type = TokenType::BumpTexture;
 				}
+				else if ( MatchNextString( "ap_d", std::strlen( "ap_d" ) ) )
+				{
+					token.m_type = TokenType::MaskTexture;
+				}
 				break;
 			case 'n':
 				if ( MatchNextString( "ewmtl", std::strlen( "ewmtl" ) ) )
@@ -293,7 +299,7 @@ namespace Wavefront
 					}
 					break;
 				case TokenType::Comment:
-					SkipLine();
+					SkipUntilNewline();
 					break;
 				case TokenType::NewMtl:
 					CreateMaterial( mtl );
@@ -366,6 +372,11 @@ namespace Wavefront
 				case TokenType::BumpTexture:
 					SkipWhiteSpace();
 					m_curMaterial->m_bumpTex = ReadWord();
+					break;
+				case TokenType::MaskTexture:
+					SkipWhiteSpace();
+					m_curMaterial->m_maskTex = ReadWord();
+					break;
 				}
 			}
 
@@ -820,7 +831,7 @@ namespace Wavefront
 					}
 					break;
 				case TokenType::Comment:
-					SkipLine();
+					SkipUntilNewline();
 					break;
 				case TokenType::Group:
 					ReadGroupName( mesh );
@@ -830,7 +841,7 @@ namespace Wavefront
 					ReadGroupName( mesh );
 					break;
 				case TokenType::SmoothingGroup:
-					SkipLine();
+					SkipUntilNewline();
 					break;
 				case TokenType::Vertex:
 					ReadVec3( mesh.m_vertices );

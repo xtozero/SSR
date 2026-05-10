@@ -1,5 +1,6 @@
 #include "Common/BindlessResources.fxh"
-#include "Common/LightCommon.fxh"
+// #include "Common/LightCommon.fxh"
+#include "Common/TexCommon.fxh"
 
 #if SupportsBindless == 0
 Texture2D DiffuseTex : register( t2 );
@@ -18,6 +19,8 @@ struct PS_INPUT
 
 float4 main( PS_INPUT input ) : SV_Target0
 {
+    WriteTextureFeedback( ddx( input.texcoord ), ddy( input.texcoord ) );
+
     GeometryProperty geometry = (GeometryProperty)0;
     geometry.worldPos = input.worldPos;
     geometry.viewPos = input.viewPos;

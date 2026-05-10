@@ -397,9 +397,9 @@ int32 main( int32 argc, char* argv[] )
 	EngineDefaultBuilder engineDefault;
 	engineDefault.Build( processed );
 
-	RemoveUnusedAssets( processed );
-
 	ShutdownModule( g_engineDll );
+
+	RemoveUnusedAssets( processed );
 
 	return ( buildSummary.m_failedCount == 0 ) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

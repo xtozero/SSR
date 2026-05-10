@@ -6,6 +6,14 @@
 
 namespace fs = std::filesystem;
 
+namespace
+{
+    bool IsComments( const std::string_view& token )
+    {
+        return token.starts_with( "//" ) || token.ends_with( "/*" );
+    }
+}
+
 std::optional<std::string> ShaderFileMerger::Merge( const std::filesystem::path& shaderFile )
 {
     m_buffer.clear();
@@ -59,6 +67,7 @@ void ShaderFileMerger::MergeRecursive( const std::filesystem::path& shaderFile )
             while ( tokenaizer.CanRead() )
             {
                 const char* pos = tokenaizer.Tell();
+                uint32 lineNumber = tokenaizer.GetLineNumber();
 
                 std::string_view token = ReadToken();
 
@@ -83,10 +92,31 @@ void ShaderFileMerger::MergeRecursive( const std::filesystem::path& shaderFile )
                         }
                     }
                 }
+                else if ( IsComments( token ) )
+                {
+                    uint32 nunSkippedLine = tokenaizer.GetLineNumber() - lineNumber;
+                    for ( uint32 i = 1; i < nunSkippedLine; ++i )
+                    {
+                        m_buffer += "\n";
+                    }
+
+                    // Skip comments
+                    if ( token.starts_with( "/*" ) )
+                    {
+                        while ( tokenaizer.CanRead() && ( token.ends_with( "*/" ) == false ) )
+                        {
+                            token = ReadToken();
+                        }
+                        assert( token.ends_with( "*/" ) );
+                    }
+                    else
+                    {
+                        tokenaizer.SkipUntilNewline();
+                    }
+                }
                 else
                 {
-                    tokenaizer.Seek( pos );
-                    m_buffer += tokenaizer.ReadLine( false );
+                    m_buffer += std::string_view( pos, tokenaizer.Tell() );
                 }
             }
 

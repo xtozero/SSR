@@ -21,6 +21,7 @@ class Archive;
 namespace rendercore
 {
 	class MaterialResource;
+	class TextureStreamingManager;
 
 	enum class MaterialPropertyType : uint8
 	{
@@ -191,6 +192,10 @@ namespace rendercore
 
 		RENDERCORE_DLL MaterialResource* GetMaterialResource() const;
 
+		int32 GetMaterialId() const;
+
+		void RequestMipLevels( int32 desiredMipLevel );
+
 		RENDERCORE_DLL explicit Material( const char* name );
 		RENDERCORE_DLL Material();
 		RENDERCORE_DLL virtual ~Material() override;
@@ -203,8 +208,12 @@ namespace rendercore
 		RENDERCORE_DLL virtual void PostLoadImpl() override;
 
 	private:
+		friend TextureStreamingManager;
+
 		bool HasShaderSource( agl::ShaderType type ) const;
 		ShaderBase* GetCompiledShader( agl::ShaderType type, const IShaderPermutation* permutation = nullptr ) const;
+
+		bool HasAnyMipmapTexture() const;
 
 		PROPERTY( name )
 		Name m_name;
@@ -223,5 +232,7 @@ namespace rendercore
 		std::map<Name, SamplerOption> m_samplers;
 
 		std::unique_ptr<MaterialResource> m_materialResource;
+
+		int32 m_materialId = -1;
 	};
 }

@@ -71,8 +71,10 @@ set (GRAPHICS_RESOURCE_SOURCE
 set (MATERIAL_SOURCE
 	Private/Material/Material.cpp
 	Private/Material/MaterialResource.cpp
+	Private/Material/TextureStreaming.cpp
 	Public/Material/Material.h
-	Public/Material/MaterialResource.h)
+	Public/Material/MaterialResource.h
+	Public/Material/TextureStreaming.h)
 
 set (MESH_SOURCE
 	Private/Mesh/BaseMesh.cpp

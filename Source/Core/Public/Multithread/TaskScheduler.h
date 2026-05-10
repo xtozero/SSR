@@ -17,7 +17,8 @@ enum class ThreadType : uint8
 	// if add new thread type, insert here
 	RenderThread,
 	GameThread,
-	WorkerThreadCount = GameThread,
+	NumWorkerThread = GameThread,
+	NumThread = NumWorkerThread + 1,
 };
 ENUM_CLASS_FLAGS( ThreadType );
 

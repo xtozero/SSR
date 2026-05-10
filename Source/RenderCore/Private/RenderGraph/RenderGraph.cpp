@@ -191,9 +191,6 @@ namespace rendercore
 
 	void RenderGraph::CleanUp()
 	{
-		m_externalTextures.clear();
-		m_externalBuffers.clear();
-
 		for ( RenderGraphTexture* texture : m_textures )
 		{
 			std::destroy_at( texture );
@@ -204,13 +201,13 @@ namespace rendercore
 			std::destroy_at( buffer );
 		}
 
-		m_allocator.Purge();
+		ResetStackContainerScope resetPasses( m_passes, m_allocator );
+		ResetStackContainerScope resetExternalTextures( m_externalTextures, m_allocator );
+		ResetStackContainerScope resetExternalBuffers( m_externalBuffers, m_allocator );
+		ResetStackContainerScope resetTextures( m_textures, m_allocator );
+		ResetStackContainerScope resetBuffers( m_buffers, m_allocator );
 
-		std::construct_at( &m_passes, m_allocator );
-		std::construct_at( &m_externalTextures, m_allocator );
-		std::construct_at( &m_externalBuffers, m_allocator );
-		std::construct_at( &m_textures, m_allocator );
-		std::construct_at( &m_buffers, m_allocator );
+		m_allocator.Purge();
 
 		m_curGPUProfileEvent = nullptr;
 		m_curPipelineStatEvent = nullptr;

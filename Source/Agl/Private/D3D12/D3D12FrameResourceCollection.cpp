@@ -48,14 +48,11 @@ namespace agl
             allocatedInfo.Release();
         }
 
-        m_allocatedInfos.clear();
-        m_allocatedIdentifiers.clear();
+        ResetStackContainerScope resetAllocatedInfos( m_allocatedInfos, m_allocatedInfoAllocator );
+        ResetStackContainerScope resetAllocatedIdentifiers( m_allocatedIdentifiers, m_allocatedIdentifierAllocator );
 
-        m_allocatedIdentifierAllocator.Flush();
         m_allocatedInfoAllocator.Flush();
-
-        std::construct_at( &m_allocatedIdentifiers, m_allocatedIdentifierAllocator );
-        std::construct_at( &m_allocatedInfos, m_allocatedInfoAllocator );
+        m_allocatedIdentifierAllocator.Flush();
 
         m_residentResource.clear();
     }

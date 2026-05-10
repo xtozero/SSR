@@ -643,15 +643,15 @@ namespace agl
 
 	struct ResourceTransition
 	{
-		void* m_pResource;
-		ITransitionable* m_pTransitionable;
-		uint32 m_subResource;
-		ResourceState m_state;
+		void* m_pResource = nullptr;
+		ITransitionable* m_pTransitionable = nullptr;
+		uint32 m_subResource = 0;
+		ResourceState m_state = ResourceState::Common;
 	};
 
 	struct UavBarrier
 	{
-		void* m_pResource;
+		void* m_pResource = nullptr;
 	};
 
 	struct ResourceClearValue
@@ -672,12 +672,12 @@ namespace agl
 
 	struct BufferDesc
 	{
-		uint32 m_stride;
-		uint32 m_count;
-		ResourceAccess m_access;
-		ResourceBindType m_bindType;
-		ResourceMisc m_miscFlag;
-		ResourceFormat m_format;
+		uint32 m_stride = 0;
+		uint32 m_count = 0;
+		ResourceAccess m_access = ResourceAccess::None;
+		ResourceBindType m_bindType = ResourceBindType::None;
+		ResourceMisc m_miscFlag = ResourceMisc::None;
+		ResourceFormat m_format = ResourceFormat::Unknown;
 
 		AGL_DLL size_t GetHash() const;
 	};
@@ -701,9 +701,9 @@ namespace agl
 
 	struct ResourceSectionData
 	{
-		size_t m_offset;
-		uint64 m_pitch;
-		uint64 m_slicePitch;
+		size_t m_offset = 0;
+		uint64 m_pitch = 0;
+		uint64 m_slicePitch = 0;
 	};
 
 	struct ResourceInitData

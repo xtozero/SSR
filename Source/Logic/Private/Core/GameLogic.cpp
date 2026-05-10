@@ -247,19 +247,23 @@ namespace logic
 		// Reflect the results of the physics simulation
 		m_world.EndFrame();
 
-		// Post-processing after game logic execution
-		if ( m_numDrawRequestQueued < agl::DefaultAgl::GetBufferCount() )
-		{
-			++m_numDrawRequestQueued;
-			UpdateUIDrawInfo();
-			DrawScene();
+		GetTransientAllocator<ThreadType::GameThread>().Purge();
 
-			EnqueueRenderTask(
-				[this]()
-				{
-					--m_numDrawRequestQueued;
-				} );
+		// Post-processing after game logic execution
+		if ( m_numDrawRequestQueued.load( std::memory_order_relaxed ) >= agl::DefaultAgl::GetBufferCount() )
+		{
+			return;
 		}
+
+		m_numDrawRequestQueued.fetch_add( 1, std::memory_order_release );
+		UpdateUIDrawInfo();
+		DrawScene();
+
+		EnqueueRenderTask(
+			[this]()
+			{
+				m_numDrawRequestQueued.fetch_add( -1, std::memory_order_release );
+			} );
 	}
 
 	void GameLogic::DrawScene()
@@ -294,10 +298,6 @@ namespace logic
 		{
 			uiRenderer->UpdateUIDrawInfo();
 		}
-	}
-
-	void GameLogic::SceneEnd()
-	{
 	}
 
 	GameLogic::~GameLogic()

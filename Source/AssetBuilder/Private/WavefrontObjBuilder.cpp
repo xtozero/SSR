@@ -311,18 +311,28 @@ namespace
 		return staticMesh;
 	}
 
-	fs::path ConvertTextureAssetPath( const fs::path& mtlFileName, const fs::path& texPath, const fs::path& destPath )
+	fs::path ConvertTextureAssetPath( const fs::path& texPath )
 	{
-		fs::path texName = texPath.filename();
-		texName.replace_extension( ".asset" );
+		fs::path texAssetPath = texPath.filename();
+		texAssetPath.replace_extension( ".asset" );
 
-		for ( const auto& p : fs::recursive_directory_iterator( destPath ) )
+		const fs::path& rootDir = AssetBuilderConfig::Instance().RootDirectory();
+		const fs::path& assetDir = AssetBuilderConfig::Instance().AssetDirectory();
+		const fs::path& rawAssetDir = AssetBuilderConfig::Instance().RawAssetDirectory();
+
+		auto PathEquals = [](const fs::path& a, const fs::path& b)
 		{
-			if ( p.is_directory() )
+			return ToLower( a.generic_string() ) == ToLower( b.generic_string() );
+		};
+
+		for ( const auto& p : fs::recursive_directory_iterator( rawAssetDir ) )
+		{
+			if ( p.is_directory() == false )
 			{
-				if ( p.path().filename() == mtlFileName )
+				if ( PathEquals( p.path().filename(), texPath ) )
 				{
-					return "." / fs::relative( p.path(), destPath ) / texName;
+					auto relativePath = assetDir / fs::relative( p.path().parent_path(), rawAssetDir ) / texAssetPath;
+					return "." / fs::relative( fs::absolute( relativePath ), rootDir );
 				}
 			}
 		}
@@ -411,49 +421,77 @@ namespace
 			}
 		}
 
+		auto sampler = json::Value( json::DataType::Object );
+
 		if ( material.m_ambientTex.empty() == false )
 		{
-			fs::path ambientTex = ConvertTextureAssetPath( mtlFileName, material.m_ambientTex, AssetBuilderConfig::Instance().RootDirectory() );
+			fs::path ambientTex = ConvertTextureAssetPath( material.m_ambientTex );
 
 			if ( ambientTex.has_relative_path() )
 			{
-				surface["AmbientTexture"] = ambientTex.generic_string();
-				surface["AmbientTextureSampler"] = "./Assets/RenderOptions/SO_Default.asset";
+				surface["AmbientTex"] = ambientTex.generic_string();
+
+				json::Value ambientTexSampler = json::Value( json::DataType::Object );
+				ambientTexSampler["AddressU"] = "TextureAddressMode::Wrap";
+				ambientTexSampler["AddressV"] = "TextureAddressMode::Wrap";
+				ambientTexSampler["AddressW"] = "TextureAddressMode::Wrap";
+
+				sampler["AmbientTexSampler"] = std::move( ambientTexSampler );
 			}
 		}
 
 		if ( material.m_diffuseTex.empty() == false )
 		{
-			fs::path diffuseTex = ConvertTextureAssetPath( mtlFileName, material.m_diffuseTex, AssetBuilderConfig::Instance().RootDirectory() );
+			fs::path diffuseTex = ConvertTextureAssetPath( material.m_diffuseTex );
 
 			if ( diffuseTex.has_relative_path() )
 			{
-				surface["DiffuseTexture"] = diffuseTex.generic_string();
-				surface["DiffuseTextureSampler"] = "./Assets/RenderOptions/SO_Default.asset";
+				surface["DiffuseTex"] = diffuseTex.generic_string();
+
+				json::Value diffuseTexSampler = json::Value( json::DataType::Object );
+				diffuseTexSampler["AddressU"] = "TextureAddressMode::Wrap";
+				diffuseTexSampler["AddressV"] = "TextureAddressMode::Wrap";
+				diffuseTexSampler["AddressW"] = "TextureAddressMode::Wrap";
+
+				sampler["DiffuseTexSampler"] = std::move( diffuseTexSampler );
 			}
 		}
 
 		if ( material.m_specularTex.empty() == false )
 		{
-			fs::path specularTex = ConvertTextureAssetPath( mtlFileName, material.m_specularTex, AssetBuilderConfig::Instance().RootDirectory() );
+			fs::path specularTex = ConvertTextureAssetPath( material.m_specularTex );
 
 			if ( specularTex.has_relative_path() )
 			{
-				surface["SpecularTexture"] = specularTex.generic_string();
-				surface["SpecularTextureSampler"] = "./Assets/RenderOptions/SO_Default.asset";
+				surface["SpecularTex"] = specularTex.generic_string();
+
+				json::Value specularTexSampler = json::Value( json::DataType::Object );
+				specularTexSampler["AddressU"] = "TextureAddressMode::Wrap";
+				specularTexSampler["AddressV"] = "TextureAddressMode::Wrap";
+				specularTexSampler["AddressW"] = "TextureAddressMode::Wrap";
+
+				sampler["SpecularTexSampler"] = std::move( specularTexSampler );
 			}
 		}
 
 		if ( material.m_bumpTex.empty() == false )
 		{
-			fs::path normalTex = ConvertTextureAssetPath( mtlFileName, material.m_bumpTex, AssetBuilderConfig::Instance().RootDirectory() );
+			fs::path normalTex = ConvertTextureAssetPath( material.m_bumpTex );
 
 			if ( normalTex.has_relative_path() )
 			{
-				surface["NormalTexture"] = normalTex.generic_string();
-				surface["NormalTextureSampler"] = "./Assets/RenderOptions/SO_Default.asset";
+				surface["NormalTex"] = normalTex.generic_string();
+
+				json::Value normalTexSampler = json::Value( json::DataType::Object );
+				normalTexSampler["AddressU"] = "TextureAddressMode::Wrap";
+				normalTexSampler["AddressV"] = "TextureAddressMode::Wrap";
+				normalTexSampler["AddressW"] = "TextureAddressMode::Wrap";
+
+				sampler["NormalTexSampler"] = std::move( normalTexSampler );
 			}
 		}
+
+		surface["Sampler"] = std::move( sampler );
 
 		return root;
 	}
@@ -522,13 +560,14 @@ std::optional<Products> WavefrontMtlBuilder::Build( [[maybe_unused]] const PathE
 	}
 
 	const std::string& mtlFileName = path.stem().generic_string();
+	const std::string& directoryName = path.parent_path().stem().generic_string();
 
 	Products products;
 	for ( const auto& namedMaterial : mtl.m_materials )
 	{
 		const auto& materialName = namedMaterial.first;
 		const auto& material = namedMaterial.second;
-		json::Value materialJson = ConvertWavefrontMtlToJsonMaterial( mtlFileName, material );
+		json::Value materialJson = ConvertWavefrontMtlToJsonMaterial( directoryName, material );
 		std::string jsonStr = json::Writer::ToStringPretty( materialJson );
 
 		BinaryChunk jsonData( static_cast<uint32>( jsonStr.size() ) );

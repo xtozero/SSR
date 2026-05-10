@@ -1,5 +1,7 @@
 {
   "root_directory": "../Program",
+  "asset_directory" : "../Program/Assets",
+  "raw_asset_directory" : "../RawAssets",
   "path_environments": {
     "asset": {
       "source_path": "../RawAssets",

@@ -334,6 +334,20 @@ namespace agl
 		m_dsv->Init();
 	}
 
+	void D3D11Texture2D::UpdateTextureMips( uint32 width, uint32 height, int32 mipLevels, const ResourceInitData& initData )
+	{
+		TextureBase::UpdateTextureMips( width, height, mipLevels, initData );
+
+		SetInitData( initData );
+
+		CreateTexture();
+
+		if ( m_srv.Get() )
+		{
+			static_cast<D3D11ShaderResourceView*>( m_srv.Get() )->UpdateTextureMips( m_texture, m_desc.m_mipLevels );
+		}
+	}
+
 	D3D11Texture2D::D3D11Texture2D( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
 		: D3D11Texture<ID3D11Texture2D>( desc, debugName, initialState, initData )
 	{
@@ -422,6 +436,20 @@ namespace agl
 
 		m_rtv = new D3D11RenderTargetView( this, m_texture, rtvDesc, clearColor );
 		m_rtv->Init();
+	}
+
+	void D3D11Texture3D::UpdateTextureMips( uint32 width, uint32 height, int32 mipLevels, const ResourceInitData& initData )
+	{
+		TextureBase::UpdateTextureMips( width, height, mipLevels, initData );
+
+		SetInitData( initData );
+
+		CreateTexture();
+
+		if ( m_srv.Get() )
+		{
+			static_cast<D3D11ShaderResourceView*>( m_srv.Get() )->UpdateTextureMips( m_texture, m_desc.m_mipLevels );
+		}
 	}
 
 	D3D11Texture3D::D3D11Texture3D( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData )

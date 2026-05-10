@@ -55,7 +55,6 @@ namespace logic
 
 		void DrawScene();
 		void UpdateUIDrawInfo();
-		void SceneEnd();
 
 	public:
 		GameLogic() = default;

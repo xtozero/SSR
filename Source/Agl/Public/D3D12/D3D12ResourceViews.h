@@ -115,6 +115,8 @@ namespace agl
 
 		virtual int32 GetBindlessHandle() const override;
 
+		void UpdateTextureMips( ID3D12Resource* resource, uint32 mipLevels );
+
 	protected:
 		virtual void InitResource() override;
 		virtual void FreeResource() override;

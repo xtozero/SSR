@@ -605,7 +605,8 @@ namespace rendercore
 				{
 					commandList.CopyResource( passResource.m_irradianceReadBack->Get(), passResource.m_irradiance->Get(), false);
 
-					commandList.Commit();
+					RenderGraph::Commit();
+
 					GetInterface<agl::IAgl>()->WaitGPU();
 
 					auto src = GraphicsInterface().Lock( passResource.m_irradianceReadBack->Get(), agl::ResourceLockFlag::Read );
@@ -652,7 +653,8 @@ namespace rendercore
 				{
 					commandList.CopyResource( passResource.m_inscatterReadBack->Get(), passResource.m_inscatter->Get(), false);
 
-					commandList.Commit();
+					RenderGraph::Commit();
+
 					GetInterface<agl::IAgl>()->WaitGPU();
 
 					auto src = GraphicsInterface().Lock( passResource.m_inscatterReadBack->Get(), agl::ResourceLockFlag::Read );

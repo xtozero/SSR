@@ -1,5 +1,6 @@
 #include "Common/BindlessResources.fxh"
-#include "Common/LightCommon.fxh"
+// #include "Common/LightCommon.fxh"
+#include "Common/TexCommon.fxh"
 #include "Visibility/VisibilityShadingTemplate.fxh"
 
 StructuredBuffer<float3> Normals;
@@ -52,6 +53,8 @@ void ShadingMain( ShadingContext ctx )
     float2 texcoordDDX;
     float2 texcoordDDY;
     InterpolateFloat2( deriv, uv0, uv1, uv2, texcoord, texcoordDDX, texcoordDDY );
+
+    WriteTextureFeedback( texcoordDDX, texcoordDDY );
 
 #if SupportsBindless == 1
     float4 lightColor = cColor.m_diffuse * MoveLinearSpace( Tex2D[DiffuseTex].SampleGrad( Samplers[DiffuseTexSampler], texcoord, texcoordDDX, texcoordDDY ) );

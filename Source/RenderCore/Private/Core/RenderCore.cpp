@@ -22,6 +22,7 @@
 #include "Shader.h"
 #include "ShaderCache.h"
 #include "TaskScheduler.h"
+#include "TextureStreaming.h"
 #include "UserInterfaceRenderer.h"
 
 #if _WIN64
@@ -191,6 +192,8 @@ namespace rendercore
 			GetInterface<ITaskScheduler>()->ProcessThisThreadTask();
 		}
 
+		TextureStreamingManager::GetInstance().BootUp();
+
 		QueryLaneCount();
 
 		return true;
@@ -268,79 +271,95 @@ namespace rendercore
 
 	void RenderCore::BeginFrameRendering( Canvas& canvas )
 	{
-		CPU_PROFILE( BeginFrameRendering );
+		TextureStreamingManager::GetInstance().Tick();
 
-		GetGpuProfiler().BeginFrameRendering();
+		EnqueueRenderTask(
+			[canvas]() mutable
+			{
+				CPU_PROFILE( BeginFrameRendering );
 
-		GraphicsResourcePool::GetInstance().Tick();
+				GetGpuProfiler().BeginFrameRendering();
 
-		canvas.OnBeginFrameRendering();
-		canvas.Clear();
+				GraphicsResourcePool::GetInstance().Tick();
+
+				canvas.OnBeginFrameRendering();
+				canvas.Clear();
+			} );
 	}
 
 	void RenderCore::BeginRenderingViewGroup( RenderViewGroup& renderViewGroup )
 	{
-		CPU_PROFILE( BeginRenderingViewGroup );
-
-		GetGpuProfiler().GatherProfileData();
-
-		{
-			CPU_PROFILE( RenderFrame );
-			GPU_PROFILE_EVENT( m_renderGraph, RenderFrame );
-
-			SceneRenderer* pSceneRenderer = FindOrCreateSceneRenderer( renderViewGroup );
-			assert( pSceneRenderer != nullptr );
-
-			pSceneRenderer->PreRender( m_renderGraph, renderViewGroup );
-
-			if ( renderViewGroup.GetShowFlags().m_bHitProxy )
+		EnqueueRenderTask(
+			[this, renderViewGroup]() mutable
 			{
-				pSceneRenderer->RenderHitProxy( m_renderGraph, renderViewGroup );
-			}
-			else
-			{
-				pSceneRenderer->Render( m_renderGraph, renderViewGroup );
-			}
+				CPU_PROFILE( BeginRenderingViewGroup );
 
-			m_renderGraph.Execute();
-		}
+				GetGpuProfiler().GatherProfileData();
+
+				{
+					CPU_PROFILE( RenderFrame );
+					GPU_PROFILE_EVENT( m_renderGraph, RenderFrame );
+
+					SceneRenderer* pSceneRenderer = FindOrCreateSceneRenderer( renderViewGroup );
+					assert( pSceneRenderer != nullptr );
+
+					pSceneRenderer->PreRender( m_renderGraph, renderViewGroup );
+
+					if ( renderViewGroup.GetShowFlags().m_bHitProxy )
+					{
+						pSceneRenderer->RenderHitProxy( m_renderGraph, renderViewGroup );
+					}
+					else
+					{
+						pSceneRenderer->Render( m_renderGraph, renderViewGroup );
+					}
+
+					m_renderGraph.Execute();
+				}
+			} );
 	}
 
 	void RenderCore::EndFrameRendering( Canvas& canvas )
 	{
-		CPU_PROFILE( EndFrameRendering );
-
-		if ( m_uiRenderer )
-		{
-			CPU_PROFILE( RenderUI );
-			GPU_PROFILE_EVENT( m_renderGraph, RenderUI );
-
-			m_uiRenderer->Render( m_renderGraph, canvas );
-		}
-
-		GetPrimitiveIdPool().DiscardAll();
-
-		{
-			CPU_PROFILE( Execute );
-			m_renderGraph.Execute();
-		}
-
-		canvas.OnEndFrameRendering();
-
-		{
-			CPU_PROFILE( CommitRenderFrame );
+		EnqueueRenderTask(
+			[this, canvas]() mutable
 			{
-				CPU_PROFILE( Commit );
-				RenderGraph::Commit();
-			}
-		}
+				CPU_PROFILE( EndFrameRendering );
 
-		{
-			CPU_PROFILE( Present );
-			bool useVSync = DefaultRenderCore::UseVSync();
-			bool allowTearing = DefaultRenderCore::AllowTearing();
-			canvas.Present( useVSync, allowTearing );
-		}
+				if ( m_uiRenderer )
+				{
+					CPU_PROFILE( RenderUI );
+					GPU_PROFILE_EVENT( m_renderGraph, RenderUI );
+
+					m_uiRenderer->Render( m_renderGraph, canvas );
+				}
+
+				GetPrimitiveIdPool().DiscardAll();
+
+				{
+					CPU_PROFILE( Execute );
+					m_renderGraph.Execute();
+				}
+
+				canvas.OnEndFrameRendering();
+
+				{
+					CPU_PROFILE( CommitRenderFrame );
+					{
+						CPU_PROFILE( Commit );
+						RenderGraph::Commit();
+					}
+				}
+
+				{
+					CPU_PROFILE( Present );
+					bool useVSync = DefaultRenderCore::UseVSync();
+					bool allowTearing = DefaultRenderCore::AllowTearing();
+					canvas.Present( useVSync, allowTearing );
+				}
+
+				renderthread::TextureStreamingManager::GetInstance().Tick();
+			} );
 	}
 
 	void RenderCore::GetRawHitProxyData( Viewport& viewport, std::vector<Color>& outHitProxyData )
@@ -390,14 +409,14 @@ namespace rendercore
 	{
 		DefaultGraphicsResources::GetInstance().Shutdown();
 
-		for ( auto& kv : m_sceneRenderer )
-		{
-			EnqueueRenderTask(
-				[sceneRenderer = kv.second]()
+		EnqueueRenderTask(
+				[sceneRenderers = std::move( m_sceneRenderer )]()
 				{
-					delete sceneRenderer;
+					for ( auto& [method, renderer] : sceneRenderers )
+					{
+						delete renderer;
+					}
 				} );
-		}
 
 		m_sceneRenderer.clear();
 
@@ -407,6 +426,13 @@ namespace rendercore
 		GraphicsResourcePool::GetInstance().Shutdown();
 
 		GraphicsInterface().Shutdown();
+
+		TextureStreamingManager::GetInstance().Shutdown();
+		EnqueueRenderTask(
+				[]()
+				{
+					renderthread::TextureStreamingManager::GetInstance().Shutdown();
+				} );
 
 		TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>( [](){} );
 		GetInterface<ITaskScheduler>()->Wait( handle );

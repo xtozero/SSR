@@ -22,7 +22,7 @@ namespace ini
 			{
 			case TokenType::Comments:
 			{
-				SkipLine();
+				SkipUntilNewline();
 				break;
 			}
 			case TokenType::SquareBracketOpen:

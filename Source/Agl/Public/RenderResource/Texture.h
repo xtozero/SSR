@@ -25,6 +25,8 @@ namespace agl
 		virtual void CreateRenderTarget( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
 		virtual void CreateDepthStencil( std::optional<ResourceFormat> overrideFormat = {} ) = 0;
 
+		virtual void UpdateTextureMips( uint32 width, uint32 height, int32 mipLevels, const ResourceInitData& initData ) = 0;
+
 		virtual std::pair<uint32, uint32> Size() const = 0;
 		virtual void* Resource() const = 0;
 
@@ -64,6 +66,8 @@ namespace agl
 	class TextureBase : public Texture
 	{
 	public:
+		virtual void UpdateTextureMips( uint32 width, uint32 height, int32 mipLevels, const ResourceInitData& initData ) override;
+
 		virtual std::pair<uint32, uint32> Size() const override
 		{
 			return { m_desc.m_width, m_desc.m_height };

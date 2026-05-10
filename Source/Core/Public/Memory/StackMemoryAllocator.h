@@ -231,3 +231,24 @@ constexpr bool operator==( const TypedStackAllocator<T1>& lhs, const TypedStackA
 {
 	return &lhs == &rhs;
 }
+
+template <typename T, typename A>
+class ResetStackContainerScope
+{
+public:
+	ResetStackContainerScope( T& container, A& allocator )
+		: m_container( &container )
+		, m_allocator( &allocator )
+	{
+		std::destroy_at( m_container );
+	}
+
+	~ResetStackContainerScope()
+	{
+		std::construct_at( m_container, *m_allocator );
+	}
+
+private:
+	T* m_container = nullptr;
+	A* m_allocator = nullptr;
+};

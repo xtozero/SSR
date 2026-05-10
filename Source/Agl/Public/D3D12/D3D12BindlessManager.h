@@ -10,8 +10,9 @@ namespace agl
 	class D3D12BindlessDescriptorHeap
 	{
 	public:
-		[[nodiscard]] int32 Add( D3D12CpuDescriptorHandle handle );
+		[[nodiscard]] int32 Add( const D3D12CpuDescriptorHandle& handle );
 		void Remove( int32 bindlessHandle );
+		void Update( int32 bindlessHandle, const D3D12CpuDescriptorHandle& handle );
 
 		D3D12DescriptorHeap& GetCpuHeap();
 		const D3D12DescriptorHeap& GetCpuHeap() const;
@@ -26,7 +27,6 @@ namespace agl
 		D3D12_DESCRIPTOR_HEAP_TYPE m_type;
 
 		D3D12DescriptorHeap m_cpuHeap;
-		D3D12DescriptorHeap m_gpuHeap;
 
 		uint32 m_size = 0;
 		uint32 m_capacity = 0;
@@ -37,10 +37,11 @@ namespace agl
 	class D3D12BindlessManager
 	{
 	public:
-		[[nodiscard]] int32 AddResourceDescriptor( D3D12CpuDescriptorHandle handle );
+		[[nodiscard]] int32 AddResourceDescriptor( const D3D12CpuDescriptorHandle& handle );
 		void RemoveResourceDescriptor( int32 bindlessHandle );
+		void UpdateResourceDescriptor( int32 bindlessHandle, const D3D12CpuDescriptorHandle& handle );
 
-		[[nodiscard]] int32 AddSamplerDescriptor( D3D12CpuDescriptorHandle handle );
+		[[nodiscard]] int32 AddSamplerDescriptor( const D3D12CpuDescriptorHandle& handle );
 		void RemoveSamplerDescriptor( int32 bindlessHandle );
 
 		D3D12DescriptorHeap& GetResourceCpuHeap();

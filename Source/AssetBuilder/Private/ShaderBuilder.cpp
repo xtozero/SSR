@@ -361,7 +361,7 @@ ShaderCompileResult ShaderBuilder::CompileD3D12Shader( const std::string& shader
 	} visitor( permutation );
 
 	permutation.ForEachShaderDefine( visitor );
-	args.insert( args.end(), visitor.m_args.begin(), visitor.m_args.end() );
+	args.insert( std::end( args ), std::begin( visitor.m_args ), std::end( visitor.m_args ) );
 
 	ComPtr<IDxcResult> results;
 	m_compiler->Compile( &buffer

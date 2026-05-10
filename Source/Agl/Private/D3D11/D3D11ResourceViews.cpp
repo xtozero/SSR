@@ -4,15 +4,51 @@
 
 namespace agl
 {
+	void D3D11ShaderResourceView::UpdateTextureMips( ID3D11Resource* d3d11Resource, uint32 mipLevels )
+	{
+		switch ( m_d3dDesc.ViewDimension )
+		{
+		case D3D11_SRV_DIMENSION_TEXTURE1D:
+			m_d3dDesc.Texture1D.MipLevels = mipLevels;
+			break;
+		case D3D11_SRV_DIMENSION_TEXTURE1DARRAY:
+			m_d3dDesc.Texture1DArray.MipLevels = mipLevels;
+			break;
+		case D3D11_SRV_DIMENSION_TEXTURE2D:
+			m_d3dDesc.Texture2D.MipLevels = mipLevels;
+			break;
+		case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
+			m_d3dDesc.Texture2DArray.MipLevels = mipLevels;
+			break;
+		case D3D11_SRV_DIMENSION_TEXTURE3D:
+			m_d3dDesc.Texture3D.MipLevels = mipLevels;
+			break;
+		case D3D11_SRV_DIMENSION_TEXTURECUBE:
+			m_d3dDesc.TextureCube.MipLevels = mipLevels;
+			break;
+		case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
+			m_d3dDesc.TextureCubeArray.MipLevels = mipLevels;
+			break;
+		default:
+			assert( false && "Unsupported SRV dimension in D3D12ShaderResourceView::UpdateTextureMips()" );
+			return;
+		}
+
+		m_d3d11Resource = d3d11Resource;
+		m_resource = nullptr;
+
+		InitResource();
+	}
+
 	void D3D11ShaderResourceView::InitResource( )
 	{
-		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateShaderResourceView( m_d3d11Resource, &m_d3dDesc, &m_resource );
+		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateShaderResourceView( m_d3d11Resource.Get(), &m_d3dDesc, m_resource.GetAddressOf() );
 		assert( SUCCEEDED( hr ) );
 	}
 
 	void D3D11UnorderedAccessView::InitResource( )
 	{
-		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateUnorderedAccessView( m_d3d11Resource, &m_d3dDesc, &m_resource );
+		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateUnorderedAccessView( m_d3d11Resource.Get(), &m_d3dDesc, m_resource.GetAddressOf() );
 		assert( SUCCEEDED( hr ) );
 	}
 
@@ -29,7 +65,7 @@ namespace agl
 
 	void D3D11RenderTargetView::InitResource( )
 	{
-		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateRenderTargetView( m_d3d11Resource, &m_d3dDesc, &m_resource );
+		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateRenderTargetView( m_d3d11Resource.Get(), &m_d3dDesc, m_resource.GetAddressOf() );
 		assert( SUCCEEDED( hr ) );
 	}
 
@@ -52,7 +88,7 @@ namespace agl
 
 	void D3D11DepthStencilView::InitResource( )
 	{
-		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateDepthStencilView( m_d3d11Resource, &m_d3dDesc, &m_resource );
+		[[maybe_unused]] HRESULT hr = D3D11Device( ).CreateDepthStencilView( m_d3d11Resource.Get(), &m_d3dDesc, m_resource.GetAddressOf() );
 		assert( SUCCEEDED( hr ) );
 	}
 }

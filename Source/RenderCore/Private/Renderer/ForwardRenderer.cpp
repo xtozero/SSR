@@ -17,6 +17,7 @@
 #include "Scene/SceneConstantBuffers.h"
 #include "SkyAtmosphereRendering.h"
 #include "StaticState.h"
+#include "TextureStreaming.h"
 #include "Viewport.h"
 
 namespace rendercore
@@ -235,6 +236,7 @@ namespace rendercore
 		m_linearDepth[1] = nullptr;
 		m_worldNormal = nullptr;
 		m_velocity = nullptr;
+		m_visibility = nullptr;
 	}
 
 	void ForwardRenderer::PreRender( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup )
@@ -296,6 +298,8 @@ namespace rendercore
 			RenderAtmosphereLookUpTables( renderGraph, *renderScene );
 		}
 
+		m_resourceCollection.m_textureFeedback = renderthread::TextureStreamingManager::GetInstance().AddFeedbackBufferClearPass( renderGraph );
+
 		auto& viewShaderArguments = scene.GetViewShaderArguments();
 
 		for ( uint32 i = 0; i < static_cast<uint32>( renderViewGroup.NumRenderView() ); ++i )
@@ -331,6 +335,8 @@ namespace rendercore
 #endif
 		}
 
+		renderthread::TextureStreamingManager::GetInstance().AddFeedbackBufferReadbackPass( renderGraph, m_resourceCollection.m_textureFeedback.Get() );
+
 		if ( DefaultRenderCore::IsTaaEnabled() )
 		{
 			RenderTemporalAntiAliasing( renderGraph, renderViewGroup );
@@ -344,86 +350,6 @@ namespace rendercore
 		CPU_PROFILE( ForwardRenderer_RenderHitProxy );
 
 		DoRenderHitProxy( renderGraph, renderViewGroup );
-	}
-
-	void ForwardRenderer::RenderDefaultPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex )
-	{
-		CPU_PROFILE( ForwardRenderer_RenderDefaultPass );
-
-		auto renderTarget = m_renderTargets.GetSceneColor();
-		auto depthStencil = m_renderTargets.GetDepthStencil();
-
-		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
-		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
-
-		auto [width, height] = renderViewGroup.GetViewport().Size();
-
-		RasterOutput rasterOutput;
-		rasterOutput.SetRenderTarget( 0, rgRenderTarget );
-		rasterOutput.SetDepthStencil( rgDepthStencil, true );
-		rasterOutput.SetViewport( width, height );
-		rasterOutput.SetScissorRect( width, height );
-
-		IScene& scene = renderViewGroup.Scene();
-
-		RenderTexturedSky( renderGraph, scene, rasterOutput );
-
-		GPU_PROFILE_EVENT( renderGraph, Default );
-		PIPELINE_STAT_EVENT( renderGraph, Default );
-
-		m_resourceBinder.Add( StaticName( "AmbientOcclusion" ), m_resourceCollection.m_ambientOcclusion->SRV() );
-		m_resourceBinder.Add( StaticName( "IndirectIllumination" ), m_resourceCollection.m_indirectIllumination->SRV() );
-
-		if ( DefaultRenderCore::SupportsVisibilityRendering() )
-		{
-			RenderDefaultPassWithVisibilityBuffer( renderGraph, renderViewGroup, viewIndex );
-		}
-
-		if ( RenderFrameArray<VisibleDrawSnapshot>* passSnapShots = GatherSortedDrawSnapshots( scene, RenderPassType::Default, viewIndex ) )
-		{
-			GPU_PROFILE_EVENT( renderGraph, NonVisibility )
-
-			RenderFrameArray<VisibleDrawSnapshot>& snapshots = *passSnapShots;
-
-			VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
-			UpdatePrimitiveIDs( snapshots, primitiveIds );
-
-			BEGIN_RG_RESOURCE_STRUCT( DefaultPassResource )
-				DECLARE_RG_TEXTURE_PIXEL_SRV( ambientOcclusion )
-				DECLARE_RG_TEXTURE_PIXEL_SRV( indirectIllumination )
-			END_RG_RESOURCE_STRUCT();
-
-			auto rgAmbientOcclusion = renderGraph.RegisterExternalResource( m_resourceCollection.m_ambientOcclusion.Get() );
-			auto rgIndirectIllumination = renderGraph.RegisterExternalResource( m_resourceCollection.m_indirectIllumination.Get() );
-
-			DefaultPassResource passResource = {
-				.m_ambientOcclusion = rgAmbientOcclusion,
-				.m_indirectIllumination = rgIndirectIllumination
-			};
-
-			renderGraph.AddPass(
-				passResource,
-				rasterOutput,
-				[this, &snapshots, primitiveIds]( CommandList& commandList ) mutable
-				{
-					CPU_PROFILE( RenderGraph_RenderDefaultPass );
-
-					// Update invalidated resources
-					for ( size_t i = 0; i < snapshots.size(); )
-					{
-						DrawSnapshot& snapshot = *snapshots[i].m_drawSnapshot;
-						GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
-
-						m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
-
-						i += snapshots[i].m_numInstance;
-					}
-
-					ParallelCommitDrawSnapshot( commandList, snapshots, primitiveIds );
-				} );
-		}
-
-		RenderDebugOverlay( renderGraph, renderViewGroup, viewIndex );
 	}
 
 	IRendererRenderTargets& ForwardRenderer::GetRenderTargets()
@@ -571,6 +497,90 @@ namespace rendercore
 		}
 	}
 
+	void ForwardRenderer::RenderDefaultPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex )
+	{
+		CPU_PROFILE( ForwardRenderer_RenderDefaultPass );
+
+		auto renderTarget = m_renderTargets.GetSceneColor();
+		auto depthStencil = m_renderTargets.GetDepthStencil();
+
+		auto rgRenderTarget = renderGraph.RegisterExternalResource( renderTarget );
+		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil );
+
+		auto [width, height] = renderViewGroup.GetViewport().Size();
+
+		RasterOutput rasterOutput;
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget );
+		rasterOutput.SetDepthStencil( rgDepthStencil, true );
+		rasterOutput.SetViewport( width, height );
+		rasterOutput.SetScissorRect( width, height );
+
+		IScene& scene = renderViewGroup.Scene();
+
+		RenderTexturedSky( renderGraph, scene, rasterOutput );
+
+		GPU_PROFILE_EVENT( renderGraph, Default );
+		PIPELINE_STAT_EVENT( renderGraph, Default );
+
+		m_resourceBinder.Add( StaticName( "AmbientOcclusion" ), m_resourceCollection.m_ambientOcclusion->SRV() );
+		m_resourceBinder.Add( StaticName( "IndirectIllumination" ), m_resourceCollection.m_indirectIllumination->SRV() );
+		m_resourceBinder.Add( StaticName( "TextureFeedback" ), m_resourceCollection.m_textureFeedback->UAV() );
+
+		if ( DefaultRenderCore::SupportsVisibilityRendering() )
+		{
+			RenderDefaultPassWithVisibilityBuffer( renderGraph, renderViewGroup, viewIndex );
+		}
+
+		if ( RenderFrameArray<VisibleDrawSnapshot>* passSnapShots = GatherSortedDrawSnapshots( scene, RenderPassType::Default, viewIndex ) )
+		{
+			GPU_PROFILE_EVENT( renderGraph, NonVisibility )
+
+			RenderFrameArray<VisibleDrawSnapshot>& snapshots = *passSnapShots;
+
+			VertexBuffer primitiveIds = GetPrimitiveIdPool().Alloc( static_cast<uint32>( snapshots.size() * sizeof( uint32 ) ) );
+			UpdatePrimitiveIDs( snapshots, primitiveIds );
+
+			BEGIN_RG_RESOURCE_STRUCT( DefaultPassResource )
+				DECLARE_RG_TEXTURE_PIXEL_SRV( ambientOcclusion )
+				DECLARE_RG_TEXTURE_PIXEL_SRV( indirectIllumination )
+				DECLARE_RG_BUFFER_UAV( textureFeedback )
+			END_RG_RESOURCE_STRUCT();
+
+			auto rgAmbientOcclusion = renderGraph.RegisterExternalResource( m_resourceCollection.m_ambientOcclusion.Get() );
+			auto rgIndirectIllumination = renderGraph.RegisterExternalResource( m_resourceCollection.m_indirectIllumination.Get() );
+			auto rgTextureFeedback = renderGraph.RegisterExternalResource( m_resourceCollection.m_textureFeedback.Get() );
+
+			DefaultPassResource passResource = {
+				.m_ambientOcclusion = rgAmbientOcclusion,
+				.m_indirectIllumination = rgIndirectIllumination,
+				.m_textureFeedback = rgTextureFeedback,
+			};
+
+			renderGraph.AddPass(
+				passResource,
+				rasterOutput,
+				[this, &snapshots, primitiveIds]( CommandList& commandList ) mutable
+				{
+					CPU_PROFILE( RenderGraph_RenderDefaultPass );
+
+					// Update invalidated resources
+					for ( size_t i = 0; i < snapshots.size(); )
+					{
+						DrawSnapshot& snapshot = *snapshots[i].m_drawSnapshot;
+						GraphicsPipelineState& pipelineState = snapshot.m_pipelineState;
+
+						m_resourceBinder.Bind( pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+						i += snapshots[i].m_numInstance;
+					}
+
+					ParallelCommitDrawSnapshot( commandList, snapshots, primitiveIds );
+				} );
+		}
+
+		RenderDebugOverlay( renderGraph, renderViewGroup, viewIndex );
+	}
+
 	void ForwardRenderer::RenderOcclusionTest( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex )
 	{
 		auto renderTarget = m_renderTargets.GetSceneColor();
@@ -657,12 +667,14 @@ namespace rendercore
 			DECLARE_RG_BUFFER_NONPIXEL_SRV( workList )
 			DECLARE_RG_BUFFER_NONPIXEL_SRV( primitiveIds )
 			DECLARE_RG_TEXTURE_UAV( sceneColor )
+			DECLARE_RG_BUFFER_UAV( textureFeedback )
 		END_RG_RESOURCE_STRUCT();
 
 		auto rgAmbientOcclusion = renderGraph.RegisterExternalResource( m_resourceCollection.m_ambientOcclusion.Get() );
 		auto rgIndirectIllumination = renderGraph.RegisterExternalResource( m_resourceCollection.m_indirectIllumination.Get() );
 		auto rgPrimitiveIds = renderGraph.RegisterExternalResource( primitiveIds.Get() );
 		auto rgSceneColor = renderGraph.RegisterExternalResource( m_renderTargets.GetSceneColor() );
+		auto rgTextureFeedback = renderGraph.RegisterExternalResource( m_resourceCollection.m_textureFeedback.Get() );
 
 		DefaultPassResource passResource = {
 			.m_indirectArgs = countDrawCallIdOutput.m_indirectArgs,
@@ -674,6 +686,7 @@ namespace rendercore
 			.m_workList = rgWorkList,
 			.m_primitiveIds = rgPrimitiveIds,
 			.m_sceneColor = rgSceneColor,
+			.m_textureFeedback = rgTextureFeedback,
 		};
 
 		{

@@ -1730,11 +1730,11 @@ namespace rendercore
 
 	void SceneRenderer::ResetFrameData()
 	{
-		ResetTransientContainerScope resetShadowInfos( m_shadowInfos );
-		ResetTransientContainerScope resetDrawSnapshotsByView( m_drawSnapshotsByView );
-		ResetTransientContainerScope resetOcclusionRenderData( m_occlusionRenderData );
-		ResetTransientContainerScope resetCurrentFrameDrawSnapshots( m_curFrameDrawSnapshots );
-		ResetTransientContainerScope resetCurFrameShadingSnapshots( m_curFrameShadingSnapshots );
+		ResetFrameArrayScope resetShadowInfos( m_shadowInfos );
+		ResetFrameArrayScope resetDrawSnapshotsByView( m_drawSnapshotsByView );
+		ResetFrameArrayScope resetOcclusionRenderData( m_occlusionRenderData );
+		ResetFrameArrayScope resetCurrentFrameDrawSnapshots( m_curFrameDrawSnapshots );
+		ResetFrameArrayScope resetCurFrameShadingSnapshots( m_curFrameShadingSnapshots );
 
 		GetTransientAllocator<ThreadType::RenderThread>().Purge();
 	}

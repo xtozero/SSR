@@ -32,11 +32,19 @@ namespace rendercore
 		DECLARE_ASSET( RENDERCORE, Texture );
 
 	public:
+		virtual void RequestMipLevels( [[maybe_unused]] int32 desiredMipLevel ) {}
+
 		agl::Texture* Resource();
 		const agl::Texture* Resource() const;
 
+		uint32 GetWidth() const;
+		uint32 GetHeight() const;
+		uint32 GetMipLevels() const;
+
 	protected:
-		RENDERCORE_DLL virtual void PostLoadImpl() override;
+		RENDERCORE_DLL virtual void PostLoadImpl() override {}
+
+		int32 ClampMipLevel( int32 mipLevel ) const;
 
 		PROPERTY( width )
 		uint32 m_width = 0;
@@ -68,6 +76,8 @@ namespace rendercore
 		PROPERTY( sections )
 		std::vector<TextureSection> m_sections;
 
+		int32 m_desiredMipLevel = 0;
+
 		RefHandle<agl::Texture> m_texture;
 	};
 
@@ -79,6 +89,8 @@ namespace rendercore
 		DECLARE_ASSET( RENDERCORE, DDSTexture );
 
 	public:
+		virtual void RequestMipLevels( int32 desiredMipLevel ) override;
+
 		DDSTexture() = default;
 		RENDERCORE_DLL explicit DDSTexture( const DDSTextureDesc& desc );
 
@@ -86,7 +98,8 @@ namespace rendercore
 		RENDERCORE_DLL virtual void PostLoadImpl() override;
 
 	private:
-		void CreateRenderResource( uint32 desiredMipLevel );
+		agl::ResourceInitData GetInitData();
+		void CreateRenderResource();
 	};
 
 	struct DDSTextureDesc

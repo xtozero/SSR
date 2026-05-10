@@ -8,7 +8,7 @@
 
 namespace agl
 {
-	int32 D3D12BindlessDescriptorHeap::Add( D3D12CpuDescriptorHandle handle )
+	int32 D3D12BindlessDescriptorHeap::Add( const D3D12CpuDescriptorHandle& handle )
 	{
 		if ( m_size >= m_capacity )
 		{
@@ -19,7 +19,6 @@ namespace agl
 		assert( freeIdx != m_freeFlag.Size() );
 
 		D3D12Device().CopyDescriptorsSimple( 1, m_cpuHeap.GetCpuHandle().At( freeIdx ), handle.At(), m_type );
-		D3D12Device().CopyDescriptorsSimple( 1, m_gpuHeap.GetCpuHandle().At( freeIdx ), handle.At(), m_type );
 
 		m_freeFlag[freeIdx] = false;
 		++m_size;
@@ -33,6 +32,14 @@ namespace agl
 		{
 			m_freeFlag[bindlessHandle] = true;
 			--m_size;
+		}
+	}
+
+	void D3D12BindlessDescriptorHeap::Update( int32 bindlessHandle, const D3D12CpuDescriptorHandle& handle )
+	{
+		if ( bindlessHandle != NullBindlessHandle )
+		{
+			D3D12Device().CopyDescriptorsSimple( 1, m_cpuHeap.GetCpuHandle().At( bindlessHandle ), handle.At(), m_type );
 		}
 	}
 
@@ -60,21 +67,18 @@ namespace agl
 	{
 		auto newCapacity = static_cast<uint32>( m_capacity * 1.5f + 1 );
 		auto newCpuHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( m_type, newCapacity );
-		auto newGpuHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocGpuDescriptorHeap( m_type, newCapacity );
 
 		if ( m_capacity > 0 )
 		{
 			D3D12Device().CopyDescriptorsSimple( m_capacity, newCpuHeap.GetCpuHandle().At(), m_cpuHeap.GetCpuHandle().At(), m_type );
-			D3D12Device().CopyDescriptorsSimple( m_capacity, newGpuHeap.GetCpuHandle().At(), m_cpuHeap.GetCpuHandle().At(), m_type );
 		}
 
 		m_capacity = newCapacity;
 		m_cpuHeap = newCpuHeap;
-		m_gpuHeap = newGpuHeap;
 		m_freeFlag.Resize( m_capacity, true );
 	}
 
-	int32 D3D12BindlessManager::AddResourceDescriptor( D3D12CpuDescriptorHandle handle )
+	int32 D3D12BindlessManager::AddResourceDescriptor( const D3D12CpuDescriptorHandle& handle )
 	{
 		if ( DefaultAgl::SupportsBindless() == false )
 		{
@@ -86,7 +90,7 @@ namespace agl
 
 	void D3D12BindlessManager::RemoveResourceDescriptor( int32 bindlessHandle )
 	{
-		if ( DefaultAgl::SupportsBindless() == false )
+		if ( bindlessHandle == NullBindlessHandle )
 		{
 			return;
 		}
@@ -94,7 +98,17 @@ namespace agl
 		m_resourceDescriptorHeap.Remove( bindlessHandle );
 	}
 
-	int32 D3D12BindlessManager::AddSamplerDescriptor( D3D12CpuDescriptorHandle handle )
+	void D3D12BindlessManager::UpdateResourceDescriptor( int32 bindlessHandle, const D3D12CpuDescriptorHandle& handle )
+	{
+		if ( bindlessHandle == NullBindlessHandle )
+		{
+			return;
+		}
+
+		m_resourceDescriptorHeap.Update( bindlessHandle, handle );
+	}
+
+	int32 D3D12BindlessManager::AddSamplerDescriptor( const D3D12CpuDescriptorHandle& handle )
 	{
 		if ( DefaultAgl::SupportsBindless() == false )
 		{

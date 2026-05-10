@@ -150,6 +150,17 @@ namespace rendercore
 		return empty;
 	}
 
+	int32 MaterialResource::GetMaterialId() const
+	{
+		auto material = m_material.lock();
+		if ( material )
+		{
+			return material->GetMaterialId();
+		}
+
+		return -1;
+	}
+
 	void MaterialResource::SetMaterial( const std::shared_ptr<Material>& material )
 	{
 		m_material = material;

@@ -31,17 +31,7 @@ namespace agl
 				m_dataStorage = new uint8[initData->m_srcSize];
 				std::memcpy( m_dataStorage, initData->m_srcData, initData->m_srcSize );
 
-				size_t numSections = initData->m_sections.size();
-
-				m_initData.resize( numSections );
-				for ( size_t i = 0; i < numSections; ++i )
-				{
-					const ResourceSectionData& section = initData->m_sections[i];
-
-					m_initData[i].pSysMem = m_dataStorage + section.m_offset;
-					m_initData[i].SysMemPitch = static_cast<uint32>( section.m_pitch );
-					m_initData[i].SysMemSlicePitch = static_cast<uint32>( section.m_slicePitch );
-				}
+				SetInitData( *initData );
 			}
 		}
 
@@ -50,17 +40,7 @@ namespace agl
 		{
 			if ( initData )
 			{
-				size_t numSections = initData->m_sections.size();
-
-				m_initData.resize( numSections );
-				for ( size_t i = 0; i < numSections; ++i )
-				{
-					const ResourceSectionData& section = initData->m_sections[i];
-
-					m_initData[i].pSysMem = m_dataStorage + section.m_offset;
-					m_initData[i].SysMemPitch = static_cast<uint32>( section.m_pitch );
-					m_initData[i].SysMemSlicePitch = static_cast<uint32>( section.m_slicePitch );
-				}
+				SetInitData( *initData );
 			}
 		}
 		D3D11Texture() = default;
@@ -76,6 +56,21 @@ namespace agl
 			{
 				auto dataSize = static_cast<uint32>( m_debugName.Str().size() );
 				m_texture->SetPrivateData( WKPDID_D3DDebugObjectName, dataSize, m_debugName.Str().data() );
+			}
+		}
+
+		void SetInitData( const ResourceInitData& initData )
+		{
+			size_t numSections = initData.m_sections.size();
+
+			m_initData.resize( numSections );
+			for ( size_t i = 0; i < numSections; ++i )
+			{
+				const ResourceSectionData& section = initData.m_sections[i];
+
+				m_initData[i].pSysMem = m_dataStorage + section.m_offset;
+				m_initData[i].SysMemPitch = static_cast<uint32>( section.m_pitch );
+				m_initData[i].SysMemSlicePitch = static_cast<uint32>( section.m_slicePitch );
 			}
 		}
 
@@ -141,6 +136,8 @@ namespace agl
 		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override;
 		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override;
 
+		virtual void UpdateTextureMips( uint32 width, uint32 height, int32 mipLevels, const ResourceInitData& initData ) override;
+
 		D3D11Texture2D( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
 		D3D11Texture2D( ID3D11Texture2D* texture, const char* debugName, const float4& clearColor, const D3D11_TEXTURE2D_DESC* desc = nullptr );
 
@@ -160,6 +157,8 @@ namespace agl
 		virtual void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} ) override;
 		virtual void CreateRenderTarget( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override;
 		virtual void CreateDepthStencil( [[maybe_unused]] std::optional<ResourceFormat> overrideFormat = {} ) override {};
+
+		virtual void UpdateTextureMips( uint32 width, uint32 height, int32 mipLevels, const ResourceInitData& initData ) override;
 
 		D3D11Texture3D( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
 

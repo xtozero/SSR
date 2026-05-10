@@ -15,7 +15,8 @@ bool TextureBuilder::IsSuitable( const std::filesystem::path& srcPath ) const
 	fs::path extension = ToLower( srcPath.extension().generic_string() );
 	return extension == fs::path( ".dds" )
 		|| extension == fs::path( ".jpg" )
-		|| extension == fs::path( ".tga" );
+		|| extension == fs::path( ".tga" )
+		|| extension == fs::path( ".png" );
 }
 
 std::optional<Products> TextureBuilder::Build( [[maybe_unused]] const PathEnvironment& env, const std::filesystem::path& path ) const

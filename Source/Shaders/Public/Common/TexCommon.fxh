@@ -1,3 +1,6 @@
+#include "Common/LightCommon.fxh"
+
+/*
 SamplerState baseSampler : register( s0 );
 Texture2D baseTexture : register( t0 );
 
@@ -5,6 +8,9 @@ float4 Sample( float2 texcoord )
 {
 	return baseTexture.Sample( baseSampler, texcoord );
 }
+*/
+
+RWStructuredBuffer<int> TextureFeedback;
 
 float random( float3 seed )
 {
@@ -167,4 +173,15 @@ float3 CubeUvToArrayUv( float3 uv )
 
 	ret.xy += 0.5f;
 	return ret;
+}
+
+void WriteTextureFeedback( float2 uvDDX, float2 uvDDY )
+{
+	if ( MaterialId > -1 )
+	{
+		float rho = max( length( uvDDX ), length( uvDDY ) );
+		float requiredResolution = 1.0 / rho;
+
+		InterlockedMax( TextureFeedback[MaterialId], (int)requiredResolution );
+	}
 }

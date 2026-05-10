@@ -10,6 +10,42 @@ namespace agl
 		return m_bindlessHandle;
 	}
 
+	void D3D12ShaderResourceView::UpdateTextureMips( ID3D12Resource* resource, uint32 mipLevels )
+	{
+		switch ( m_d3dDesc.ViewDimension )
+		{
+		case D3D12_SRV_DIMENSION_TEXTURE1D:
+			m_d3dDesc.Texture1D.MipLevels = mipLevels;
+			break;
+		case D3D12_SRV_DIMENSION_TEXTURE1DARRAY:
+			m_d3dDesc.Texture1DArray.MipLevels = mipLevels;
+			break;
+		case D3D12_SRV_DIMENSION_TEXTURE2D:
+			m_d3dDesc.Texture2D.MipLevels = mipLevels;
+			break;
+		case D3D12_SRV_DIMENSION_TEXTURE2DARRAY:
+			m_d3dDesc.Texture2DArray.MipLevels = mipLevels;
+			break;
+		case D3D12_SRV_DIMENSION_TEXTURE3D:
+			m_d3dDesc.Texture3D.MipLevels = mipLevels;
+			break;
+		case D3D12_SRV_DIMENSION_TEXTURECUBE:
+			m_d3dDesc.TextureCube.MipLevels = mipLevels;
+			break;
+		case D3D12_SRV_DIMENSION_TEXTURECUBEARRAY:
+			m_d3dDesc.TextureCubeArray.MipLevels = mipLevels;
+			break;
+		default:
+			assert( false && "Unsupported SRV dimension in D3D12ShaderResourceView::UpdateTextureMips()" );
+			return;
+		}
+
+		m_d3d12Resource = resource;
+		D3D12Device().CreateShaderResourceView( m_d3d12Resource, &m_d3dDesc, m_descriptorHeap.GetCpuHandle().At() );
+
+		D3D12BindlessMgr().UpdateResourceDescriptor( m_bindlessHandle, m_descriptorHeap.GetCpuHandle() );
+	}
+
 	void D3D12ShaderResourceView::InitResource()
 	{
 		m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1 );

@@ -74,6 +74,7 @@ namespace rendercore
 		RefHandle<agl::Texture> m_indirectIllumination;
 		RefHandle<agl::Texture> m_ssgi;
 		RefHandle<agl::Texture> m_ambientOcclusion;
+		RefHandle<agl::Buffer> m_textureFeedback;
 	};
 
 	class ResourceBinder final
@@ -139,8 +140,6 @@ namespace rendercore
 		virtual void PreRender( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup );
 		virtual void Render( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup ) = 0;
 		virtual void RenderHitProxy( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup ) = 0;
-
-		virtual void RenderDefaultPass( RenderGraph& renderGraph, RenderViewGroup& renderViewGroup, uint32 viewIndex ) = 0;
 
 		virtual IRendererRenderTargets& GetRenderTargets() = 0;
 

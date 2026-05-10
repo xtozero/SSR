@@ -7,7 +7,7 @@ namespace agl
 		for ( int32 i = 0; i < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES; ++i )
 		{
 			m_top[i] = 0;
-			for ( auto iter = m_heaps[i].begin(); iter != m_heaps[i].end(); )
+			for ( auto iter = std::begin( m_heaps[i] ); iter != std::end( m_heaps[i] ); )
 			{
 				auto& descriptorHeap = *iter;
 
