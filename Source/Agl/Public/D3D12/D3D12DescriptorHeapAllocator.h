@@ -21,6 +21,7 @@ namespace agl
 	class D3D12CpuDescriptorHandle final : public D3D12DescriptorHandle
 	{
 		friend class D3D12DescriptorHeap;
+		friend struct D3D12ViewDescriptorHandle;
 
 	public:
 		D3D12_CPU_DESCRIPTOR_HANDLE At( int32 offset = 0 ) const;
@@ -83,7 +84,6 @@ namespace agl
 		D3D12CpuDescriptorHandle m_cpuHandle;
 		D3D12GpuDescriptorHandle m_gpuHandle;
 
-		uint32 m_increametSize = 0;
 		bool m_bShaderVisible = false;
 	};
 
@@ -112,5 +112,37 @@ namespace agl
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> AllocDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE type, uint32 num, D3D12_DESCRIPTOR_HEAP_FLAGS flags );
 
 		uint32 m_descriptorHandleIncreamentSize[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES] = {};
+	};
+
+	struct D3D12ViewDescriptorPage
+	{
+		D3D12DescriptorHeap m_descriptorHeap;
+		std::vector<int32> m_freeList;
+	};
+
+	struct D3D12ViewDescriptorHandle
+	{
+		D3D12ViewDescriptorPage* m_ownerPage = nullptr;
+		int32 m_slotIndex = -1;
+		D3D12CpuDescriptorHandle m_cpuHandle;
+
+		bool IsValid() const
+		{
+			return ( m_ownerPage != nullptr ) && ( m_slotIndex >= 0 );
+		}
+	};
+
+	class D3D12ViewDescriptorPool final
+	{
+	public:
+		D3D12ViewDescriptorHandle Acquire( D3D12_DESCRIPTOR_HEAP_TYPE type );
+		void Release( D3D12ViewDescriptorHandle& handle );
+
+	private:
+		static constexpr uint32 DefaultPageSize = 1024;
+
+		void AllocNewPage( D3D12_DESCRIPTOR_HEAP_TYPE type );
+
+		std::vector<std::unique_ptr<D3D12ViewDescriptorPage>> m_viewDescriptorHeapPages[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 	};
 }

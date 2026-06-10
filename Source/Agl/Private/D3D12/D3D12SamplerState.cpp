@@ -41,9 +41,9 @@ namespace agl
 		return m_bindlessHandle;
 	}
 
-	const D3D12DescriptorHeap& D3D12SamplerState::Resource() const
+	const D3D12CpuDescriptorHandle& D3D12SamplerState::GetCpuHandle() const
 	{
-		return m_samplerState;
+		return m_descriptor.m_cpuHandle;
 	}
 
 	D3D12SamplerState::D3D12SamplerState( const SamplerStateDesc& desc )
@@ -53,15 +53,15 @@ namespace agl
 
 	void D3D12SamplerState::InitResource()
 	{
-		m_samplerState = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, 1 );
-		D3D12Device().CreateSampler( &m_d3dDesc, m_samplerState.GetCpuHandle().At() );
+		m_descriptor = D3D12DescriptorPoolForView().Acquire( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
+		D3D12Device().CreateSampler( &m_d3dDesc, m_descriptor.m_cpuHandle.At() );
 
-		m_bindlessHandle = D3D12BindlessMgr().AddSamplerDescriptor( m_samplerState.GetCpuHandle() );
+		m_bindlessHandle = D3D12BindlessMgr().AddSamplerDescriptor( m_descriptor.m_cpuHandle );
 	}
 
 	void D3D12SamplerState::FreeResource()
 	{
-		std::destroy_at( &m_samplerState );
+		D3D12DescriptorPoolForView().Release( m_descriptor );
 
 		D3D12BindlessMgr().RemoveSamplerDescriptor( m_bindlessHandle );
 	}

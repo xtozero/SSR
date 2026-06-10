@@ -3,6 +3,7 @@
 #include "D3D12Api.h"
 
 #include <cassert>
+#include <numeric>
 
 namespace agl
 {
@@ -56,16 +57,15 @@ namespace agl
 
 	D3D12DescriptorHeap::D3D12DescriptorHeap( Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>&& heap, uint32 increamentSize, bool bShaderVisible )
 		: m_heap( std::move( heap ) )
-		, m_increametSize( increamentSize )
 		, m_bShaderVisible( bShaderVisible )
 	{
 		if ( m_heap )
 		{
-			std::construct_at( &m_cpuHandle, m_heap->GetCPUDescriptorHandleForHeapStart(), m_increametSize );
+			std::construct_at( &m_cpuHandle, m_heap->GetCPUDescriptorHandleForHeapStart(), increamentSize );
 
 			if ( m_bShaderVisible )
 			{
-				std::construct_at( &m_gpuHandle, m_heap->GetGPUDescriptorHandleForHeapStart(), m_increametSize );
+				std::construct_at( &m_gpuHandle, m_heap->GetGPUDescriptorHandleForHeapStart(), increamentSize );
 			}
 		}
 	}
@@ -116,5 +116,60 @@ namespace agl
 		}
 
 		return heap;
+	}
+
+	D3D12ViewDescriptorHandle D3D12ViewDescriptorPool::Acquire( D3D12_DESCRIPTOR_HEAP_TYPE type )
+	{
+		assert( type < D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES );
+
+		auto& heapPages = m_viewDescriptorHeapPages[type];
+		D3D12ViewDescriptorPage* heapPage = nullptr;
+
+		const auto found = std::ranges::find_if( heapPages,
+			[](const std::unique_ptr<D3D12ViewDescriptorPage>& page)
+			{
+				return page->m_freeList.empty() == false;
+			} );
+
+		if ( found != std::end( heapPages ) )
+		{
+			heapPage = found->get();
+		}
+
+		if ( heapPage == nullptr )
+		{
+			AllocNewPage( type );
+			heapPage = heapPages.back().get();
+		}
+
+		int32 freeIndex = heapPage->m_freeList.back();
+		heapPage->m_freeList.pop_back();
+
+		return {
+			.m_ownerPage = heapPage,
+			.m_slotIndex = freeIndex,
+			.m_cpuHandle = heapPage->m_descriptorHeap.GetCpuHandle().Offset( freeIndex )
+		};
+	}
+
+	void D3D12ViewDescriptorPool::Release( D3D12ViewDescriptorHandle& handle )
+	{
+		if ( handle.IsValid() == false )
+		{
+			return;
+		}
+
+		handle.m_ownerPage->m_freeList.push_back( handle.m_slotIndex );
+
+		handle.m_ownerPage = nullptr;
+		handle.m_slotIndex = -1;
+	}
+
+	void D3D12ViewDescriptorPool::AllocNewPage( D3D12_DESCRIPTOR_HEAP_TYPE type )
+	{
+		auto& newPage = m_viewDescriptorHeapPages[type].emplace_back( std::make_unique<D3D12ViewDescriptorPage>() );
+		newPage->m_descriptorHeap = D3D12DescriptorHeapAllocator::GetInstance().AllocCpuDescriptorHeap( type, DefaultPageSize );
+		newPage->m_freeList.resize( DefaultPageSize );
+		std::iota( std::rbegin( newPage->m_freeList ), std::rend( newPage->m_freeList ), 0 );
 	}
 }

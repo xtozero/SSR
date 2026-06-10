@@ -7,6 +7,7 @@
 
 #include "D3D12BindlessManager.h"
 #include "D3D12CommandList.h"
+#include "D3D12DescriptorHeapAllocator.h"
 #include "D3D12FrameResourceCollection.h"
 #include "D3D12NullDescriptor.h"
 #include "D3D12Query.h"
@@ -246,6 +247,7 @@ namespace agl
 		D3D12ResourceUploader& GetUploader();
 		D3D12BindlessManager& GetBindlessManager();
 		D3D12FrameResourceCollection& GetFrameResourceCollection();
+		D3D12ViewDescriptorPool& GetViewDescriptorPool();
 
 		uint32 GetFrameIndex() const
 		{
@@ -306,6 +308,7 @@ namespace agl
 
 		D3D12ResourceAllocator m_allocator;
 		D3D12QueryAllocator m_queryAllocator;
+		D3D12ViewDescriptorPool m_viewDescriptorPool;
 
 		D3D12ResourceUploader m_uploader;
 
@@ -748,6 +751,11 @@ namespace agl
 		return m_frameResources[m_frameIndex];
 	}
 
+	D3D12ViewDescriptorPool& Direct3D12::GetViewDescriptorPool()
+	{
+		return m_viewDescriptorPool;
+	}
+
 	Direct3D12::~Direct3D12()
 	{
 		CloseHandle( m_fenceEvent );
@@ -1188,6 +1196,12 @@ namespace agl
 	{
 		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
 		return d3d12Api->GetFrameResourceCollection();
+	}
+
+	D3D12ViewDescriptorPool& D3D12DescriptorPoolForView()
+	{
+		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
+		return d3d12Api->GetViewDescriptorPool();
 	}
 
 	Owner<IAgl*> CreateD3D12GraphicsApi()

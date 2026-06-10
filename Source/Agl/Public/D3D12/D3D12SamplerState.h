@@ -13,7 +13,7 @@ namespace agl
 	public:
 		virtual int32 GetBindlessHandle() const override;
 
-		const D3D12DescriptorHeap& Resource() const;
+		const D3D12CpuDescriptorHandle& GetCpuHandle() const;
 
 		D3D12SamplerState( const SamplerStateDesc& desc );
 		D3D12SamplerState( const D3D12SamplerState& ) = default;
@@ -26,7 +26,7 @@ namespace agl
 		virtual void InitResource() override;
 		virtual void FreeResource() override;
 
-		D3D12DescriptorHeap m_samplerState;
+		D3D12ViewDescriptorHandle m_descriptor;
 
 		D3D12_SAMPLER_DESC m_d3dDesc;
 

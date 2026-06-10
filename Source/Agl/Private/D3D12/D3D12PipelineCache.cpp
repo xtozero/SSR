@@ -536,7 +536,7 @@ namespace agl
 				auto d3d12SamplerState = static_cast<D3D12SamplerState*>( samplerState->Get() );
 				assert( d3d12SamplerState != nullptr );
 
-				D3D12Device().CopyDescriptorsSimple( 1, samplerHeap.GetCpuHandle( i ), d3d12SamplerState->Resource().GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
+				D3D12Device().CopyDescriptorsSimple( 1, samplerHeap.GetCpuHandle( i ), d3d12SamplerState->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
 			}
 		}
 

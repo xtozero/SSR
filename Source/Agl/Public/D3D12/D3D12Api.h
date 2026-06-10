@@ -16,6 +16,7 @@ namespace agl
 	class D3D12QueryAllocator;
 	class D3D12ResourceAllocator;
 	class D3D12ResourceUploader;
+	class D3D12ViewDescriptorPool;
 	class IAgl;
 
 	ID3D12CommandQueue& D3D12DirectCommandQueue();
@@ -29,6 +30,7 @@ namespace agl
 	D3D12ResourceUploader& D3D12Uploader();
 	D3D12BindlessManager& D3D12BindlessMgr();
 	D3D12FrameResourceCollection& D3D12FrameResources();
+	D3D12ViewDescriptorPool& D3D12DescriptorPoolForView();
 
 	Owner<IAgl*> CreateD3D12GraphicsApi();
 

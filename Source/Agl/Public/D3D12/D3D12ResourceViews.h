@@ -1,5 +1,6 @@
 #pragma once
 
+#include "D3D12Api.h"
 #include "D3D12BindlessManager.h"
 #include "D3D12DescriptorHeapAllocator.h"
 #include "ResourceViews.h"
@@ -12,24 +13,9 @@ namespace agl
 	class D3D12ViewBase : public BaseClass
 	{
 	public:
-		ID3D12DescriptorHeap* Resource() 
-		{ 
-			return m_descriptorHeap.Resource();
-		}
-
-		const ID3D12DescriptorHeap* Resource() const 
-		{ 
-			return m_descriptorHeap.Resource();
-		}
-
 		const D3D12CpuDescriptorHandle& GetCpuHandle() const
 		{
-			return m_descriptorHeap.GetCpuHandle();
-		}
-
-		const D3D12GpuDescriptorHandle& GetGpuHandle() const
-		{
-			return m_descriptorHeap.GetGpuHandle();
+			return m_descriptor.m_cpuHandle;
 		}
 
 		GraphicsApiResource* GetOwner() const { return m_owner; }
@@ -61,7 +47,7 @@ namespace agl
 			{
 				m_owner = other.m_owner;
 				m_d3d12Resource = other.m_d3d12Resource;
-				m_descriptorHeap = other.m_descriptorHeap;
+				m_descriptor = other.m_descriptor;
 				m_d3dDesc = other.m_d3dDesc;
 			}
 
@@ -79,11 +65,12 @@ namespace agl
 			{
 				m_owner = other.m_owner;
 				m_d3d12Resource = other.m_d3d12Resource;
-				m_descriptorHeap = std::move( other.m_descriptorHeap );
+				m_descriptor = std::move( other.m_descriptor );
 				m_d3dDesc = other.m_d3dDesc;
 
 				other.m_owner = nullptr;
 				other.m_d3d12Resource = nullptr;
+				other.m_descriptor = {};
 				other.m_d3dDesc = {};
 			}
 
@@ -96,12 +83,12 @@ namespace agl
 			m_owner = nullptr;
 			m_d3d12Resource = nullptr;
 
-			std::destroy_at( &m_descriptorHeap );
+			D3D12DescriptorPoolForView().Release( m_descriptor );
 		}
 
 		GraphicsApiResource* m_owner = nullptr;
 		ID3D12Resource* m_d3d12Resource = nullptr;
-		D3D12DescriptorHeap m_descriptorHeap;
+		D3D12ViewDescriptorHandle m_descriptor;
 		DescType m_d3dDesc = {};
 	};
 
