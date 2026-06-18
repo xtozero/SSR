@@ -115,6 +115,8 @@ namespace agl
 		virtual LockedResource Lock( uint32 subResource = 0, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard ) override;
 		virtual void UnLock( [[maybe_unused]] uint32 subResource = 0 ) override {}
 
+		D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const;
+
 		explicit D3D12DisposableConstantBuffer( const BufferDesc& desc, const char* debugName );
 
 	protected:
@@ -123,6 +125,7 @@ namespace agl
 
 	private:
 		uint8* m_lockedData = nullptr;
+		D3D12_GPU_VIRTUAL_ADDRESS m_gpuVirtualAddress = {};
 	};
 
 	class D3D12IndexBuffer final : public D3D12Buffer

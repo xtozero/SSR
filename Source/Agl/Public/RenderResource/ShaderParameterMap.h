@@ -12,9 +12,9 @@ class Archive;
 
 namespace agl
 {
-	enum class ShaderParameterType : uint8
+	enum class ShaderParameterType : int8
 	{
-		Unknown,
+		Unknown = -1,
 		ConstantBuffer,
 		ConstantBufferValue,
 		SRV,

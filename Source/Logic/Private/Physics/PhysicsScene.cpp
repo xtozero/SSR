@@ -64,7 +64,7 @@ namespace logic
 
 	void SceneForceGenerator::Remove( const PhysicsHandle& handle )
 	{
-		for ( auto& [forceGenerator, handles] : m_entries )
+		for ( auto& handles : m_entries | std::views::values )
 		{
 			handles.Remove( handle );
 		}

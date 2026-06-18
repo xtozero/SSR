@@ -327,7 +327,7 @@ namespace editor
             return;
         }
 
-        for ( auto& [name, consoleMessage] : GetInterface<engine::IConsoleMessageExecutor>()->GetConsoleMessages() )
+        for ( const auto& name : GetInterface<engine::IConsoleMessageExecutor>()->GetConsoleMessages() | std::views::keys )
         {
             if ( name.starts_with( input ) )
             {

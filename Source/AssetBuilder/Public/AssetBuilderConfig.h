@@ -166,7 +166,7 @@ public:
 	bool IsPreprocessingAsset( const std::filesystem::path& path )
 	{
 		std::filesystem::path targetExtension = path.extension();
-		for ( const auto& [key, value] : m_preprocessingEnvironments )
+		for ( const auto& value : m_preprocessingEnvironments | std::views::values )
 		{
 			if ( targetExtension == value.m_targetExtension )
 			{

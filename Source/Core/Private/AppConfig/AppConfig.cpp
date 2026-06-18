@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <map>
 #include <mutex>
+#include <ranges>
 
 namespace
 {
@@ -194,7 +195,7 @@ std::vector<const ini::Section*> AppConfig::GetSection( const Name& sectionName 
 {
 	std::vector<const ini::Section*> sections;
 
-	for ( auto& [name, ini] : m_defaultIni )
+	for ( const auto& ini : m_defaultIni | std::views::values )
 	{
 		if ( auto section = ini.GetSection( sectionName ) )
 		{

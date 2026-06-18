@@ -238,10 +238,10 @@ namespace agl
 			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
 
 			const ShaderParameterInfo& parameterInfo = binding.ParameterInfo();
-			for ( size_t i = 0; i < parameterInfo.m_constantBuffers.size(); ++i )
+			for ( size_t i = 0; i < parameterInfo.m_cbvs.size(); ++i )
 			{
-				const ShaderParameter& param = parameterInfo.m_constantBuffers[i];
-				BindConstantBuffer( context, param.m_shader, param.m_bindPoint, binding.GetConstantBufferStart()[i].Get() );
+				const ShaderParameter& param = parameterInfo.m_cbvs[i];
+				BindConstantBuffer( context, param.m_shader, param.m_bindPoint, binding.GetCBVStart()[i].Get() );
 			}
 
 			for ( size_t i = 0; i < parameterInfo.m_srvs.size(); ++i )

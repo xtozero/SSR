@@ -324,9 +324,19 @@ namespace agl
 					commandList.SetComputeRootDescriptorTable( rootParameterIndex++, GetBindlessGpuHandle( resourceHeap, bindlessHandle ) );
 				}
 
+				for ( uint32 i = 0; i < binding.NumGlobalCB(); ++i )
+				{
+					RefHandle<Buffer>* cb = binding.GetGlobalCBStart() + i;
+
+					auto d3d12CB = static_cast<D3D12DisposableConstantBuffer*>( cb->Get() );
+					assert( d3d12CB != nullptr );
+
+					commandList.SetComputeRootConstantBufferView( rootParameterIndex++, d3d12CB->GetGPUVirtualAddress() );
+				}
+
 				for ( uint32 i = 0; i < binding.NumCBV(); ++i )
 				{
-					RefHandle<Buffer> cb = binding.GetConstantBufferStart()[i];
+					RefHandle<Buffer> cb = binding.GetCBVStart()[i];
 
 					auto d3d12CB = static_cast<D3D12Buffer*>( cb.Get() );
 					assert( d3d12CB != nullptr );
@@ -400,9 +410,19 @@ namespace agl
 					commandList.SetGraphicsRootDescriptorTable( rootParameterIndex++, GetBindlessGpuHandle( resourceHeap, bindlessHandle ) );
 				}
 
+				for ( uint32 i = 0; i < binding.NumGlobalCB(); ++i )
+				{
+					RefHandle<Buffer>* cb = binding.GetGlobalCBStart() + i;
+
+					auto d3d12CB = static_cast<D3D12DisposableConstantBuffer*>( cb->Get() );
+					assert( d3d12CB != nullptr );
+
+					commandList.SetGraphicsRootConstantBufferView( rootParameterIndex++, d3d12CB->GetGPUVirtualAddress() );
+				}
+
 				for ( uint32 i = 0; i < binding.NumCBV(); ++i )
 				{
-					RefHandle<Buffer> cb = binding.GetConstantBufferStart()[i];
+					RefHandle<Buffer> cb = binding.GetCBVStart()[i];
 
 					auto d3d12CB = static_cast<D3D12Buffer*>( cb.Get() );
 					assert( d3d12CB != nullptr );
@@ -436,23 +456,21 @@ namespace agl
 	{
 		globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
 
-		uint32 numSrvUavCbv = 0;
-		uint32 numSampler = 0;
-
-		for ( uint32 shaderType = 0; shaderType < NumNonRTShaderTypes<uint32>; ++shaderType )
-		{
-			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
-			if ( binding.GetShaderType() == ShaderType::None )
-			{
-				continue;
-			}
-
-			numSrvUavCbv += binding.NumSRV() + binding.NumUAV() + binding.NumCBV();
-			numSampler += binding.NumSampler();
-		}
+		uint32 numSrvUavCbv = shaderBindings.NumSRV() + shaderBindings.NumUAV() + shaderBindings.NumCBV();
+		uint32 numSampler = shaderBindings.NumSampler();
 
 		D3D12GlobalHeapAllocatedInfo srvCbvUavHeap = descriptorHeap.Aquire( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, numSrvUavCbv );
 		D3D12GlobalHeapAllocatedInfo samplerHeap = descriptorHeap.Aquire( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, numSampler );
+
+		RenderFrameArray<D3D12_CPU_DESCRIPTOR_HANDLE> srvCbvUavCopySources;
+		RenderFrameArray<D3D12_CPU_DESCRIPTOR_HANDLE> srvCbvUavCopyDestinations;
+		srvCbvUavCopySources.reserve( numSrvUavCbv );
+		srvCbvUavCopyDestinations.reserve( numSrvUavCbv );
+
+		RenderFrameArray<D3D12_CPU_DESCRIPTOR_HANDLE> samplerCopySources;
+		RenderFrameArray<D3D12_CPU_DESCRIPTOR_HANDLE> samplerCopyDestinations;
+		samplerCopySources.reserve( numSampler );
+		samplerCopyDestinations.reserve( numSampler );
 
 		uint32 destOffset = 0;
 		for ( uint32 shaderType = 0; shaderType < NumNonRTShaderTypes<uint32>; ++shaderType )
@@ -471,9 +489,9 @@ namespace agl
 				assert( d3d12SRV != nullptr );
 
 				D3D12FrameResources().RegisterResource( d3d12SRV->GetOwner() );
-				
-				D3D12Device().CopyDescriptorsSimple( 1, srvCbvUavHeap.GetCpuHandle( destOffset ), d3d12SRV->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
-				++destOffset;
+
+				srvCbvUavCopySources.emplace_back( d3d12SRV->GetCpuHandle().At() );
+				srvCbvUavCopyDestinations.emplace_back( srvCbvUavHeap.GetCpuHandle( destOffset++ ) );
 			}
 		}
 
@@ -494,8 +512,8 @@ namespace agl
 
 				D3D12FrameResources().RegisterResource( d3d12UAV->GetOwner() );
 
-				D3D12Device().CopyDescriptorsSimple( 1, srvCbvUavHeap.GetCpuHandle( destOffset ), d3d12UAV->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
-				++destOffset;
+				srvCbvUavCopySources.emplace_back( d3d12UAV->GetCpuHandle().At() );
+				srvCbvUavCopyDestinations.emplace_back( srvCbvUavHeap.GetCpuHandle( destOffset++ ) );
 			}
 		}
 
@@ -507,20 +525,29 @@ namespace agl
 				continue;
 			}
 
+			for ( uint32 i = 0; i < binding.NumGlobalCB(); ++i )
+			{
+				RefHandle<Buffer>* cb = binding.GetGlobalCBStart() + i;
+				assert( cb != nullptr );
+
+				D3D12FrameResources().RegisterResource( cb->Get() );
+			}
+
 			for ( uint32 i = 0; i < binding.NumCBV(); ++i )
 			{
-				RefHandle<Buffer>* cb = binding.GetConstantBufferStart() + i;
+				RefHandle<Buffer>* cb = binding.GetCBVStart() + i;
 
 				auto d3d12CB = static_cast<D3D12Buffer*>( cb->Get() );
 				assert( d3d12CB != nullptr );
 
 				D3D12FrameResources().RegisterResource( cb->Get() );
 
-				D3D12Device().CopyDescriptorsSimple( 1, srvCbvUavHeap.GetCpuHandle( destOffset ), d3d12CB->CBV()->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
-				++destOffset;
+				srvCbvUavCopySources.emplace_back( d3d12CB->CBV()->GetCpuHandle().At() );
+				srvCbvUavCopyDestinations.emplace_back( srvCbvUavHeap.GetCpuHandle( destOffset++ ) );
 			}
 		}
 
+		destOffset = 0;
 		for ( uint32 shaderType = 0; shaderType < NumNonRTShaderTypes<uint32>; ++shaderType )
 		{
 			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
@@ -536,8 +563,31 @@ namespace agl
 				auto d3d12SamplerState = static_cast<D3D12SamplerState*>( samplerState->Get() );
 				assert( d3d12SamplerState != nullptr );
 
-				D3D12Device().CopyDescriptorsSimple( 1, samplerHeap.GetCpuHandle( i ), d3d12SamplerState->GetCpuHandle().At(), D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
+				samplerCopySources.emplace_back( d3d12SamplerState->GetCpuHandle().At() );
+				samplerCopyDestinations.emplace_back( samplerHeap.GetCpuHandle( destOffset++ ) );
 			}
+		}
+
+		if ( numSrvUavCbv > 0 )
+		{
+			D3D12Device().CopyDescriptors( numSrvUavCbv
+			   , srvCbvUavCopyDestinations.data()
+			   , nullptr
+			   , numSrvUavCbv
+			   , srvCbvUavCopySources.data()
+			   , nullptr
+			   , D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
+		}
+
+		if ( numSampler > 0 )
+		{
+			D3D12Device().CopyDescriptors( numSampler
+			   , samplerCopyDestinations.data()
+			   , nullptr
+			   , numSampler
+			   , samplerCopySources.data()
+			   , nullptr
+			   , D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
 		}
 
 		ID3D12DescriptorHeap* heaps[] = {
@@ -567,6 +617,16 @@ namespace agl
 			{
 				commandList.SetComputeRootDescriptorTable( rootParameterIndex++, srvCbvUavHeap.GetGpuHandle( offset ) );
 				offset += binding.NumUAV();
+			}
+
+			for ( uint32 i = 0; i < binding.NumGlobalCB(); ++i )
+			{
+				RefHandle<Buffer>* cb = binding.GetGlobalCBStart() + i;
+
+				auto d3d12CB = static_cast<D3D12DisposableConstantBuffer*>( cb->Get() );
+				assert( d3d12CB != nullptr );
+
+				commandList.SetComputeRootConstantBufferView( rootParameterIndex++, d3d12CB->GetGPUVirtualAddress() );
 			}
 
 			if ( binding.NumCBV() > 0 )
@@ -619,6 +679,16 @@ namespace agl
 				if ( binding.GetShaderType() == ShaderType::None )
 				{
 					continue;
+				}
+
+				for ( uint32 i = 0; i < binding.NumGlobalCB(); ++i )
+				{
+					RefHandle<Buffer>* cb = binding.GetGlobalCBStart() + i;
+
+					auto d3d12CB = static_cast<D3D12DisposableConstantBuffer*>( cb->Get() );
+					assert( d3d12CB != nullptr );
+
+					commandList.SetGraphicsRootConstantBufferView( rootParameterIndex++, d3d12CB->GetGPUVirtualAddress() );
 				}
 
 				if ( binding.NumCBV() > 0 )

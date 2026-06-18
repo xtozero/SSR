@@ -469,7 +469,7 @@ namespace rendercore
 
 	void Material::RequestMipLevels( int32 desiredMipLevel )
 	{
-		for ( auto& [name, property] : m_properties )
+		for ( auto& property : m_properties | std::views::values )
 		{
 			if ( auto textureProperty = Cast<const TextureProperty>( property.get() ) )
 			{
@@ -561,7 +561,7 @@ namespace rendercore
 
 	bool Material::HasAnyMipmapTexture() const
 	{
-		for ( const auto& [name, property] : m_properties )
+		for ( const auto& property : m_properties | std::views::values )
 		{
 			if ( property->Type() != MaterialPropertyType::Texture )
 			{

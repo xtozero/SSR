@@ -481,6 +481,11 @@ namespace agl
 		};
 	}
 
+	D3D12_GPU_VIRTUAL_ADDRESS D3D12DisposableConstantBuffer::GetGPUVirtualAddress() const
+	{
+		return m_gpuVirtualAddress;
+	}
+
 	D3D12DisposableConstantBuffer::D3D12DisposableConstantBuffer( const BufferDesc& desc, const char* debugName )
 		: D3D12Buffer( desc, debugName, ResourceState::GenericRead, nullptr )
 	{
@@ -496,21 +501,13 @@ namespace agl
 		auto allocatedInfo = pool.Allocate( alignedSize );
 
 		m_resourceInfo = std::move( allocatedInfo.m_resourceInfo );
-
-		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {
-			.BufferLocation = Resource()->GetGPUVirtualAddress() + allocatedInfo.m_offset,
-			.SizeInBytes = alignedSize
-		};
-
-		m_cbv = new D3D12ConstantBufferView( this, Resource(), cbvDesc );
-		m_cbv->Init();
-
+		m_gpuVirtualAddress = Resource()->GetGPUVirtualAddress() + allocatedInfo.m_offset;
 		m_lockedData = allocatedInfo.m_lockedData;
 	}
 
 	void D3D12DisposableConstantBuffer::DestroyBuffer()
 	{
-		m_cbv = nullptr;
+		m_gpuVirtualAddress = {};
 
 		D3D12Buffer::DestroyBuffer();
 	}

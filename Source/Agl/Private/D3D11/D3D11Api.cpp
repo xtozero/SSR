@@ -484,7 +484,7 @@ namespace agl
 
 	std::filesystem::path Direct3D11::GetShaderCacheFilePath() const
 	{
-		static auto shaderCacheFilePath = engine::Paths::GetShaderAssetRootDir() / "ShaderCache-d3d11.asset";
+		static auto shaderCacheFilePath = engine::Paths::GetSaveDir() / "ShaderCache-d3d11.asset";
 		return shaderCacheFilePath;
 	}
 

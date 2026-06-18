@@ -651,7 +651,7 @@ namespace agl
 
 	std::filesystem::path Direct3D12::GetShaderCacheFilePath() const
 	{
-		static auto shaderCacheFilePath = engine::Paths::GetShaderAssetRootDir() / "ShaderCache-d3d12.asset";
+		static auto shaderCacheFilePath = engine::Paths::GetSaveDir() / "ShaderCache-d3d12.asset";
 		return shaderCacheFilePath;
 	}
 
@@ -667,7 +667,7 @@ namespace agl
 
 	std::filesystem::path Direct3D12::GetPSOCacheFilePath() const
 	{
-		static auto psoCacheFilePath = engine::Paths::GetShaderAssetRootDir() / "PSOCache-d3d12.asset";
+		static auto psoCacheFilePath = engine::Paths::GetSaveDir() / "PSOCache-d3d12.asset";
 		return psoCacheFilePath;
 	}
 

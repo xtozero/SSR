@@ -6,6 +6,8 @@
 #include "ShaderParameterMap.h"
 #include "SizedTypes.h"
 
+#include <array>
+#include <ranges>
 #include <vector>
 
 namespace agl
@@ -13,7 +15,8 @@ namespace agl
 	class ShaderParameterInfo
 	{
 	public:
-		std::vector<ShaderParameter> m_constantBuffers;
+		std::vector<ShaderParameter> m_cbvs;
+		std::vector<ShaderParameter> m_globalCb;
 		std::vector<ShaderParameter> m_srvs;
 		std::vector<ShaderParameter> m_uavs;
 		std::vector<ShaderParameter> m_samplers;
@@ -24,7 +27,12 @@ namespace agl
 			static size_t typeHash = typeid( ShaderParameterInfo ).hash_code();
 			size_t hash = typeHash;
 
-			for ( const auto& param : m_constantBuffers )
+			for ( const auto& param : m_cbvs )
+			{
+				HashCombine( hash, param.GetHash() );
+			}
+
+			for ( const auto& param : m_globalCb )
 			{
 				HashCombine( hash, param.GetHash() );
 			}
@@ -54,7 +62,8 @@ namespace agl
 
 		void Clear()
 		{
-			m_constantBuffers.clear();
+			m_cbvs.clear();
+			m_globalCb.clear();
 			m_srvs.clear();
 			m_uavs.clear();
 			m_samplers.clear();
@@ -63,7 +72,12 @@ namespace agl
 
 		void Merge( std::set<ShaderParameter>& OutShaderParameterSet ) const
 		{
-			for ( const auto& param : m_constantBuffers )
+			for ( const auto& param : m_cbvs )
+			{
+				OutShaderParameterSet.emplace( param );
+			}
+
+			for ( const auto& param : m_globalCb )
 			{
 				OutShaderParameterSet.emplace( param );
 			}
@@ -92,7 +106,8 @@ namespace agl
 
 		friend bool operator==( const ShaderParameterInfo& lhs, const ShaderParameterInfo& rhs )
 		{
-			return lhs.m_constantBuffers == rhs.m_constantBuffers 
+			return lhs.m_cbvs == rhs.m_cbvs
+				&& lhs.m_globalCb == rhs.m_globalCb
 				&& lhs.m_srvs == rhs.m_srvs 
 				&& lhs.m_uavs == rhs.m_uavs 
 				&& lhs.m_samplers == rhs.m_samplers 
@@ -101,7 +116,8 @@ namespace agl
 
 		friend Archive& operator<<( Archive& ar, ShaderParameterInfo& shaderParamInfo )
 		{
-			ar << shaderParamInfo.m_constantBuffers;
+			ar << shaderParamInfo.m_cbvs;
+			ar << shaderParamInfo.m_globalCb;
 			ar << shaderParamInfo.m_srvs;
 			ar << shaderParamInfo.m_uavs;
 			ar << shaderParamInfo.m_samplers;
@@ -111,57 +127,77 @@ namespace agl
 		}
 	};
 
-	inline void BuildShaderParameterInfo( const std::map<Name, ShaderParameter>& parameterMap, ShaderParameterInfo& parameterInfo )
+	inline void AddShaderParameter( ShaderParameterInfo& outParameterInfo, const ShaderParameter& parameter )
 	{
-		for ( uint32 i = 0; i < static_cast<uint32>( ShaderParameterType::Count ); ++i )
+		const auto parameterType = parameter.m_type;
+		if ( parameterType == ShaderParameterType::ConstantBuffer )
 		{
-			auto curParameterType = static_cast<ShaderParameterType>( i );
-			size_t count = 0;
-
-			for ( const auto& [name, shaderParameter] : parameterMap )
+			if ( parameter.m_bindPoint == 0 )
 			{
-				if ( shaderParameter.m_type == curParameterType )
-				{
-					++count;
-				}
-			}
-
-			std::vector<ShaderParameter>* shaderParameters = nullptr;
-
-			if ( curParameterType == ShaderParameterType::ConstantBuffer )
-			{
-				shaderParameters = &parameterInfo.m_constantBuffers;
-			}
-			else if ( curParameterType == ShaderParameterType::SRV )
-			{
-				shaderParameters = &parameterInfo.m_srvs;
-			}
-			else if ( curParameterType == ShaderParameterType::UAV )
-			{
-				shaderParameters = &parameterInfo.m_uavs;
-			}
-			else if ( curParameterType == ShaderParameterType::Sampler )
-			{
-				shaderParameters = &parameterInfo.m_samplers;
-			}
-			else if ( curParameterType == ShaderParameterType::Bindless )
-			{
-				shaderParameters = &parameterInfo.m_bindless;
+				outParameterInfo.m_globalCb.emplace_back( parameter );
 			}
 			else
+			{
+				outParameterInfo.m_cbvs.emplace_back( parameter );
+			}
+		}
+		else if ( parameterType == ShaderParameterType::ConstantBufferValue )
+		{
+			// Do Nothing
+		}
+		else if ( parameterType == ShaderParameterType::SRV )
+		{
+			outParameterInfo.m_srvs.emplace_back( parameter );
+		}
+		else if ( parameterType == ShaderParameterType::UAV )
+		{
+			outParameterInfo.m_uavs.emplace_back( parameter );
+		}
+		else if ( parameterType == ShaderParameterType::Sampler )
+		{
+			outParameterInfo.m_samplers.emplace_back( parameter );
+		}
+		else if ( parameterType == ShaderParameterType::Bindless )
+		{
+			outParameterInfo.m_bindless.emplace_back( parameter );
+		}
+		else
+		{
+			assert( false && "Invalid shader parameter type" );
+		}
+	}
+
+	inline void BuildShaderParameterInfo( const std::map<Name, ShaderParameter>& parameterMap, ShaderParameterInfo& parameterInfo )
+	{
+		constexpr auto numShaderParameterType = static_cast<int32>( ShaderParameterType::Count );
+		size_t numParameters[numShaderParameterType] = {};
+		for ( const auto& shaderParameter : parameterMap | std::views::values )
+		{
+			auto typeIndex = static_cast<int32>( shaderParameter.m_type );
+			++numParameters[typeIndex];
+		}
+
+		std::array<std::vector<ShaderParameter>*, numShaderParameterType> containers;
+		containers[static_cast<int32>(ShaderParameterType::ConstantBuffer)] = &parameterInfo.m_cbvs;
+		containers[static_cast<int32>(ShaderParameterType::ConstantBufferValue)] = nullptr;
+		containers[static_cast<int32>(ShaderParameterType::SRV)] = &parameterInfo.m_srvs;
+		containers[static_cast<int32>(ShaderParameterType::UAV)] = &parameterInfo.m_uavs;
+		containers[static_cast<int32>(ShaderParameterType::Sampler)] = &parameterInfo.m_samplers;
+		containers[static_cast<int32>(ShaderParameterType::Bindless)] = &parameterInfo.m_bindless;
+
+		for ( int32 i = 0; i < numShaderParameterType; ++i )
+		{
+			if ( containers[i] == nullptr )
 			{
 				continue;
 			}
 
-			shaderParameters->reserve( count );
+			containers[i]->reserve( numParameters[i] );
+		}
 
-			for ( const auto& [name, shaderParameter] : parameterMap )
-			{
-				if ( shaderParameter.m_type == curParameterType )
-				{
-					shaderParameters->push_back( shaderParameter );
-				}
-			}
+		for ( const auto& shaderParameter : parameterMap | std::views::values )
+		{
+			AddShaderParameter( parameterInfo, shaderParameter );
 		}
 	}
 }

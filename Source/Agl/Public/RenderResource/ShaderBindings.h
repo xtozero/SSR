@@ -23,7 +23,12 @@ namespace agl
 	public:
 		size_t GetDataSize() const
 		{
-			return ( m_parameterInfo->m_constantBuffers.size() + m_parameterInfo->m_srvs.size() + m_parameterInfo->m_uavs.size() + m_parameterInfo->m_samplers.size() + m_parameterInfo->m_bindless.size() ) * sizeof( RefHandle<GraphicsApiResource> );
+			return ( m_parameterInfo->m_cbvs.size()
+				+ m_parameterInfo->m_globalCb.size()
+				+ m_parameterInfo->m_srvs.size()
+				+ m_parameterInfo->m_uavs.size()
+				+ m_parameterInfo->m_samplers.size()
+				+ m_parameterInfo->m_bindless.size() ) * sizeof( RefHandle<GraphicsApiResource> );
 		}
 
 		const ShaderParameterInfo& ParameterInfo() const
@@ -57,9 +62,14 @@ namespace agl
 			return static_cast<uint32>( m_parameterInfo->m_uavs.size() );
 		}
 
+		uint32 NumGlobalCB() const
+		{
+			return static_cast<uint32>( m_parameterInfo->m_globalCb.size() );
+		}
+
 		uint32 NumCBV() const
 		{
-			return static_cast<uint32>( m_parameterInfo->m_constantBuffers.size() );
+			return static_cast<uint32>( m_parameterInfo->m_cbvs.size() );
 		}
 
 		uint32 NumSampler() const
@@ -116,14 +126,19 @@ namespace agl
 		}
 
 	protected:
-		size_t GetConstantBufferOffset() const
+		size_t GetGlobalCBOffset() const
 		{
 			return 0;
 		}
 
+		size_t GetCBVOffset() const
+		{
+			return GetGlobalCBOffset() + m_parameterInfo->m_globalCb.size() * sizeof( RefHandle<GraphicsApiResource> );
+		}
+
 		size_t GetSRVOffset() const
 		{
-			return m_parameterInfo->m_constantBuffers.size() * sizeof( RefHandle<GraphicsApiResource> );
+			return GetCBVOffset() + m_parameterInfo->m_cbvs.size() * sizeof( RefHandle<GraphicsApiResource> );
 		}
 
 		size_t GetUAVOffset() const
@@ -155,22 +170,22 @@ namespace agl
 				return;
 			}
 
-			std::optional<uint32> foundSlot;
-
-			for ( size_t i = 0; i < m_parameterInfo->m_constantBuffers.size(); ++i )
+			const bool isGlobalCB = param.m_bindPoint == 0;
+			if ( isGlobalCB )
 			{
-				const ShaderParameter& targetParam = m_parameterInfo->m_constantBuffers[i];
-				if( ( targetParam.m_bindPoint == param.m_bindPoint )
-					&& ( targetParam.m_space == param.m_space ) )
+				std::optional<uint32> foundSlot = FindBindingSlot( m_parameterInfo->m_globalCb, param );
+				if ( foundSlot )
 				{
-					foundSlot = static_cast<uint32>( i );
-					break;
+					GetGlobalCBStart()[*foundSlot] = buffer;
 				}
 			}
-
-			if ( foundSlot )
+			else
 			{
-				GetConstantBufferStart()[*foundSlot] = buffer;
+				std::optional<uint32> foundSlot = FindBindingSlot( m_parameterInfo->m_cbvs, param );
+				if ( foundSlot )
+				{
+					GetCBVStart()[*foundSlot] = buffer;
+				}
 			}
 		}
 
@@ -181,19 +196,7 @@ namespace agl
 				return;
 			}
 
-			std::optional<uint32> foundSlot;
-
-			for ( size_t i = 0; i < m_parameterInfo->m_srvs.size(); ++i )
-			{
-				const ShaderParameter& targetParam = m_parameterInfo->m_srvs[i];
-				if ( ( targetParam.m_bindPoint == param.m_bindPoint )
-					&& ( targetParam.m_space == param.m_space ) )
-				{
-					foundSlot = static_cast<uint32>( i );
-					break;
-				}
-			}
-
+			std::optional<uint32> foundSlot = FindBindingSlot( m_parameterInfo->m_srvs, param );
 			if ( foundSlot )
 			{
 				GetSRVStart()[*foundSlot] = srv;
@@ -207,19 +210,7 @@ namespace agl
 				return;
 			}
 
-			std::optional<uint32> foundSlot;
-
-			for ( size_t i = 0; i < m_parameterInfo->m_uavs.size(); ++i )
-			{
-				const ShaderParameter& targetParam = m_parameterInfo->m_uavs[i];
-				if ( ( targetParam.m_bindPoint == param.m_bindPoint )
-					&& ( targetParam.m_space == param.m_space ) )
-				{
-					foundSlot = static_cast<uint32>( i );
-					break;
-				}
-			}
-
+			std::optional<uint32> foundSlot = FindBindingSlot( m_parameterInfo->m_uavs, param );
 			if ( foundSlot )
 			{
 				GetUAVStart()[*foundSlot] = uav;
@@ -233,19 +224,7 @@ namespace agl
 				return;
 			}
 
-			std::optional<uint32> foundSlot;
-
-			for ( size_t i = 0; i < m_parameterInfo->m_samplers.size(); ++i )
-			{
-				const ShaderParameter& targetParam = m_parameterInfo->m_samplers[i];
-				if ( ( targetParam.m_bindPoint == param.m_bindPoint ) 
-					&& ( targetParam.m_space == param.m_space ) )
-				{
-					foundSlot = static_cast<uint32>( i );
-					break;
-				}
-			}
-
+			std::optional<uint32> foundSlot = FindBindingSlot( m_parameterInfo->m_samplers, param );
 			if ( foundSlot )
 			{
 				GetSamplerStart()[*foundSlot] = sampler;
@@ -279,9 +258,14 @@ namespace agl
 			}
 		}
 
-		RefHandle<Buffer>* GetConstantBufferStart() const
+		RefHandle<Buffer>* GetGlobalCBStart() const
 		{
-			return reinterpret_cast<RefHandle<Buffer>*>( m_data + GetConstantBufferOffset() );
+			return reinterpret_cast<RefHandle<Buffer>*>( m_data + GetGlobalCBOffset() );
+		}
+
+		RefHandle<Buffer>* GetCBVStart() const
+		{
+			return reinterpret_cast<RefHandle<Buffer>*>( m_data + GetCBVOffset() );
 		}
 
 		RefHandle<ShaderResourceView>* GetSRVStart() const
@@ -307,6 +291,21 @@ namespace agl
 		SingleShaderBindings( const ShaderBindingLayout& bindingLayout, unsigned char* data ) : ShaderBindingLayout( bindingLayout ), m_data( data ) {}
 
 	private:
+		static std::optional<uint32> FindBindingSlot( const std::vector<ShaderParameter>& slots, const ShaderParameter& param )
+		{
+			for ( size_t i = 0; i < slots.size(); ++i )
+			{
+				const ShaderParameter& targetParam = slots[i];
+				if ( ( targetParam.m_bindPoint == param.m_bindPoint )
+					&& ( targetParam.m_space == param.m_space ) )
+				{
+					return static_cast<uint32>( i );
+				}
+			}
+
+			return {};
+		}
+
 		unsigned char* m_data = nullptr;
 	};
 
@@ -358,7 +357,8 @@ namespace agl
 					shaderBindsDataSize += m_shaderLayouts[m_shaderLayoutSize].GetDataSize();
 					++m_shaderLayoutSize;
 
-					m_numCBV += static_cast<uint32>( initializer[shaderType]->m_constantBuffers.size() );
+					m_numCBV += static_cast<uint32>( initializer[shaderType]->m_cbvs.size() );
+					m_numGlobalCB += static_cast<uint32>( initializer[shaderType]->m_globalCb.size() );
 					m_numSRV += static_cast<uint32>( initializer[shaderType]->m_srvs.size() );
 					m_numUAV += static_cast<uint32>( initializer[shaderType]->m_uavs.size() );
 					m_numSampler += static_cast<uint32>( initializer[shaderType]->m_samplers.size() );
@@ -399,6 +399,31 @@ namespace agl
 			return m_numBindless > 0;
 		}
 
+		uint32 NumSRV() const
+		{
+			return m_numSRV;
+		}
+
+		uint32 NumUAV() const
+		{
+			return m_numUAV;
+		}
+
+		uint32 NumCBV() const
+		{
+			return m_numCBV;
+		}
+
+		uint32 NumGlobalCB() const
+		{
+			return m_numGlobalCB;
+		}
+
+		uint32 NumSampler() const
+		{
+			return m_numSampler;
+		}
+
 		ShaderBindings() = default;
 		ShaderBindings( const ShaderBindings& other )
 		{
@@ -415,6 +440,7 @@ namespace agl
 				m_numSRV = other.m_numSRV;
 				m_numUAV = other.m_numUAV;
 				m_numCBV = other.m_numCBV;
+				m_numGlobalCB = other.m_numGlobalCB;
 				m_numSampler = other.m_numSampler;
 				m_numBindless = other.m_numBindless;
 				std::copy_n( other.m_shaderLayouts, m_shaderLayoutSize, m_shaderLayouts );
@@ -449,6 +475,7 @@ namespace agl
 				m_numSRV = other.m_numSRV;
 				m_numUAV = other.m_numUAV;
 				m_numCBV = other.m_numCBV;
+				m_numGlobalCB = other.m_numGlobalCB;
 				m_numSampler = other.m_numSampler;
 				m_numBindless = other.m_numBindless;
 				m_data = other.m_data;
@@ -460,6 +487,7 @@ namespace agl
 				other.m_numSRV = 0;
 				other.m_numUAV = 0;
 				other.m_numCBV = 0;
+				other.m_numGlobalCB = 0;
 				other.m_numSampler = 0;
 				other.m_numBindless = 0;
 				other.m_data = nullptr;
@@ -482,6 +510,7 @@ namespace agl
 				|| ( m_numSRV != other.m_numSRV )
 				|| ( m_numUAV != other.m_numUAV )
 				|| ( m_numCBV != other.m_numCBV )
+				|| ( m_numGlobalCB != other.m_numGlobalCB )
 				|| ( m_numSampler != other.m_numSampler )
 				|| ( m_numBindless != other.m_numBindless )
 				|| ( m_bCompute != other.m_bCompute ) )
@@ -557,6 +586,7 @@ namespace agl
 			m_numSRV = 0;
 			m_numUAV = 0;
 			m_numCBV = 0;
+			m_numGlobalCB = 0;
 			m_numSampler = 0;
 			m_numBindless = 0;
 
@@ -573,6 +603,7 @@ namespace agl
 		uint32 m_numSRV = 0;
 		uint32 m_numUAV = 0;
 		uint32 m_numCBV = 0;
+		uint32 m_numGlobalCB = 0;
 		uint32 m_numSampler = 0;
 		uint32 m_numBindless = 0;
 

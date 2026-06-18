@@ -412,7 +412,7 @@ namespace rendercore
 		EnqueueRenderTask(
 				[sceneRenderers = std::move( m_sceneRenderer )]()
 				{
-					for ( auto& [method, renderer] : sceneRenderers )
+					for ( const auto& renderer : sceneRenderers | std::views::values )
 					{
 						delete renderer;
 					}

@@ -198,7 +198,7 @@ public:
 
 	void WriteToMemory( BinaryChunk& dest ) const
 	{
-		dest.Resize( Size() );
+		dest.Resize( static_cast<uint32>( Size() ) );
 		std::ranges::copy( m_buffer, dest.Data() );
 	}
 

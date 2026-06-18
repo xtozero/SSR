@@ -113,7 +113,7 @@ namespace rendercore
                 }
 
                 int32 minSize = feedback.m_minTextureSizes[materialId];
-                for ( auto& [name, property] : material->GetProperties() )
+                for ( const auto& property : material->GetProperties() | std::views::values )
                 {
                     auto textureProperty = Cast<const TextureProperty>( property.get() );
                     if ( textureProperty == nullptr )

@@ -11,5 +11,6 @@ namespace engine
     public:
         ENGINE_DLL static std::filesystem::path GetShaderSourceRootDir();
         ENGINE_DLL static std::filesystem::path GetShaderAssetRootDir();
+        ENGINE_DLL static std::filesystem::path GetSaveDir();
     };
 }

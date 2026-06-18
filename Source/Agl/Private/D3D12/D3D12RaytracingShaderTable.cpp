@@ -244,7 +244,14 @@ namespace agl
         {
             if ( shaderParameter.m_type == ShaderParameterType::ConstantBuffer )
             {
-                m_shaderParameterInfo.m_constantBuffers.emplace_back( shaderParameter );
+                if ( shaderParameter.m_bindPoint == 0 )
+                {
+                    m_shaderParameterInfo.m_globalCb.emplace_back( shaderParameter );
+                }
+                else
+                {
+                    m_shaderParameterInfo.m_cbvs.emplace_back( shaderParameter );
+                }
             }
             else if ( shaderParameter.m_type == ShaderParameterType::SRV )
             {

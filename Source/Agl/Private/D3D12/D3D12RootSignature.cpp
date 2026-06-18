@@ -55,7 +55,7 @@ namespace agl
 	{
 		return { static_cast<uint32>( paramInfo.m_srvs.size() )
 			, static_cast<uint32>( paramInfo.m_uavs.size() )
-			, static_cast<uint32>( paramInfo.m_constantBuffers.size() )
+			, static_cast<uint32>( paramInfo.m_cbvs.size() )
 			, static_cast<uint32>( paramInfo.m_samplers.size() )
 			, static_cast<uint32>( paramInfo.m_bindless.size() ) };
 	}
@@ -340,14 +340,23 @@ namespace agl
 
 	void D3D12RootSignature::InitializeCB( ShaderType shaderType, const ShaderParameterInfo& paramInfo )
 	{
-		if ( paramInfo.m_constantBuffers.empty() )
+		for ( const ShaderParameter& globalCBParam : paramInfo.m_globalCb )
+		{
+			D3D12_ROOT_PARAMETER& param = m_parameters.emplace_back();
+			param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+			param.ShaderVisibility = GetShaderVisibility( shaderType );
+			param.Descriptor.ShaderRegister = globalCBParam.m_bindPoint;
+			param.Descriptor.RegisterSpace = globalCBParam.m_space;
+		}
+
+		if ( paramInfo.m_cbvs.empty() )
 		{
 			return;
 		}
 
 		size_t rangeBase = m_descritorRange.size();
 
-		for ( const ShaderParameter& constantBufferParam : paramInfo.m_constantBuffers )
+		for ( const ShaderParameter& constantBufferParam : paramInfo.m_cbvs )
 		{
 			m_descritorRange.emplace_back();
 			D3D12_DESCRIPTOR_RANGE& range = m_descritorRange.back();
@@ -364,7 +373,7 @@ namespace agl
 
 		param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 		param.ShaderVisibility = GetShaderVisibility( shaderType );
-		param.DescriptorTable.NumDescriptorRanges = static_cast<uint32>( paramInfo.m_constantBuffers.size() );
+		param.DescriptorTable.NumDescriptorRanges = static_cast<uint32>( paramInfo.m_cbvs.size() );
 		param.DescriptorTable.pDescriptorRanges = &m_descritorRange[rangeBase];
 	}
 
@@ -481,7 +490,17 @@ namespace agl
 				param.DescriptorTable.pDescriptorRanges = &range;
 			}
 
-			for ( const ShaderParameter& shaderParam : paramInfo->m_constantBuffers )
+			for ( const ShaderParameter& shaderParam : paramInfo->m_globalCb )
+			{
+				D3D12_ROOT_PARAMETER& param = m_parameters.emplace_back();
+
+				param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+				param.ShaderVisibility = GetShaderVisibility( type );
+				param.Descriptor.ShaderRegister = shaderParam.m_bindPoint;
+				param.Descriptor.RegisterSpace = shaderParam.m_space;
+			}
+
+			for ( const ShaderParameter& shaderParam : paramInfo->m_cbvs )
 			{
 				D3D12_DESCRIPTOR_RANGE& range = m_descritorRange.emplace_back();
 

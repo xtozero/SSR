@@ -183,7 +183,7 @@ namespace agl
 			}
 
 			const ShaderParameterInfo& info = binding.ParameterInfo();
-			for ( const ShaderParameter& parameter : info.m_constantBuffers )
+			for ( const ShaderParameter& parameter : info.m_globalCb )
 			{
 				if ( parameter.m_bindPoint != 0 )
 				{

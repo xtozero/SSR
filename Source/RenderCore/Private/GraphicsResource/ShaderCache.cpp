@@ -13,7 +13,7 @@ namespace rendercore
 	REGISTER_ASSET( ShaderCache );
 	void ShaderCache::PostLoadImpl()
 	{
-		for ( auto& [key, shader] : m_shaders )
+		for ( auto& shader : m_shaders | std::views::values )
 		{
 			shader->CreateShader();
 		}

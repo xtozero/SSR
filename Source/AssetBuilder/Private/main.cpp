@@ -123,7 +123,7 @@ namespace
 		std::map<fs::path, AssetHeader> assetInfos;
 		std::set<fs::path> visited;
 
-		for ( auto& [key, environment] : AssetBuilderConfig::Instance().PathEnvironments() )
+		for ( auto& environment : AssetBuilderConfig::Instance().PathEnvironments() | std::views::values )
 		{
 			if ( fs::exists( environment.m_destination ) )
 			{
@@ -160,7 +160,7 @@ namespace
 
 	void RemoveUnusedAssets( const std::set<fs::path>& processed )
 	{
-		for ( auto& [key, environment] : AssetBuilderConfig::Instance().PathEnvironments() )
+		for ( auto& environment : AssetBuilderConfig::Instance().PathEnvironments() | std::views::values )
 		{
 			if ( fs::exists( environment.m_destination ) )
 			{
@@ -262,7 +262,7 @@ int32 main( int32 argc, char* argv[] )
 		uint32 m_skippedCount = 0;
 	} buildSummary;
 	
-	for ( auto& [key, environment] : AssetBuilderConfig::Instance().PreprocessingEnvironments() )
+	for ( auto& environment : AssetBuilderConfig::Instance().PreprocessingEnvironments() | std::views::values )
 	{
 		fs::path absolutePath = fs::absolute( environment.m_source );
 		fs::recursive_directory_iterator iter( absolutePath );
@@ -313,7 +313,7 @@ int32 main( int32 argc, char* argv[] )
 	}
 
 	std::set<fs::path> processed;
-	for ( auto& [key, environment] : AssetBuilderConfig::Instance().PathEnvironments() )
+	for ( auto& environment : AssetBuilderConfig::Instance().PathEnvironments() | std::views::values )
 	{
 		fs::path absolutePath = fs::absolute( environment.m_source );
 		fs::recursive_directory_iterator iter( absolutePath );

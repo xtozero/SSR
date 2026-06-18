@@ -13,4 +13,10 @@ namespace engine
         static auto path = std::filesystem::path( "../Program/Assets/Shaders" ).make_preferred();
         return path;
     }
+
+    std::filesystem::path Paths::GetSaveDir()
+    {
+        static auto path = std::filesystem::path( "../Program/Saved" ).make_preferred();
+        return path;
+    }
 }
