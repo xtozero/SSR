@@ -12,7 +12,6 @@ namespace rendercore
 	inline void BindResource( agl::ShaderBindings& bindings, const agl::ShaderParameter& parameter, agl::Buffer* buffer )
 	{
 		agl::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( parameter.m_shader );
-
 		if ( singleBinding.GetShaderType() == agl::ShaderType::None )
 		{
 			return;
@@ -41,7 +40,6 @@ namespace rendercore
 	inline void BindResource( agl::ShaderBindings& bindings, const agl::ShaderParameter& parameter, agl::Texture* texture, uint32 mipSlice = 0 )
 	{
 		agl::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( parameter.m_shader );
-
 		if ( singleBinding.GetShaderType() == agl::ShaderType::None )
 		{
 			return;
@@ -67,7 +65,6 @@ namespace rendercore
 	inline void BindResource( agl::ShaderBindings& bindings, const agl::ShaderParameter& parameter, SamplerState& samplerState )
 	{
 		agl::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( parameter.m_shader );
-
 		if ( singleBinding.GetShaderType() == agl::ShaderType::None )
 		{
 			return;
@@ -86,11 +83,9 @@ namespace rendercore
 		}
 	}
 
-	inline void BindResource( agl::ShaderBindings& bindings,
-		const agl::ShaderParameter& parameter, std::nullptr_t )
+	inline void BindResource( agl::ShaderBindings& bindings, const agl::ShaderParameter& parameter, std::nullptr_t )
 	{
 		agl::SingleShaderBindings singleBinding = bindings.GetSingleShaderBindings( parameter.m_shader );
-
 		if ( singleBinding.GetShaderType() == agl::ShaderType::None )
 		{
 			return;

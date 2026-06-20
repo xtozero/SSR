@@ -606,6 +606,7 @@ namespace agl
 		{
 			uint32 offset = 0;
 			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( ShaderType::Compute );
+			assert( binding.GetShaderType() == ShaderType::Compute );
 
 			if ( binding.NumSRV() > 0 )
 			{

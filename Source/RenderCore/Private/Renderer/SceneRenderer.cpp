@@ -128,7 +128,6 @@ namespace rendercore
 			}
 
 			agl::SingleShaderBindings singleBinding = outBindings.GetSingleShaderBindings( static_cast<agl::ShaderType>( shaderType ) );
-
 			if ( singleBinding.GetShaderType() == agl::ShaderType::None )
 			{
 				continue;

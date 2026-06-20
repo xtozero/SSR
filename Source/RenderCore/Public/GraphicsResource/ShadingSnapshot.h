@@ -69,9 +69,9 @@ namespace rendercore
         uint32 m_primitiveId = 0;
         ShadingSnapshot* m_shadingSnapshot = nullptr;
 
-        friend std::strong_ordering operator<=>( const VisibleShadingSnapshot& lhs, const VisibleShadingSnapshot& rhs )
+        friend bool operator<( const VisibleShadingSnapshot& lhs, const VisibleShadingSnapshot& rhs )
         {
-            return std::tie( lhs.m_primitiveId, lhs.m_shadingSnapshot ) <=> std::tie( rhs.m_primitiveId, rhs.m_shadingSnapshot );
+            return std::tie( lhs.m_primitiveId, lhs.m_shadingSnapshot ) < std::tie( rhs.m_primitiveId, rhs.m_shadingSnapshot );
         }
     };
 }

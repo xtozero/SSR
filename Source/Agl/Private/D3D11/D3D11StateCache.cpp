@@ -236,8 +236,18 @@ namespace agl
 		for ( uint32 shaderType = 0; shaderType < NumNonRTShaderTypes<uint32>; ++shaderType )
 		{
 			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( shaderType ) );
+			if ( binding.GetShaderType() == ShaderType::None )
+			{
+				continue;
+			}
 
 			const ShaderParameterInfo& parameterInfo = binding.ParameterInfo();
+			for ( size_t i = 0; i < parameterInfo.m_globalCb.size(); ++i )
+			{
+				const ShaderParameter& param = parameterInfo.m_globalCb[i];
+				BindConstantBuffer( context, param.m_shader, param.m_bindPoint, binding.GetGlobalCBStart()[i].Get() );
+			}
+
 			for ( size_t i = 0; i < parameterInfo.m_cbvs.size(); ++i )
 			{
 				const ShaderParameter& param = parameterInfo.m_cbvs[i];

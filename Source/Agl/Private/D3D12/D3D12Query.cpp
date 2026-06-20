@@ -314,7 +314,7 @@ namespace agl
 	void D3D12OcclusionTest::InitResource()
 	{
 		m_occlusionTest = D3D12AllocatorForQuery().Allocate( D3D12_QUERY_TYPE_OCCLUSION );
-		HRESULT hr = D3D12Device().CreateFence( 0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS( &m_completionFence ) );
+		[[maybe_unused]] HRESULT hr = D3D12Device().CreateFence( 0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS( &m_completionFence ) );
 		assert( SUCCEEDED( hr ) );
 	}
 

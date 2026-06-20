@@ -143,7 +143,7 @@ namespace agl
 
         D3D12_STATE_OBJECT_DESC subobjectDesc = stateSubObjects.GetSubobjectDesc();
 
-        HRESULT hr = D3D12Device().CreateStateObject( &subobjectDesc, IID_PPV_ARGS( m_stateObject.GetAddressOf() ) );
+        [[maybe_unused]] HRESULT hr = D3D12Device().CreateStateObject( &subobjectDesc, IID_PPV_ARGS( m_stateObject.GetAddressOf() ) );
         assert( SUCCEEDED( hr ) );
 
         Microsoft::WRL::ComPtr<ID3D12StateObjectProperties> stateObjectProps;

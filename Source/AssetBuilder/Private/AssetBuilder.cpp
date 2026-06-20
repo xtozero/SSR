@@ -51,7 +51,7 @@ void AssetBuilder::Initialize()
 
 	for ( std::unique_ptr<IAssetBuilder>& assetBuilder : m_assetBuilders )
 	{
-		bool succeeded = assetBuilder->Initialize();
+		[[maybe_unused]] bool succeeded = assetBuilder->Initialize();
 		assert( succeeded );
 	}
 }

@@ -101,7 +101,6 @@ namespace agl
 			{
 				OutShaderParameterSet.emplace( param );
 			}
-
 		}
 
 		friend bool operator==( const ShaderParameterInfo& lhs, const ShaderParameterInfo& rhs )

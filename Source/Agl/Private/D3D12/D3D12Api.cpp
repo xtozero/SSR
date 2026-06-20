@@ -98,8 +98,8 @@ namespace agl
 			for ( uint32 i = 0; i < numBoundResources; ++i )
 			{
 				D3D12_SHADER_INPUT_BIND_DESC bindDesc = {};
-				HRESULT hResult = reflection.GetResourceBindingDesc( i, &bindDesc );
-				assert( SUCCEEDED( hResult ) );
+				[[maybe_unused]] HRESULT hr = reflection.GetResourceBindingDesc( i, &bindDesc );
+				assert( SUCCEEDED( hr ) );
 
 				ShaderParameterType parameterType = ShaderParameterType::ConstantBuffer;
 				uint32 parameterSize = 0;
@@ -165,8 +165,8 @@ namespace agl
 		static void ExtractShaderParameters( ID3D12ShaderReflection& reflection, ShaderParameterMap& outParameterMap )
 		{
 			D3D12_SHADER_DESC shaderDesc = {};
-			HRESULT hResult = reflection.GetDesc( &shaderDesc );
-			assert( SUCCEEDED( hResult ) );
+			[[maybe_unused]] HRESULT hr = reflection.GetDesc( &shaderDesc );
+			assert( SUCCEEDED( hr ) );
 
 			ShaderType bindingStage = ResolveBindingStageFromVersion( shaderDesc.Version );
 
@@ -176,16 +176,16 @@ namespace agl
 		static void ExtractShaderParameters( ID3D12LibraryReflection& reflection, ShaderParameterMap& outParameterMap )
 		{
 			D3D12_LIBRARY_DESC libraryDesc = {};
-			HRESULT hResult = reflection.GetDesc( &libraryDesc );
-			assert( SUCCEEDED( hResult ) );
+			[[maybe_unused]] HRESULT hr = reflection.GetDesc( &libraryDesc );
+			assert( SUCCEEDED( hr ) );
 
 			for ( uint32 functionIndex = 0; functionIndex < libraryDesc.FunctionCount; ++functionIndex )
 			{
 				ID3D12FunctionReflection* functionRefection = reflection.GetFunctionByIndex( functionIndex );
 
 				D3D12_FUNCTION_DESC functionDesc;
-				hResult = functionRefection->GetDesc( &functionDesc );
-				assert( SUCCEEDED( hResult ) );
+				hr = functionRefection->GetDesc( &functionDesc );
+				assert( SUCCEEDED( hr ) );
 
 				ShaderType shaderType = ResolveBindingStageFromVersion( functionDesc.Version );
 

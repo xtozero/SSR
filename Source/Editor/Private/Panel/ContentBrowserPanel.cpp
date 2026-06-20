@@ -204,7 +204,7 @@ namespace editor
             }
         }
 
-        bool success = engine::PlatformProcess::LaunchApplication( "open", file.generic_string().c_str() );
+        [[maybe_unused]] bool success = engine::PlatformProcess::LaunchApplication( "open", file.generic_string().c_str() );
         assert( success );
     }
 }

@@ -20,7 +20,15 @@ public:
 	explicit NameEntryId( uint32 value ) : m_value( value ) {}
 	NameEntryId() = default;
 
-	std::strong_ordering operator<=>( const NameEntryId& other ) const = default;
+	bool operator<( const NameEntryId& other ) const
+	{
+		return m_value < other.m_value;
+	}
+
+	bool operator==( const NameEntryId& other ) const
+	{
+		return m_value == other.m_value;
+	}
 
 private:
 	uint32 m_value = 0;
@@ -82,7 +90,15 @@ public:
 	std::string_view Str() const;
 	const char* CStr() const;
 
-	std::strong_ordering operator<=>( const Name& other ) const = default;
+	bool operator<( const Name& other ) const
+	{
+		return m_id < other.m_id;
+	}
+
+	bool operator==( const Name& other ) const
+	{
+		return m_id == other.m_id;
+	}
 
 private:
 	static Name Make( const std::string_view& view );

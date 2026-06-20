@@ -47,7 +47,7 @@ namespace agl
 			size_t hash = typeHash;
 
 			HashCombine( hash, m_shaderType );
-			HashCombine( hash, m_parameterInfo->GetHash() );
+			HashCombine( hash, m_parameterInfo ? m_parameterInfo->GetHash() : 0 );
 
 			return hash;
 		}
@@ -343,19 +343,18 @@ namespace agl
 	public:
 		void Initialize( const ShaderBindingsInitializer& initializer )
 		{
-			size_t numShaders = initializer.NumShaders();
-
 			size_t shaderBindsDataSize = 0;
-			m_shaderLayouts = new ShaderBindingLayout[numShaders];
+			m_shaderLayouts = new ShaderBindingLayout[NumNonRTShaderTypes<uint32>];
+			m_dataOffsets = new size_t[NumNonRTShaderTypes<uint32>];
 
 			for ( uint32 i = 0; i < NumNonRTShaderTypes<uint32>; ++i )
 			{
 				auto shaderType = static_cast<ShaderType>( i );
 				if ( initializer[shaderType] )
 				{
-					std::construct_at( &m_shaderLayouts[m_shaderLayoutSize], shaderType, *initializer[shaderType] );
-					shaderBindsDataSize += m_shaderLayouts[m_shaderLayoutSize].GetDataSize();
-					++m_shaderLayoutSize;
+					std::construct_at( &m_shaderLayouts[i], shaderType, *initializer[shaderType] );
+					m_dataOffsets[i] = shaderBindsDataSize;
+					shaderBindsDataSize += m_shaderLayouts[i].GetDataSize();
 
 					m_numCBV += static_cast<uint32>( initializer[shaderType]->m_cbvs.size() );
 					m_numGlobalCB += static_cast<uint32>( initializer[shaderType]->m_globalCb.size() );
@@ -373,20 +372,8 @@ namespace agl
 
 		SingleShaderBindings GetSingleShaderBindings( ShaderType shaderType ) const
 		{
-			size_t dataOffset = 0;
-			for ( uint32 i = 0; i < m_shaderLayoutSize; ++i )
-			{
-				if ( m_shaderLayouts[i].GetShaderType() == shaderType )
-				{
-					return SingleShaderBindings( m_shaderLayouts[i], m_data + dataOffset );
-				}
-
-				dataOffset += m_shaderLayouts[i].GetDataSize();
-			}
-
-			static ShaderParameterInfo emptyParameterInfo;
-			static ShaderBindingLayout emptyLayout( ShaderType::None, emptyParameterInfo );
-			return SingleShaderBindings( emptyLayout, nullptr );
+			auto index = static_cast<uint32>( shaderType );
+			return SingleShaderBindings( m_shaderLayouts[index], m_data + m_dataOffsets[index] );
 		}
 
 		bool IsCompute() const
@@ -435,15 +422,16 @@ namespace agl
 			{
 				Free();
 
-				m_shaderLayouts = new ShaderBindingLayout[other.m_shaderLayoutSize];
-				m_shaderLayoutSize = other.m_shaderLayoutSize;
+				m_shaderLayouts = new ShaderBindingLayout[NumNonRTShaderTypes<uint32>];
+				m_dataOffsets = new size_t[NumNonRTShaderTypes<uint32>];
 				m_numSRV = other.m_numSRV;
 				m_numUAV = other.m_numUAV;
 				m_numCBV = other.m_numCBV;
 				m_numGlobalCB = other.m_numGlobalCB;
 				m_numSampler = other.m_numSampler;
 				m_numBindless = other.m_numBindless;
-				std::copy_n( other.m_shaderLayouts, m_shaderLayoutSize, m_shaderLayouts );
+				std::copy_n( other.m_shaderLayouts, NumNonRTShaderTypes<uint32>, m_shaderLayouts );
+				std::copy_n( other.m_dataOffsets, NumNonRTShaderTypes<uint32>, m_dataOffsets );
 				Allocate( other.m_size );
 
 				for ( size_t offset = 0; offset < m_size; offset += sizeof( RefHandle<GraphicsApiResource> ) )
@@ -471,7 +459,7 @@ namespace agl
 				Free();
 
 				m_shaderLayouts = other.m_shaderLayouts;
-				m_shaderLayoutSize = other.m_shaderLayoutSize;
+				m_dataOffsets = other.m_dataOffsets;
 				m_numSRV = other.m_numSRV;
 				m_numUAV = other.m_numUAV;
 				m_numCBV = other.m_numCBV;
@@ -483,7 +471,7 @@ namespace agl
 				m_bCompute = other.m_bCompute;
 
 				other.m_shaderLayouts = nullptr;
-				other.m_shaderLayoutSize = 0;
+				other.m_dataOffsets = nullptr;
 				other.m_numSRV = 0;
 				other.m_numUAV = 0;
 				other.m_numCBV = 0;
@@ -505,8 +493,7 @@ namespace agl
 
 		bool MatchsForDynamicInstancing( const ShaderBindings& other ) const
 		{
-			if ( ( m_shaderLayoutSize != other.m_shaderLayoutSize )
-				|| ( m_size != other.m_size )
+			if ( ( m_size != other.m_size )
 				|| ( m_numSRV != other.m_numSRV )
 				|| ( m_numUAV != other.m_numUAV )
 				|| ( m_numCBV != other.m_numCBV )
@@ -518,7 +505,7 @@ namespace agl
 				return false;
 			}
 
-			for ( uint32 i = 0; i < m_shaderLayoutSize; ++i )
+			for ( uint32 i = 0; i < NumNonRTShaderTypes<uint32>; ++i )
 			{
 				if ( m_shaderLayouts[i] != other.m_shaderLayouts[i] )
 				{
@@ -536,7 +523,7 @@ namespace agl
 
 			HashCombine( hash, m_size );
 
-			for ( uint32 i = 0; i < m_shaderLayoutSize; ++i )
+			for ( uint32 i = 0; i < NumNonRTShaderTypes<uint32>; ++i )
 			{
 				HashCombine( hash, m_shaderLayouts[i].GetHash() );
 			}
@@ -572,7 +559,8 @@ namespace agl
 		{
 			delete[] m_shaderLayouts;
 			m_shaderLayouts = nullptr;
-			m_shaderLayoutSize = 0;
+			delete[] m_dataOffsets;
+			m_dataOffsets = nullptr;
 
 			if ( m_size > 0 )
 			{
@@ -598,7 +586,7 @@ namespace agl
 		}
 
 		ShaderBindingLayout* m_shaderLayouts = nullptr;
-		uint32 m_shaderLayoutSize = 0;
+		size_t* m_dataOffsets = nullptr;
 
 		uint32 m_numSRV = 0;
 		uint32 m_numUAV = 0;

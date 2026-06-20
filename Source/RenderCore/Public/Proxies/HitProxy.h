@@ -17,8 +17,6 @@ namespace rendercore
 		explicit HitProxyId( uint32 id );
 		RENDERCORE_DLL explicit HitProxyId( Color color );
 
-		std::strong_ordering operator<=>( const HitProxyId& other ) const = default;
-
 	private:
 		uint32 m_id;
 	};

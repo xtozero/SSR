@@ -132,7 +132,7 @@ namespace agl
 
 		AllocatedResourceInfo resourceInfo( m_heapAllocator.Allocate( properties, info.SizeInBytes ), refCounter );
 
-		HRESULT hr = D3D12Device().CreatePlacedResource( resourceInfo.m_heap,
+		[[maybe_unused]] HRESULT hr = D3D12Device().CreatePlacedResource( resourceInfo.m_heap,
 			resourceInfo.m_offset,
 			&desc,
 			state,

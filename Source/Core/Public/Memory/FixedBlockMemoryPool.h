@@ -158,7 +158,7 @@ private:
 	{
 		SLinkedList::Remove( m_chunkList, chunk );
 
-		int32 ret = VirtualFree( chunk, 0, MEM_RELEASE );
+		[[maybe_unused]] int32 ret = VirtualFree( chunk, 0, MEM_RELEASE );
 		assert( ret != 0 );
 	}
 

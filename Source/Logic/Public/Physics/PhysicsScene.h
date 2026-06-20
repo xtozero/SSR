@@ -29,7 +29,10 @@ namespace logic
 		size_t m_id;
 		PhysicsScene* m_scene;
 
-		std::strong_ordering operator<=>( const PhysicsHandle& other ) const = default;
+		bool operator==( const PhysicsHandle& other ) const
+		{
+			return std::tie( m_id, m_scene ) == std::tie( other.m_id, other.m_scene );
+		}
 	};
 
 	class PhysicsBody : public RigidBody

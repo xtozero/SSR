@@ -710,7 +710,7 @@ namespace agl
 				m_d3dDesc = *desc;
 			}
 
-			HRESULT hr = texture->GetHeapProperties( &m_heapProperties, &m_heapFlags );
+			[[maybe_unused]] HRESULT hr = texture->GetHeapProperties( &m_heapProperties, &m_heapFlags );
 			assert( SUCCEEDED( hr ) );
 
 			m_desc = ConvertToTextureDesc( m_d3dDesc, m_heapProperties );

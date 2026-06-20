@@ -176,7 +176,6 @@ namespace agl
 		for ( uint32 i = 0; i < NumNonRTShaderTypes<uint32>; ++i )
 		{
 			SingleShaderBindings binding = shaderBindings.GetSingleShaderBindings( static_cast<ShaderType>( i ) );
-
 			if ( binding.GetShaderType() == ShaderType::None )
 			{
 				continue;

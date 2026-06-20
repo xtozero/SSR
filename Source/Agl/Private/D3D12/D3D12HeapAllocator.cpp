@@ -30,7 +30,7 @@ namespace agl
 			.Flags = properties.m_heapFlags
 		};
 
-		HRESULT hr = D3D12Device().CreateHeap( &heapDesc, IID_PPV_ARGS( m_heap.GetAddressOf() ) );
+		[[maybe_unused]] HRESULT hr = D3D12Device().CreateHeap( &heapDesc, IID_PPV_ARGS( m_heap.GetAddressOf() ) );
 
 		assert( SUCCEEDED( hr ) );
 

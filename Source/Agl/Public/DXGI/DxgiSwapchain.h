@@ -200,7 +200,7 @@ namespace agl
 			, m_clearColor{ clearColor[0], clearColor[1], clearColor[2], clearColor[3] }
 		{
 			BOOL allowTearing = FALSE;
-			HRESULT hr = m_factory->CheckFeatureSupport( DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof( allowTearing ) );
+			[[maybe_unused]] HRESULT hr = m_factory->CheckFeatureSupport( DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof( allowTearing ) );
 			assert( SUCCEEDED( hr ) );
 
 			m_supportsTearing = ( allowTearing == TRUE ) && ( Backend != AglType::D3D11 );
