@@ -244,21 +244,8 @@ namespace agl
 
 		globalConstantBuffers.AddGlobalConstantBuffers( shaderBindings );
 
-		uint32 heapCapacity = D3D12BindlessMgr().GetHeapCapacity();
-		uint32 samplerHeapCapacity = D3D12BindlessMgr().GetSamplerHeapCapacity();
-
-		D3D12GlobalHeapAllocatedInfo resourceHeap = descriptorHeap.Aquire( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, heapCapacity );
-		D3D12GlobalHeapAllocatedInfo samplerHeap = descriptorHeap.Aquire( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, samplerHeapCapacity );
-
-		D3D12Device().CopyDescriptorsSimple( heapCapacity,
-			resourceHeap.GetCpuHandle(),
-			D3D12BindlessMgr().GetResourceCpuHeap().GetCpuHandle().At(),
-			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
-
-		D3D12Device().CopyDescriptorsSimple( samplerHeapCapacity, 
-			samplerHeap.GetCpuHandle(),
-			D3D12BindlessMgr().GetSamplerCpuHeap().GetCpuHandle().At(), 
-			D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
+		D3D12GlobalHeapAllocatedInfo resourceHeap = descriptorHeap.GetHeapStart( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV );
+		D3D12GlobalHeapAllocatedInfo samplerHeap = descriptorHeap.GetHeapStart( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER );
 
 		ID3D12DescriptorHeap* heaps[] = {
 			resourceHeap.GetDescriptorHeap(),
@@ -459,8 +446,8 @@ namespace agl
 		uint32 numSrvUavCbv = shaderBindings.NumSRV() + shaderBindings.NumUAV() + shaderBindings.NumCBV();
 		uint32 numSampler = shaderBindings.NumSampler();
 
-		D3D12GlobalHeapAllocatedInfo srvCbvUavHeap = descriptorHeap.Aquire( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, numSrvUavCbv );
-		D3D12GlobalHeapAllocatedInfo samplerHeap = descriptorHeap.Aquire( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, numSampler );
+		D3D12GlobalHeapAllocatedInfo srvCbvUavHeap = descriptorHeap.Acquire( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, numSrvUavCbv );
+		D3D12GlobalHeapAllocatedInfo samplerHeap = descriptorHeap.Acquire( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, numSampler );
 
 		RenderFrameArray<D3D12_CPU_DESCRIPTOR_HANDLE> srvCbvUavCopySources;
 		RenderFrameArray<D3D12_CPU_DESCRIPTOR_HANDLE> srvCbvUavCopyDestinations;
@@ -591,8 +578,8 @@ namespace agl
 		}
 
 		ID3D12DescriptorHeap* heaps[] = {
-			srvCbvUavHeap.GetDescriptorHeap(),
-			samplerHeap.GetDescriptorHeap()
+			descriptorHeap.GetHeapStart( D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV ).GetDescriptorHeap(),
+			descriptorHeap.GetHeapStart( D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER ).GetDescriptorHeap()
 		};
 
 		if ( std::ranges::equal( heaps, m_descriptorHeaps ) == false )

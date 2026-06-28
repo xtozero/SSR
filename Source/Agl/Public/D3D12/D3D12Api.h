@@ -4,6 +4,8 @@
 
 #include <d3d12.h>
 
+#include "D3D12GlobalDescriptorHeap.h"
+
 struct ID3D12CommandQueue;
 struct ID3D12Device;
 struct IDXGIFactory7;
@@ -12,6 +14,7 @@ namespace agl
 {
 	class D3D12BindlessManager;
 	class D3D12CommnadListResourcePool;
+	class D3D12GlobalDescriptorHeap;
 	class D3D12FrameResourceCollection;
 	class D3D12QueryAllocator;
 	class D3D12ResourceAllocator;
@@ -31,6 +34,7 @@ namespace agl
 	D3D12BindlessManager& D3D12BindlessMgr();
 	D3D12FrameResourceCollection& D3D12FrameResources();
 	D3D12ViewDescriptorPool& D3D12DescriptorPoolForView();
+	D3D12GlobalDescriptorHeap& D3D12GlobalDescHeap();
 
 	Owner<IAgl*> CreateD3D12GraphicsApi();
 

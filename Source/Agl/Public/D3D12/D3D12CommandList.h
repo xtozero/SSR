@@ -131,7 +131,6 @@ namespace agl
 		D3D12PipelineCache m_stateCache;
 
 		GlobalAsyncConstantBuffers m_globalConstantBuffers;
-		D3D12GlobalDescriptorHeap m_globalDescriptorHeap;
 	};
 
 	class D3D12CommandListImpl : public D3D12ComputeCommandListImpl

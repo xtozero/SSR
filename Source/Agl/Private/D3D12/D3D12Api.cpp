@@ -9,6 +9,7 @@
 #include "D3D12CommandList.h"
 #include "D3D12DescriptorHeapAllocator.h"
 #include "D3D12FrameResourceCollection.h"
+#include "D3D12GlobalDescriptorHeap.h"
 #include "D3D12NullDescriptor.h"
 #include "D3D12Query.h"
 #include "D3D12ResourceManager.h"
@@ -248,6 +249,7 @@ namespace agl
 		D3D12BindlessManager& GetBindlessManager();
 		D3D12FrameResourceCollection& GetFrameResourceCollection();
 		D3D12ViewDescriptorPool& GetViewDescriptorPool();
+		D3D12GlobalDescriptorHeap& GetGlobalDescriptorHeap();
 
 		uint32 GetFrameIndex() const
 		{
@@ -313,6 +315,7 @@ namespace agl
 		D3D12ResourceUploader m_uploader;
 
 		D3D12BindlessManager m_bindlessManager;
+		D3D12GlobalDescriptorHeap m_globalDescriptorHeap;
 	};
 
 	AglType Direct3D12::GetType() const
@@ -387,6 +390,9 @@ namespace agl
 
 		auto& d3d12ResourceManager = *static_cast<D3D12ResourceManager*>( GetInterface<IResourceManager>() );
 		d3d12ResourceManager.Prepare();
+
+		m_bindlessManager.Prepare();
+		m_globalDescriptorHeap.Prepare();
 	}
 
 	void Direct3D12::OnEndFrameRendering( uint32 curFrameIndex, uint32 nextFrameIndex )
@@ -410,6 +416,8 @@ namespace agl
 
 		m_lastFenceValue = m_fenceValues[nextFrameIndex] = fence + 1;
 		m_frameIndex = nextFrameIndex;
+
+		m_globalDescriptorHeap.OnEndFrameRendering();
 	}
 
 	void Direct3D12::WaitGPU()
@@ -756,6 +764,11 @@ namespace agl
 		return m_viewDescriptorPool;
 	}
 
+	D3D12GlobalDescriptorHeap& Direct3D12::GetGlobalDescriptorHeap()
+	{
+		return m_globalDescriptorHeap;
+	}
+
 	Direct3D12::~Direct3D12()
 	{
 		CloseHandle( m_fenceEvent );
@@ -895,6 +908,8 @@ namespace agl
 			return false;
 		}
 
+		m_globalDescriptorHeap.Initialize();
+
 		return true;
 	}
 
@@ -919,7 +934,7 @@ namespace agl
 			return false;
 		}
 
-		m_fenceEvent = CreateEvent( nullptr, FALSE, FALSE, nullptr );
+		m_fenceEvent = CreateEvent( nullptr, false, false, nullptr );
 		if ( m_fenceEvent == nullptr )
 		{
 			return false;
@@ -1202,6 +1217,12 @@ namespace agl
 	{
 		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
 		return d3d12Api->GetViewDescriptorPool();
+	}
+
+	D3D12GlobalDescriptorHeap& D3D12GlobalDescHeap()
+	{
+		auto d3d12Api = static_cast<Direct3D12*>( GetInterface<IAgl>() );
+		return d3d12Api->GetGlobalDescriptorHeap();
 	}
 
 	Owner<IAgl*> CreateD3D12GraphicsApi()

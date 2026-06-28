@@ -8,6 +8,25 @@
 
 namespace agl
 {
+	void D3D12BindlessDescriptorHeap::Prepare()
+	{
+		for ( auto& info : m_pendingRelease )
+		{
+			--info.m_remainFrame;
+			if ( info.m_remainFrame == 0 )
+			{
+				m_freeFlag[info.m_handle] = true;
+				--m_size;
+			}
+		}
+
+		auto pred = []( const PendingReleaseInfo& info )
+		{
+			return info.m_remainFrame == 0;
+		};
+		std::erase_if( m_pendingRelease, pred );
+	}
+
 	int32 D3D12BindlessDescriptorHeap::Add( const D3D12CpuDescriptorHandle& handle )
 	{
 		if ( m_size >= m_capacity )
@@ -23,6 +42,8 @@ namespace agl
 		m_freeFlag[freeIdx] = false;
 		++m_size;
 
+		D3D12GlobalDescHeap().UpdateBindless( m_type, freeIdx, handle );
+
 		return freeIdx;
 	}
 
@@ -30,16 +51,8 @@ namespace agl
 	{
 		if ( bindlessHandle != NullBindlessHandle )
 		{
-			m_freeFlag[bindlessHandle] = true;
-			--m_size;
-		}
-	}
-
-	void D3D12BindlessDescriptorHeap::Update( int32 bindlessHandle, const D3D12CpuDescriptorHandle& handle )
-	{
-		if ( bindlessHandle != NullBindlessHandle )
-		{
-			D3D12Device().CopyDescriptorsSimple( 1, m_cpuHeap.GetCpuHandle().At( bindlessHandle ), handle.At(), m_type );
+			uint32 remainFrame = DefaultAgl::GetBufferCount();
+			m_pendingRelease.emplace_back( remainFrame, bindlessHandle );
 		}
 	}
 
@@ -78,6 +91,12 @@ namespace agl
 		m_freeFlag.Resize( m_capacity, true );
 	}
 
+	void D3D12BindlessManager::Prepare()
+	{
+		m_resourceDescriptorHeap.Prepare();
+		m_samplerDescriptorHeap.Prepare();
+	}
+
 	int32 D3D12BindlessManager::AddResourceDescriptor( const D3D12CpuDescriptorHandle& handle )
 	{
 		if ( DefaultAgl::SupportsBindless() == false )
@@ -96,16 +115,6 @@ namespace agl
 		}
 
 		m_resourceDescriptorHeap.Remove( bindlessHandle );
-	}
-
-	void D3D12BindlessManager::UpdateResourceDescriptor( int32 bindlessHandle, const D3D12CpuDescriptorHandle& handle )
-	{
-		if ( bindlessHandle == NullBindlessHandle )
-		{
-			return;
-		}
-
-		m_resourceDescriptorHeap.Update( bindlessHandle, handle );
 	}
 
 	int32 D3D12BindlessManager::AddSamplerDescriptor( const D3D12CpuDescriptorHandle& handle )

@@ -43,7 +43,8 @@ namespace agl
 		m_d3d12Resource = resource;
 		D3D12Device().CreateShaderResourceView( m_d3d12Resource, &m_d3dDesc, m_descriptor.m_cpuHandle.At() );
 
-		D3D12BindlessMgr().UpdateResourceDescriptor( m_bindlessHandle, m_descriptor.m_cpuHandle );
+		D3D12BindlessMgr().RemoveResourceDescriptor( m_bindlessHandle );
+		m_bindlessHandle = D3D12BindlessMgr().AddResourceDescriptor( m_descriptor.m_cpuHandle );
 	}
 
 	void D3D12ShaderResourceView::InitResource()

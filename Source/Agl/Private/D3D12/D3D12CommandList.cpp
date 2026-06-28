@@ -437,7 +437,6 @@ namespace agl
 		D3D12CopyCommandListImpl::Prepare();
 
 		m_globalConstantBuffers.Prepare();
-		m_globalDescriptorHeap.Prepare();
 	}
 
 	void D3D12ComputeCommandListImpl::BindComputePipelineState( const ComputePipelineState* pipelineState )
@@ -449,11 +448,11 @@ namespace agl
 	{
 		if ( shaderBindings.HasBindless() )
 		{
-			m_stateCache.BindBindlessResources( CommandList(), m_globalDescriptorHeap, m_globalConstantBuffers, shaderBindings );
+			m_stateCache.BindBindlessResources( CommandList(), D3D12GlobalDescHeap(), m_globalConstantBuffers, shaderBindings );
 		}
 		else
 		{
-			m_stateCache.BindShaderResources( CommandList(), m_globalDescriptorHeap, m_globalConstantBuffers, shaderBindings );
+			m_stateCache.BindShaderResources( CommandList(), D3D12GlobalDescHeap(), m_globalConstantBuffers, shaderBindings );
 		}
 	}
 

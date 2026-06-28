@@ -10,9 +10,10 @@ namespace agl
 	class D3D12BindlessDescriptorHeap
 	{
 	public:
+		void Prepare();
+
 		[[nodiscard]] int32 Add( const D3D12CpuDescriptorHandle& handle );
 		void Remove( int32 bindlessHandle );
-		void Update( int32 bindlessHandle, const D3D12CpuDescriptorHandle& handle );
 
 		D3D12DescriptorHeap& GetCpuHeap();
 		const D3D12DescriptorHeap& GetCpuHeap() const;
@@ -32,14 +33,22 @@ namespace agl
 		uint32 m_capacity = 0;
 
 		BitArray m_freeFlag;
+
+		struct PendingReleaseInfo
+		{
+			uint32 m_remainFrame = 0;
+			int32 m_handle = NullBindlessHandle;
+		};
+		std::vector<PendingReleaseInfo> m_pendingRelease;
 	};
 
 	class D3D12BindlessManager
 	{
 	public:
+		void Prepare();
+
 		[[nodiscard]] int32 AddResourceDescriptor( const D3D12CpuDescriptorHandle& handle );
 		void RemoveResourceDescriptor( int32 bindlessHandle );
-		void UpdateResourceDescriptor( int32 bindlessHandle, const D3D12CpuDescriptorHandle& handle );
 
 		[[nodiscard]] int32 AddSamplerDescriptor( const D3D12CpuDescriptorHandle& handle );
 		void RemoveSamplerDescriptor( int32 bindlessHandle );
