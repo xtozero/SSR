@@ -39,7 +39,7 @@ namespace agl
 		case D3D11_USAGE_IMMUTABLE:
 			return ResourceAccess::GpuRead;
 		case D3D11_USAGE_STAGING:
-			return ResourceAccess::Download;
+			return ResourceAccess::Readback;
 		default:
 			assert( false );
 			return ResourceAccess::None;

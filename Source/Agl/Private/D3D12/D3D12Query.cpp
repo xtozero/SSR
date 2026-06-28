@@ -105,11 +105,11 @@ namespace agl
 			.Flags = D3D12_RESOURCE_FLAG_NONE
 		};
 
-		hr = D3D12Device().CreateCommittedResource( &bufferHeapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS( &m_readBackBuffer ) );
+		hr = D3D12Device().CreateCommittedResource( &bufferHeapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS( &m_readbackBuffer ) );
 
 		assert( SUCCEEDED( hr ) );
 
-		m_readBackBuffer->Map( 0, nullptr, &m_readBackPtr );
+		m_readbackBuffer->Map( 0, nullptr, &m_readbackPtr );
 	}
 
 	D3D12Query D3D12QueryHeapBlock::Allocate( D3D12_QUERY_TYPE type )
@@ -144,20 +144,20 @@ namespace agl
 		return m_heap.Get();
 	}
 
-	ID3D12Resource* D3D12QueryHeapBlock::GetReadBackBuffer()
+	ID3D12Resource* D3D12QueryHeapBlock::GetReadbackBuffer()
 	{
-		return m_readBackBuffer.Get();
+		return m_readbackBuffer.Get();
 	}
 
 	void D3D12QueryHeapBlock::GetData( void* outData, int32 size, int32 offset ) const
 	{
-		auto src = static_cast<uint8*>( m_readBackPtr ) + size * offset;
+		auto src = static_cast<uint8*>( m_readbackPtr ) + size * offset;
 		std::memcpy( outData, src, size );
 	}
 
 	D3D12QueryHeapBlock::~D3D12QueryHeapBlock()
 	{
-		m_readBackBuffer->Unmap( 0, nullptr );
+		m_readbackBuffer->Unmap( 0, nullptr );
 	}
 
 	D3D12Query D3D12QueryHeapBudget::Allocate( D3D12_QUERY_TYPE type )

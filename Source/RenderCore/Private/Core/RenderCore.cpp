@@ -526,14 +526,14 @@ namespace rendercore
 				agl::BufferDesc readbackDesc = {
 					.m_stride = sizeof( uint32 ),
 					.m_count = 1,
-					.m_access = agl::ResourceAccess::Download,
+					.m_access = agl::ResourceAccess::Readback,
 					.m_bindType = agl::ResourceBindType::None,
 					.m_miscFlag = agl::ResourceMisc::None,
 					.m_format = agl::ResourceFormat::Unknown
 				};
 
-				RefHandle<agl::Buffer> readBack = GraphicsResourcePool::GetInstance().FindFreeBuffer( readbackDesc, "Readback" );
-				RenderGraphBuffer* rgReadback = renderGraph.RegisterExternalResource( readBack.Get() );
+				RefHandle<agl::Buffer> readback = GraphicsResourcePool::GetInstance().FindFreeBuffer( readbackDesc, "Readback" );
+				RenderGraphBuffer* rgReadback = renderGraph.RegisterExternalResource( readback.Get() );
 
 				BEGIN_RG_RESOURCE_STRUCT( DownloadPassResource )
 					DECLARE_RG_BUFFER_COPY_SOURCE( laneCount )
@@ -558,8 +558,8 @@ namespace rendercore
 
 				GetInterface<agl::IAgl>()->WaitGPU();
 
-				NumLanes = *GraphicsInterface().Lock<uint32>( readBack.Get(), agl::ResourceLockFlag::Read );
-				GraphicsInterface().UnLock( readBack.Get() );
+				NumLanes = *GraphicsInterface().Lock<uint32>( readback.Get(), agl::ResourceLockFlag::Read );
+				GraphicsInterface().UnLock( readback.Get() );
 			} );
 
 		GetInterface<ITaskScheduler>()->Wait( handle );

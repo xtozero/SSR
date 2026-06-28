@@ -282,7 +282,7 @@ namespace rendercore::renderthread
         }
 
         agl::BufferDesc readbackDesc = gpuFeedback->GetDesc();
-        readbackDesc.m_access = agl::ResourceAccess::Download;
+        readbackDesc.m_access = agl::ResourceAccess::Readback;
         readbackDesc.m_bindType = agl::ResourceBindType::None;
         readbackDesc.m_miscFlag = agl::ResourceMisc::None;
         readbackDesc.m_format = agl::ResourceFormat::Unknown;

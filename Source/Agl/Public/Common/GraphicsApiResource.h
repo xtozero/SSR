@@ -140,7 +140,7 @@ namespace agl
 
 		Default = GpuRead | GpuWrite,
 		Upload = GpuRead | CpuWrite,
-		Download = GpuRead | GpuWrite | CpuRead | CpuWrite,
+		Readback = GpuRead | GpuWrite | CpuRead | CpuWrite,
 	};
 	ENUM_CLASS_FLAGS( ResourceAccess );
 

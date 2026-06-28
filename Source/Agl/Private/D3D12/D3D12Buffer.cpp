@@ -331,7 +331,7 @@ namespace agl
 
 	void D3D12Buffer::AdjustInitalResourceStates()
 	{
-		if ( HasAllFlags( m_desc.m_access, ResourceAccess::Download ) )
+		if ( HasAllFlags( m_desc.m_access, ResourceAccess::Readback ) )
 		{
 			SetResourceState( ResourceState::CopyDest );
 		}

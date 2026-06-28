@@ -27,7 +27,7 @@ namespace agl
 		case D3D12_HEAP_TYPE_UPLOAD:
 			return ResourceAccess::Upload;
 		case D3D12_HEAP_TYPE_READBACK:
-			return ResourceAccess::Download;
+			return ResourceAccess::Readback;
 		default:
 			assert( false );
 			return ResourceAccess::None;

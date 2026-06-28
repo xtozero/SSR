@@ -573,28 +573,28 @@ namespace rendercore
 
 		// copy irradiance buffer to texture
 		{
-			agl::BufferDesc readBack = {
+			agl::BufferDesc readback = {
 				.m_stride = sizeof( Vector4 ),
 				.m_count = IRRADIANCE_W * IRRADIANCE_H,
-				.m_access = agl::ResourceAccess::Download,
+				.m_access = agl::ResourceAccess::Readback,
 				.m_bindType = agl::ResourceBindType::None,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_format = agl::ResourceFormat::Unknown
 			};
 
-			RefHandle<agl::Buffer> irradianceReadBack = agl::Buffer::Create( readBack, "Atmosphere.IrradianceReadBack" );
+			RefHandle<agl::Buffer> irradianceReadback = agl::Buffer::Create( readback, "Atmosphere.IrradianceReadback" );
 
-			auto rgIrradianceReadBack = renderGraph.RegisterExternalResource( irradianceReadBack.Get() );
+			auto rgIrradianceReadback = renderGraph.RegisterExternalResource( irradianceReadback.Get() );
 			auto rgIrradianceLut = renderGraph.RegisterExternalResource( info.GetIrradianceLutTexture().Get() );
 
-			BEGIN_RG_RESOURCE_STRUCT( CopyIrradianceReadBackPassResource )
-				DECLARE_RG_BUFFER_COPY_DEST( irradianceReadBack )
+			BEGIN_RG_RESOURCE_STRUCT( CopyIrradianceReadbackPassResource )
+				DECLARE_RG_BUFFER_COPY_DEST( irradianceReadback )
 				DECLARE_RG_BUFFER_COPY_SOURCE( irradiance )
 				DECLARE_RG_TEXTURE_COPY_DEST( irradianceLut )
 			END_RG_RESOURCE_STRUCT();
 
-			CopyIrradianceReadBackPassResource passResource = {
-				.m_irradianceReadBack = rgIrradianceReadBack,
+			CopyIrradianceReadbackPassResource passResource = {
+				.m_irradianceReadback = rgIrradianceReadback,
 				.m_irradiance = rgIrradiance,
 				.m_irradianceLut = rgIrradianceLut
 			};
@@ -603,46 +603,46 @@ namespace rendercore
 				passResource,
 				[passResource]( CopyCommandList& commandList )
 				{
-					commandList.CopyResource( passResource.m_irradianceReadBack->Get(), passResource.m_irradiance->Get(), false);
+					commandList.CopyResource( passResource.m_irradianceReadback->Get(), passResource.m_irradiance->Get(), false);
 
 					RenderGraph::Commit();
 
 					GetInterface<agl::IAgl>()->WaitGPU();
 
-					auto src = GraphicsInterface().Lock( passResource.m_irradianceReadBack->Get(), agl::ResourceLockFlag::Read );
+					auto src = GraphicsInterface().Lock( passResource.m_irradianceReadback->Get(), agl::ResourceLockFlag::Read );
 					auto srcData = static_cast<uint8*>( src.m_data );
 
 					constexpr size_t RowSize = sizeof( Vector4 ) * IRRADIANCE_W;
 
 					commandList.UpdateSubresource( passResource.m_irradianceLut->Get(), srcData, RowSize, false);
-					GraphicsInterface().UnLock( passResource.m_irradianceReadBack->Get() );
+					GraphicsInterface().UnLock( passResource.m_irradianceReadback->Get() );
 				});
 		}
 
 		// copy inscatter buffer to texture
 		{
-			agl::BufferDesc readBack = {
+			agl::BufferDesc readback = {
 				.m_stride = sizeof( Vector4 ),
 				.m_count = RES_MU_S * RES_NU * RES_MU * RES_R,
-				.m_access = agl::ResourceAccess::Download,
+				.m_access = agl::ResourceAccess::Readback,
 				.m_bindType = agl::ResourceBindType::None,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_format = agl::ResourceFormat::Unknown
 			};
 
-			RefHandle<agl::Buffer> inscatterReadBack = agl::Buffer::Create( readBack, "Atmosphere.InscatterReadBack" );
+			RefHandle<agl::Buffer> inscatterReadback = agl::Buffer::Create( readback, "Atmosphere.InscatterReadback" );
 
-			auto rgInscatterReadBack = renderGraph.RegisterExternalResource( inscatterReadBack.Get() );
+			auto rgInscatterReadback = renderGraph.RegisterExternalResource( inscatterReadback.Get() );
 			auto rgInscatterLut = renderGraph.RegisterExternalResource( info.GetInscatterLutTexture().Get() );
 
-			BEGIN_RG_RESOURCE_STRUCT( CopyInscatterReadBackPassResource )
-				DECLARE_RG_BUFFER_COPY_DEST( inscatterReadBack )
+			BEGIN_RG_RESOURCE_STRUCT( CopyInscatterReadbackPassResource )
+				DECLARE_RG_BUFFER_COPY_DEST( inscatterReadback )
 				DECLARE_RG_BUFFER_COPY_SOURCE( inscatter )
 				DECLARE_RG_TEXTURE_COPY_DEST( inscatterLut )
 			END_RG_RESOURCE_STRUCT();
 
-			CopyInscatterReadBackPassResource passResource = {
-				.m_inscatterReadBack = rgInscatterReadBack,
+			CopyInscatterReadbackPassResource passResource = {
+				.m_inscatterReadback = rgInscatterReadback,
 				.m_inscatter = rgInscatter,
 				.m_inscatterLut = rgInscatterLut
 			};
@@ -651,19 +651,19 @@ namespace rendercore
 				passResource,
 				[passResource]( CopyCommandList& commandList )
 				{
-					commandList.CopyResource( passResource.m_inscatterReadBack->Get(), passResource.m_inscatter->Get(), false);
+					commandList.CopyResource( passResource.m_inscatterReadback->Get(), passResource.m_inscatter->Get(), false);
 
 					RenderGraph::Commit();
 
 					GetInterface<agl::IAgl>()->WaitGPU();
 
-					auto src = GraphicsInterface().Lock( passResource.m_inscatterReadBack->Get(), agl::ResourceLockFlag::Read );
+					auto src = GraphicsInterface().Lock( passResource.m_inscatterReadback->Get(), agl::ResourceLockFlag::Read );
 					auto srcData = static_cast<uint8*>( src.m_data );
 
 					constexpr size_t RowSize = sizeof( Vector4 ) * RES_MU_S * RES_NU;
 
 					commandList.UpdateSubresource( passResource.m_inscatterLut->Get(), srcData, RowSize, false);
-					GraphicsInterface().UnLock( passResource.m_inscatterReadBack->Get() );
+					GraphicsInterface().UnLock( passResource.m_inscatterReadback->Get() );
 				} );
 		}
 

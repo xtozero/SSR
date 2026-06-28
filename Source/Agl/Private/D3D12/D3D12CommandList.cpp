@@ -143,9 +143,9 @@ namespace agl
 	{
 		auto d3dQueryHeap = static_cast<D3D12QueryHeapBlock*>( queryHeap );
 		ID3D12QueryHeap* heap = d3dQueryHeap->GetHeap();
-		ID3D12Resource* readBackBuffer = d3dQueryHeap->GetReadBackBuffer();
+		ID3D12Resource* readbackBuffer = d3dQueryHeap->GetReadbackBuffer();
 
-		CommandList().ResolveQueryData( heap, type, offset, numQueries, readBackBuffer, GetQueryDataSize( type ) * offset );
+		CommandList().ResolveQueryData( heap, type, offset, numQueries, readbackBuffer, GetQueryDataSize( type ) * offset );
 
 		OnCommandRecorded();
 	}

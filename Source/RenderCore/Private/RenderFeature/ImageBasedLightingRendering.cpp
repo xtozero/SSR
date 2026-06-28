@@ -209,26 +209,26 @@ namespace rendercore
 				commandList.Dispatch( 1, 1 );
 			} );
 
-		agl::BufferDesc readBackDesc = {
+		agl::BufferDesc readbackDesc = {
 			.m_stride = sizeof( Vector ),
 			.m_count = 9,
-			.m_access = agl::ResourceAccess::Download,
+			.m_access = agl::ResourceAccess::Readback,
 			.m_bindType = agl::ResourceBindType::None,
 			.m_miscFlag = agl::ResourceMisc::None,
 			.m_format = agl::ResourceFormat::Unknown
 		};
 
-		auto readBackBuffer = agl::Buffer::Create( readBackDesc, "IrradianceMap.ReadBack" );
+		auto readbackBuffer = agl::Buffer::Create( readbackDesc, "IrradianceMap.Readback" );
 
-		auto rgReadBackBuffer = renderGraph.RegisterExternalResource( readBackBuffer.Get() );
+		auto rgReadbackBuffer = renderGraph.RegisterExternalResource( readbackBuffer.Get() );
 
 		BEGIN_RG_RESOURCE_STRUCT( CopySHPassResource )
-			DECLARE_RG_BUFFER_COPY_DEST ( readBack )
+			DECLARE_RG_BUFFER_COPY_DEST ( readback )
 			DECLARE_RG_BUFFER_COPY_SOURCE( coeffs )
 		END_RG_RESOURCE_STRUCT();
 
 		CopySHPassResource copySHPassResource = {
-			.m_readBack = rgReadBackBuffer,
+			.m_readback = rgReadbackBuffer,
 			.m_coeffs = rgCoeffBuffer
 		};
 
@@ -236,7 +236,7 @@ namespace rendercore
 			copySHPassResource,
 			[copySHPassResource]( CopyCommandList& commandList )
 			{
-				commandList.CopyResource( copySHPassResource.m_readBack->Get(), copySHPassResource.m_coeffs->Get(), false );
+				commandList.CopyResource( copySHPassResource.m_readback->Get(), copySHPassResource.m_coeffs->Get(), false );
 			}
 		);
 
@@ -246,12 +246,12 @@ namespace rendercore
 
 		GetInterface<agl::IAgl>()->WaitGPU();
 
-		auto data = GraphicsInterface().Lock<float>( readBackBuffer.Get(), agl::ResourceLockFlag::Read );
+		auto data = GraphicsInterface().Lock<float>( readbackBuffer.Get(), agl::ResourceLockFlag::Read );
 
 		std::array<Vector, 9> coeffs;
 		std::memcpy( coeffs.data(), data, sizeof( Vector ) * 9 );
 
-		GraphicsInterface().UnLock( readBackBuffer.Get() );
+		GraphicsInterface().UnLock( readbackBuffer.Get() );
 
 		return coeffs;
 	}

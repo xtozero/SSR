@@ -31,7 +31,7 @@ namespace agl
 		bool IsOwned( const D3D12Query& query ) const;
 
 		ID3D12QueryHeap* GetHeap();
-		ID3D12Resource* GetReadBackBuffer();
+		ID3D12Resource* GetReadbackBuffer();
 
 		void GetData( void* outData, int32 size, int32 offset ) const;
 
@@ -39,9 +39,9 @@ namespace agl
 
 	private:
 		Microsoft::WRL::ComPtr<ID3D12QueryHeap> m_heap;
-		Microsoft::WRL::ComPtr<ID3D12Resource> m_readBackBuffer;
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_readbackBuffer;
 
-		void* m_readBackPtr = nullptr;
+		void* m_readbackPtr = nullptr;
 
 		std::vector<int32> m_freeList;
 		uint32 m_freeSize = 0;
