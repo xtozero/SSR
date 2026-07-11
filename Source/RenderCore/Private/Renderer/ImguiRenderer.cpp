@@ -1,18 +1,16 @@
 #include "UserInterfaceRenderer.h"
 
-#include "AbstractGraphicsInterface.h"
-#include "AssetLoader.h"
 #include "Canvas.h"
 #include "CommandList.h"
+#include "Config/DefaultRenderCoreConfig.h"
 #include "CpuProfiler/CpuProfiler.h"
 #include "GlobalShaders.h"
-#include "GpuProfiler.h"
 #include "GraphicsApiResource.h"
+#include "IRenderCore.h"
 #include "MeshDrawInfo.h"
 #include "PassProcessor.h"
 #include "RenderGraph.h"
 #include "RenderOption.h"
-#include "RenderView.h"
 #include "ResourceBarrierUtils.h"
 #include "Scene/PrimitiveSceneInfo.h"
 #include "SceneRenderer.h"
@@ -73,8 +71,9 @@ namespace rendercore
 
 	struct ImguiDrawInfo final
 	{
-		explicit ImguiDrawInfo( const ImDrawData& drawData ) noexcept
-			: m_totalNumVertex( drawData.TotalVtxCount )
+		ImguiDrawInfo( Canvas& canvas, const ImDrawData& drawData ) noexcept
+			: m_canvas( &canvas )
+			, m_totalNumVertex( drawData.TotalVtxCount )
 			, m_totalNumIndex( drawData.TotalIdxCount )
 			, m_displayPos( drawData.DisplayPos.x, drawData.DisplayPos.y )
 			, m_displaySize( drawData.DisplaySize.x, drawData.DisplaySize.y )
@@ -147,7 +146,9 @@ namespace rendercore
 			}
 		}
 
-		ImguiDrawInfo() = default;
+		ImguiDrawInfo() noexcept = default;
+
+		Canvas* m_canvas = nullptr;
 
 		uint32 m_totalNumVertex = 0;
 		uint32 m_totalNumIndex = 0;
@@ -168,137 +169,281 @@ namespace rendercore
 	{
 		VertexCollection m_vertexCollection;
 		IndexBuffer m_indexBuffer;
-		RefHandle<agl::Texture> m_fontAtlas;
-		SamplerState m_fontAtlasSampler;
+		bool m_initialized = false;
+
+		void InitResource();
 	};
 
 	class ImguiRenderer final : public UserInterfaceRenderer
 	{
 	public:
 		virtual bool BootUp() override;
-		virtual void Render( RenderGraph& renderGraph, Canvas& canvas ) override;
 
-		virtual void UpdateUIDrawInfo() override;
+		virtual void Render( RenderGraph& renderGraph ) override;
+
+		virtual void UpdateUIDrawInfo( Canvas& canvas ) override;
+
+		static void OnCreateWindow( ImGuiViewport* viewport );
+		static void OnDestroyWindow( ImGuiViewport* viewport );
+		static void OnSetWindowSize( ImGuiViewport* viewport, ImVec2 size );
+
+		virtual ~ImguiRenderer() override;
 
 	private:
+		void Shutdown();
+
 		void CreateFontsAtlas();
 		void UpdateRenderResource();
+
+		void CreateMultiViewportCanvas( ImGuiViewport& viewport );
+		void DestroyMultiViewportCanvas( ImGuiViewport& viewport );
+		void ResizeMultiViewportCanvas( ImGuiViewport& viewport, ImVec2 size );
+
+		void SwapMultiViewportBuffers();
 
 		static agl::ShaderParameter ProjectionMatrixShaderParam;
 
 		ImguiDrawPassProcessor m_drawPassProcessor;
-		ImguiDrawInfo m_imguiDrawInfo;
-		ImguiRenderResource m_imguiRenderResource;
+		std::vector<ImguiDrawInfo> m_imguiDrawInfo;
+		std::vector<ImguiRenderResource> m_imguiRenderResource;
+		std::vector<std::shared_ptr<Canvas>> m_multiViewportCanvas;
 
-		bool m_renderResourceCreated = false;
+		RefHandle<agl::Texture> m_fontAtlas;
+		SamplerState m_fontAtlasSampler;
+
+		DelegateHandle m_onEndFrameRenderingHandle;
 	};
 
 	agl::ShaderParameter ImguiRenderer::ProjectionMatrixShaderParam( agl::ShaderType::Vertex, agl::ShaderParameterType::ConstantBufferValue, 0, 0, 0, sizeof( Matrix ) );
+
+	void ImguiRenderResource::InitResource()
+	{
+		if ( m_initialized )
+		{
+			return;
+		}
+
+		static Name positionName( "POSITION" );
+		static Name colorName( "COLOR" );
+		static Name texCoordName( "TEXCOORD" );
+
+		agl::VertexLayoutData layoutData[agl::MaxVertexLayouts] = {};
+		uint32 numLayoutData = 0;
+		uint32 slot = 0;
+
+		// Only Position
+		{
+			VertexStream posStream( "POSITION", agl::ResourceFormat::R32G32_FLOAT, 0, true );
+
+			m_vertexCollection.AddStream( std::move( posStream ) );
+
+			layoutData[numLayoutData++] = {
+				.m_isInstanceData = false,
+				.m_index = 0,
+				.m_format = agl::ResourceFormat::R32G32_FLOAT,
+				.m_slot = slot++,
+				.m_instanceDataStep = 0,
+				.m_name = positionName
+			};
+
+			m_vertexCollection.InitLayout( layoutData, numLayoutData, VertexStreamLayoutType::PositionOnly );
+		}
+
+		// Color
+		{
+			VertexStream colorStream( "COLOR", agl::ResourceFormat::R8G8B8A8_UNORM, 0, true );
+
+			m_vertexCollection.AddStream( std::move( colorStream ) );
+
+			layoutData[numLayoutData++] = {
+				.m_isInstanceData = false,
+				.m_index = 0,
+				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
+				.m_slot = slot++,
+				.m_instanceDataStep = 0,
+				.m_name = colorName
+			};
+		}
+
+		// Default
+		{
+			VertexStream texCoordStream( "TEXCOORD", agl::ResourceFormat::R32G32_FLOAT, 0, true );
+
+			m_vertexCollection.AddStream( std::move( texCoordStream ) );
+
+			layoutData[numLayoutData++] = {
+				.m_isInstanceData = false,
+				.m_index = 0,
+				.m_format = agl::ResourceFormat::R32G32_FLOAT,
+				.m_slot = slot++,
+				.m_instanceDataStep = 0,
+				.m_name = texCoordName
+			};
+		}
+
+		m_vertexCollection.InitLayout( layoutData, numLayoutData, VertexStreamLayoutType::Default );
+		m_vertexCollection.InitResource();
+
+		std::construct_at( &m_indexBuffer, 0, agl::ResourceState::GenericRead, nullptr, false, true );
+
+		m_initialized = true;
+	}
 
 	bool ImguiRenderer::BootUp()
 	{
 		CreateFontsAtlas();
 
+		ImGuiIO& io = ImGui::GetIO();
+		io.BackendRendererUserData = this;
+
+		ImGuiPlatformIO& platformIO = ImGui::GetPlatformIO();
+
+		platformIO.Renderer_CreateWindow = &ImguiRenderer::OnCreateWindow;
+		platformIO.Renderer_DestroyWindow = &ImguiRenderer::OnDestroyWindow;
+		platformIO.Renderer_SetWindowSize = &ImguiRenderer::OnSetWindowSize;
+
+		m_onEndFrameRenderingHandle = IRenderCore::OnEndFrameRendering.AddMemberFunction( this, &ImguiRenderer::SwapMultiViewportBuffers );
+
 		return true;
 	}
 
-	void ImguiRenderer::Render( RenderGraph& renderGraph, Canvas& canvas )
+	void ImguiRenderer::Render( RenderGraph& renderGraph )
 	{
 		CPU_PROFILE( ImguiRenderer_Render );
 
 		assert( IsInRenderThread() );
 
-		if ( m_imguiDrawInfo.m_displaySize.x <= 0.f
-			|| m_imguiDrawInfo.m_displaySize.y <= 0.f )
+		if ( m_imguiDrawInfo.empty() )
 		{
 			return;
 		}
 
-		agl::Texture* canvasTexture = canvas.Texture();
-		if ( ( canvasTexture == nullptr ) || ( canvasTexture->RTV() == nullptr ) )
+		for ( size_t i = 0; i < m_imguiDrawInfo.size(); ++i )
 		{
-			return;
-		}
-
-		auto rgCanvasTexture = renderGraph.RegisterExternalResource( canvasTexture );
-
-		auto [width, height] = canvas.Size();
-
-		RasterOutput rasterOutput;
-		rasterOutput.SetRenderTarget( 0, rgCanvasTexture );
-		rasterOutput.SetViewport( width, height );
-
-		GPU_PROFILE_EVENT( renderGraph, ImGui );
-
-		renderGraph.AddPass(
-			rasterOutput,
-			[this]( CommandList& commandList ) mutable
+			if ( ( m_imguiDrawInfo[i].m_displaySize.x <= 0.f )
+				|| ( m_imguiDrawInfo[i].m_displaySize.y <= 0.f ) )
 			{
-				float left = m_imguiDrawInfo.m_displayPos.x;
-				float right = m_imguiDrawInfo.m_displayPos.x + m_imguiDrawInfo.m_displaySize.x;
-				float top = m_imguiDrawInfo.m_displayPos.y;
-				float bottom = m_imguiDrawInfo.m_displayPos.y + m_imguiDrawInfo.m_displaySize.y;
-				Matrix imguiProjection(
-					2.0f / ( right - left ), 0.0f, 0.0f, 0.0f,
-					0.0f, 2.0f / ( top - bottom ), 0.0f, 0.0f,
-					0.0f, 0.0f, 0.5f, 0.0f,
-					( right + left ) / ( left - right ), ( top + bottom ) / ( bottom - top ), 0.5f, 1.0f );
+				continue;
+			}
 
-				for ( const ImguiDrawList& drawList : m_imguiDrawInfo.m_drawLists )
+			if ( m_imguiDrawInfo[i].m_canvas == nullptr )
+			{
+				continue;
+			}
+
+			Canvas& canvas = *m_imguiDrawInfo[i].m_canvas;
+
+			agl::Texture* canvasTexture = canvas.Texture();
+			if ( ( canvasTexture == nullptr ) || ( canvasTexture->RTV() == nullptr ) )
+			{
+				return;
+			}
+
+			auto rgCanvasTexture = renderGraph.RegisterExternalResource( canvasTexture );
+
+			auto [width, height] = canvas.Size();
+
+			RasterOutput rasterOutput;
+			rasterOutput.SetRenderTarget( 0, rgCanvasTexture );
+			rasterOutput.SetViewport( width, height );
+
+			renderGraph.AddPass(
+				rasterOutput,
+				[this, i]( CommandList& commandList ) mutable
 				{
-					for ( const ImguiDrawCommand& drawCommand : drawList.m_drawCommands )
+					const ImguiDrawInfo& imguiDrawInfo = m_imguiDrawInfo[i];
+					if ( i > 0 )
 					{
-						MeshDrawInfo drawinfo{
-							.m_vertexCollection = &m_imguiRenderResource.m_vertexCollection,
-							.m_indexBuffer = &m_imguiRenderResource.m_indexBuffer,
-							.m_material = nullptr,
-							.m_renderOption = nullptr,
-							.m_startLocation = drawCommand.m_indexOffset,
-							.m_baseVertexLocation = drawCommand.m_vertexOffset,
-							.m_count = drawCommand.m_numElem,
-							.m_lod = 0,
-							.m_sectionIndex = 0,
-						};
-
-						PrimitiveSubMesh subMesh( drawinfo );
-						auto result = m_drawPassProcessor.Process( subMesh );
-
-						if ( result.has_value() == false )
-						{
-							continue;
-						}
-
-						DrawSnapshot& snapshot = *result;
-
-						SetShaderValue( commandList, ProjectionMatrixShaderParam, imguiProjection );
-
-						auto texture = reinterpret_cast<agl::Texture*>( drawCommand.m_textureId );
-						commandList.AddTransition( Transition( *texture, agl::ResourceState::PixelShaderResource ) );
-
-						ResourceBinder resourceBinder;
-						resourceBinder.Add( StaticName( "texture0" ), texture->SRV() );
-						resourceBinder.Add( StaticName( "sampler0" ), m_imguiRenderResource.m_fontAtlasSampler.Resource() );
-
-						resourceBinder.Bind( snapshot.m_pipelineState.m_shaderState, snapshot.m_shaderBindings );
-
-						commandList.SetScissorRects( 1, &drawCommand.m_clipRect );
-
-						AddSingleDrawPass( commandList, snapshot );
+						imguiDrawInfo.m_canvas->OnBeginFrameRendering();
 					}
-				}
-			} );
+
+					float left = imguiDrawInfo.m_displayPos.x;
+					float right = imguiDrawInfo.m_displayPos.x + imguiDrawInfo.m_displaySize.x;
+					float top = imguiDrawInfo.m_displayPos.y;
+					float bottom = imguiDrawInfo.m_displayPos.y + imguiDrawInfo.m_displaySize.y;
+					Matrix imguiProjection(
+						2.0f / ( right - left ), 0.0f, 0.0f, 0.0f,
+						0.0f, 2.0f / (top - bottom), 0.0f, 0.0f,
+						0.0f, 0.0f, 0.5f, 0.0f,
+						( right + left ) / ( left - right ), ( top + bottom ) / ( bottom - top ), 0.5f, 1.0f );
+
+					for ( const ImguiDrawList& drawList : imguiDrawInfo.m_drawLists )
+					{
+						for ( const ImguiDrawCommand& drawCommand : drawList.m_drawCommands )
+						{
+							MeshDrawInfo drawinfo{
+								.m_vertexCollection = &m_imguiRenderResource[i].m_vertexCollection,
+								.m_indexBuffer = &m_imguiRenderResource[i].m_indexBuffer,
+								.m_material = nullptr,
+								.m_renderOption = nullptr,
+								.m_startLocation = drawCommand.m_indexOffset,
+								.m_baseVertexLocation = drawCommand.m_vertexOffset,
+								.m_count = drawCommand.m_numElem,
+								.m_lod = 0,
+								.m_sectionIndex = 0,
+							};
+
+							PrimitiveSubMesh subMesh( drawinfo );
+							auto result = m_drawPassProcessor.Process( subMesh );
+
+							if ( result.has_value() == false )
+							{
+								continue;
+							}
+
+							DrawSnapshot& snapshot = *result;
+
+							SetShaderValue( commandList, ProjectionMatrixShaderParam, imguiProjection );
+
+							auto texture = reinterpret_cast<agl::Texture*>(drawCommand.m_textureId);
+							commandList.AddTransition( Transition( *texture, agl::ResourceState::PixelShaderResource ) );
+
+							ResourceBinder resourceBinder;
+							resourceBinder.Add( StaticName( "texture0" ), texture->SRV() );
+							resourceBinder.Add( StaticName( "sampler0" ), m_fontAtlasSampler.Resource() );
+
+							resourceBinder.Bind( snapshot.m_pipelineState.m_shaderState, snapshot.m_shaderBindings );
+
+							commandList.SetScissorRects( 1, &drawCommand.m_clipRect );
+
+							AddSingleDrawPass( commandList, snapshot );
+						}
+					}
+
+					if ( i > 0 )
+					{
+						imguiDrawInfo.m_canvas->OnEndFrameRendering();
+					}
+
+					// Submit the current command list and begin recording a new one for a different swap chain.
+					RenderGraph::Commit();
+				} );
+		}
 	}
 
-	void ImguiRenderer::UpdateUIDrawInfo()
+	void ImguiRenderer::UpdateUIDrawInfo( Canvas& canvas )
 	{
 		assert( IsInGameThread() );
-		ImDrawData* drawData = ImGui::GetDrawData();
-		if ( drawData == nullptr )
+		ImGuiPlatformIO& platformIO = ImGui::GetPlatformIO();
+		if (platformIO.Viewports.empty())
 		{
 			return;
 		}
 
-		ImguiDrawInfo imguiDrawInfo( *drawData );
+		std::vector<ImguiDrawInfo> imguiDrawInfo;
+		for ( const ImGuiViewport* viewport : platformIO.Viewports )
+		{
+			ImDrawData* drawData = viewport->DrawData;
+			assert( drawData != nullptr );
+
+			Canvas& viewportCanvas = viewport->RendererUserData ? *static_cast<Canvas*>( viewport->RendererUserData ) : canvas;
+			imguiDrawInfo.emplace_back( viewportCanvas, *drawData );
+		}
+
+		if ( imguiDrawInfo.empty() )
+		{
+			return;
+		}
 
 		EnqueueRenderTask(
 			[this, drawInfo = std::move( imguiDrawInfo )]() mutable
@@ -306,6 +451,54 @@ namespace rendercore
 				m_imguiDrawInfo = std::move( drawInfo );
 				UpdateRenderResource();
 			} );
+	}
+
+	void ImguiRenderer::OnCreateWindow( ImGuiViewport* viewport )
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		auto& imguiRenderer = *static_cast<ImguiRenderer*>( io.BackendRendererUserData );
+
+		imguiRenderer.CreateMultiViewportCanvas( *viewport );
+	}
+
+	void ImguiRenderer::OnDestroyWindow( ImGuiViewport* viewport )
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		auto& imguiRenderer = *static_cast<ImguiRenderer*>( io.BackendRendererUserData );
+
+		imguiRenderer.DestroyMultiViewportCanvas( *viewport );
+	}
+
+	void ImguiRenderer::OnSetWindowSize( ImGuiViewport* viewport, ImVec2 size )
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		auto& imguiRenderer = *static_cast<ImguiRenderer*>( io.BackendRendererUserData );
+
+		imguiRenderer.ResizeMultiViewportCanvas( *viewport, size );
+	}
+
+	ImguiRenderer::~ImguiRenderer()
+	{
+		Shutdown();
+	}
+
+	void ImguiRenderer::Shutdown()
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.BackendRendererUserData = nullptr;
+
+		ImGuiPlatformIO& platformIO = ImGui::GetPlatformIO();
+
+		platformIO.Renderer_CreateWindow = nullptr;
+		platformIO.Renderer_DestroyWindow = nullptr;
+		platformIO.Renderer_SetWindowSize = nullptr;
+
+		for ( ImGuiViewport* viewport : platformIO.Viewports )
+		{
+			viewport->RendererUserData = nullptr;
+		}
+
+		IRenderCore::OnEndFrameRendering.Remove( m_onEndFrameRenderingHandle );
 	}
 
 	void ImguiRenderer::CreateFontsAtlas()
@@ -343,136 +536,137 @@ namespace rendercore
 			}
 		);
 
-		m_imguiRenderResource.m_fontAtlas = agl::Texture::Create( desc, "UI.FontAtlas", &initData );
+		m_fontAtlas = agl::Texture::Create( desc, "UI.FontAtlas", &initData );
 
-		static_assert( sizeof( ImTextureID ) >= sizeof( m_imguiRenderResource.m_fontAtlas.Get() ), "Can't pack descriptor handle into TexID" );
-		io.Fonts->SetTexID( reinterpret_cast<ImTextureID>( m_imguiRenderResource.m_fontAtlas.Get() ) );
+		static_assert( sizeof( ImTextureID ) >= sizeof( m_fontAtlas.Get() ), "Can't pack descriptor handle into TexID" );
+		io.Fonts->SetTexID( reinterpret_cast<ImTextureID>( m_fontAtlas.Get() ) );
+
+		m_fontAtlasSampler = StaticSamplerState<>::Get();
 	}
 
 	void ImguiRenderer::UpdateRenderResource()
 	{
-		if ( ( m_imguiDrawInfo.m_totalNumVertex == 0 )
-			|| ( m_imguiDrawInfo.m_totalNumIndex == 0 ) )
+		if ( m_imguiDrawInfo.empty() )
 		{
 			return;
 		}
 
-		auto& vertexCollection = m_imguiRenderResource.m_vertexCollection;
-		static Name positionName( "POSITION" );
-		static Name colorName( "COLOR" );
-		static Name texCoordName( "TEXCOORD" );
-
-		if ( m_renderResourceCreated == false )
+		while ( m_imguiRenderResource.size() < m_imguiDrawInfo.size() )
 		{
-			agl::VertexLayoutData layoutData[agl::MaxVertexLayouts] = {};
-			uint32 numLayoutData = 0;
-			uint32 slot = 0;
+			auto& resource = m_imguiRenderResource.emplace_back();
+			resource.InitResource();
+		}
 
-			// Only Position
+		for ( size_t i = 0; i < m_imguiDrawInfo.size(); ++i )
+		{
+			const ImguiDrawInfo& imguiDrawInfo = m_imguiDrawInfo[i];
+
+			if ( ( imguiDrawInfo.m_totalNumVertex == 0 )
+				|| ( imguiDrawInfo.m_totalNumIndex == 0 ) )
 			{
-				VertexStream posStream( "POSITION", agl::ResourceFormat::R32G32_FLOAT, m_imguiDrawInfo.m_totalNumVertex, true );
-
-				vertexCollection.AddStream( std::move( posStream ) );
-
-				layoutData[numLayoutData++] = {
-					.m_isInstanceData = false,
-					.m_index = 0,
-					.m_format = agl::ResourceFormat::R32G32_FLOAT,
-					.m_slot = slot++,
-					.m_instanceDataStep = 0,
-					.m_name = positionName
-				};
-
-				vertexCollection.InitLayout( layoutData, numLayoutData, VertexStreamLayoutType::PositionOnly );
+				continue;
 			}
 
-			// Color
+			static Name positionName( "POSITION" );
+			static Name colorName( "COLOR" );
+			static Name texCoordName( "TEXCOORD" );
+
+			auto& vertexCollection = m_imguiRenderResource[i].m_vertexCollection;
+
+			if ( VertexBuffer* positionBuffer = vertexCollection.GetVertexBuffer( positionName ) )
 			{
-				VertexStream colorStream( "COLOR", agl::ResourceFormat::R8G8B8A8_UNORM, m_imguiDrawInfo.m_totalNumVertex, true );
+				positionBuffer->Resize( imguiDrawInfo.m_totalNumVertex, false );
+				void* positionData = positionBuffer->Lock();
 
-				vertexCollection.AddStream( std::move( colorStream ) );
+				size_t copySize = imguiDrawInfo.m_positions.size() * positionBuffer->ElementSize();
+				std::memcpy( positionData, imguiDrawInfo.m_positions.data(), copySize );
 
-				layoutData[numLayoutData++] = {
-					.m_isInstanceData = false,
-					.m_index = 0,
-					.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
-					.m_slot = slot++,
-					.m_instanceDataStep = 0,
-					.m_name = colorName
-				};
+				positionBuffer->Unlock();
 			}
 
-			// Default
+			if ( VertexBuffer* colorBuffer = vertexCollection.GetVertexBuffer( colorName ) )
 			{
-				VertexStream texCoordStream( "TEXCOORD", agl::ResourceFormat::R32G32_FLOAT, m_imguiDrawInfo.m_totalNumVertex, true );
+				colorBuffer->Resize( imguiDrawInfo.m_totalNumVertex, false );
+				void* colorData = colorBuffer->Lock();
 
-				vertexCollection.AddStream( std::move( texCoordStream ) );
+				size_t copySize = imguiDrawInfo.m_colors.size() * colorBuffer->ElementSize();
+				std::memcpy( colorData, imguiDrawInfo.m_colors.data(), copySize );
 
-				layoutData[numLayoutData++] = {
-					.m_isInstanceData = false,
-					.m_index = 0,
-					.m_format = agl::ResourceFormat::R32G32_FLOAT,
-					.m_slot = slot++,
-					.m_instanceDataStep = 0,
-					.m_name = texCoordName
-				};
+				colorBuffer->Unlock();
 			}
 
-			vertexCollection.InitLayout( layoutData, numLayoutData, VertexStreamLayoutType::Default );
+			if ( VertexBuffer* texCoordBuffer = vertexCollection.GetVertexBuffer( texCoordName ) )
+			{
+				texCoordBuffer->Resize( imguiDrawInfo.m_totalNumVertex, false );
+				void* texCoordData = texCoordBuffer->Lock();
 
-			vertexCollection.InitResource();
+				size_t copySize = imguiDrawInfo.m_texCoords.size() * texCoordBuffer->ElementSize();
+				std::memcpy( texCoordData, imguiDrawInfo.m_texCoords.data(), copySize );
 
-			std::construct_at( &m_imguiRenderResource.m_indexBuffer, m_imguiDrawInfo.m_totalNumIndex, agl::ResourceState::GenericRead, nullptr, false, true );
+				texCoordBuffer->Unlock();
+			}
 
-			m_renderResourceCreated = true;
+			IndexBuffer& indexBuffer = m_imguiRenderResource[i].m_indexBuffer;
+			indexBuffer.Resize( imguiDrawInfo.m_totalNumIndex, false );
+
+			void* indexData = indexBuffer.Lock();
+
+			size_t copySize = imguiDrawInfo.m_indices.size() * indexBuffer.ElementSize();
+			std::memcpy( indexData, imguiDrawInfo.m_indices.data(), copySize );
+
+			indexBuffer.Unlock();
 		}
+	}
 
-		if ( VertexBuffer* positionBuffer = vertexCollection.GetVertexBuffer( positionName ) )
+	void ImguiRenderer::CreateMultiViewportCanvas( ImGuiViewport& viewport )
+	{
+		auto canvas = std::make_shared<Canvas>(
+			viewport.Size.x,
+			viewport.Size.y,
+			viewport.PlatformHandle,
+			agl::ResourceFormat::R8G8B8A8_UNORM,
+			DefaultRenderCore::GetDefaultBackgroundColor() );
+
+		viewport.RendererUserData = canvas.get();
+
+		m_multiViewportCanvas.emplace_back( std::move( canvas ) );
+	}
+
+	void ImguiRenderer::DestroyMultiViewportCanvas( ImGuiViewport& viewport )
+	{
+		// TODO: Remove GPU wait.
+		TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>(
+			[]()
+			{
+				GetInterface<agl::IAgl>()->WaitGPU();
+			});
+		GetInterface<ITaskScheduler>()->Wait( handle );
+
+		auto pred = [userData = viewport.RendererUserData]( const std::shared_ptr<Canvas>& canvas )
 		{
-			positionBuffer->Resize( m_imguiDrawInfo.m_totalNumVertex, false );
-			void* positionData = positionBuffer->Lock();
+			return canvas.get() == userData;
+		};
 
-			size_t copySize = m_imguiDrawInfo.m_positions.size() * positionBuffer->ElementSize();
-			std::memcpy( positionData, m_imguiDrawInfo.m_positions.data(), copySize );
+		std::erase_if( m_multiViewportCanvas, pred );
 
-			positionBuffer->Unlock();
-		}
+		viewport.RendererUserData = nullptr;
+	}
 
-		if ( VertexBuffer* colorBuffer = vertexCollection.GetVertexBuffer( colorName ) )
+	void ImguiRenderer::ResizeMultiViewportCanvas( ImGuiViewport& viewport, ImVec2 size )
+	{
+		auto& canvas = *static_cast<Canvas*>( viewport.RendererUserData );
+
+		canvas.Resize( static_cast<uint32>( size.x ), static_cast<uint32>( size.y ) );
+	}
+
+	void ImguiRenderer::SwapMultiViewportBuffers()
+	{
+		bool useVSync = DefaultRenderCore::UseVSync();
+		bool allowTearing = DefaultRenderCore::AllowTearing();
+
+		for ( size_t i = 1; i < m_imguiDrawInfo.size(); ++i )
 		{
-			colorBuffer->Resize( m_imguiDrawInfo.m_totalNumVertex, false );
-			void* colorData = colorBuffer->Lock();
-
-			size_t copySize = m_imguiDrawInfo.m_colors.size() * colorBuffer->ElementSize();
-			std::memcpy( colorData, m_imguiDrawInfo.m_colors.data(), copySize );
-
-			colorBuffer->Unlock();
-		}
-
-		if ( VertexBuffer* texCoordBuffer = vertexCollection.GetVertexBuffer( texCoordName ) )
-		{
-			texCoordBuffer->Resize( m_imguiDrawInfo.m_totalNumVertex, false );
-			void* texCoordData = texCoordBuffer->Lock();
-
-			size_t copySize = m_imguiDrawInfo.m_texCoords.size() * texCoordBuffer->ElementSize();
-			std::memcpy( texCoordData, m_imguiDrawInfo.m_texCoords.data(), copySize );
-
-			texCoordBuffer->Unlock();
-		}
-
-		IndexBuffer& indexBuffer = m_imguiRenderResource.m_indexBuffer;
-		indexBuffer.Resize( m_imguiDrawInfo.m_totalNumIndex, false );
-
-		void* indexData = indexBuffer.Lock();
-
-		size_t copySize = m_imguiDrawInfo.m_indices.size() * indexBuffer.ElementSize();
-		std::memcpy( indexData, m_imguiDrawInfo.m_indices.data(), copySize );
-
-		indexBuffer.Unlock();
-
-		if ( m_imguiRenderResource.m_fontAtlasSampler.Resource() == nullptr )
-		{
-			m_imguiRenderResource.m_fontAtlasSampler = StaticSamplerState<>::Get();
+			m_imguiDrawInfo[i].m_canvas->Present( useVSync, allowTearing );
 		}
 	}
 

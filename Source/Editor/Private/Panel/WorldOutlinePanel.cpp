@@ -41,8 +41,4 @@ namespace editor
 		}
 		ImGui::End();
 	}
-
-	void WorldOutlinePanel::HandleUserInput( [[maybe_unused]] const engine::UserInput& input )
-	{
-	}
 }

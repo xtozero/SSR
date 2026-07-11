@@ -65,6 +65,11 @@ namespace rendercore
 
 	void IndexBuffer::InitResource( agl::ResourceState initialState, const void* initData )
 	{
+		if ( m_numElement == 0 )
+		{
+			return;
+		}
+
 		agl::ResourceAccess resourceAccess = m_isDynamic
 			? ( agl::ResourceAccess::Upload ) 
 			: ( agl::ResourceAccess::Default );

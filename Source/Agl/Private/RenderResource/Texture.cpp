@@ -8,7 +8,7 @@ namespace agl
 {
 	RefHandle<Texture> Texture::Create( const TextureDesc& desc, const char* debugName )
 	{
-		auto newTexture = GetInterface<IResourceManager>()->CreateTexture( desc, debugName, ResourceState::Common, nullptr );
+		RefHandle<Texture> newTexture = GetInterface<IResourceManager>()->CreateTexture( desc, debugName, ResourceState::Common, nullptr );
 		EnqueueRenderTask(
 			[texture = newTexture]()
 			{
@@ -20,7 +20,7 @@ namespace agl
 
 	RefHandle<Texture> Texture::Create( const TextureDesc& desc, const char* debugName, ResourceState initialState )
 	{
-		auto newTexture = GetInterface<IResourceManager>()->CreateTexture( desc, debugName, initialState, nullptr );
+		RefHandle<Texture> newTexture = GetInterface<IResourceManager>()->CreateTexture( desc, debugName, initialState, nullptr );
 		EnqueueRenderTask(
 			[texture = newTexture]()
 			{
@@ -32,7 +32,7 @@ namespace agl
 
 	RefHandle<Texture> Texture::Create( const TextureDesc& desc, const char* debugName, const ResourceInitData* initData )
 	{
-		auto newTexture = GetInterface<IResourceManager>( )->CreateTexture( desc, debugName, ResourceState::Common, initData );
+		RefHandle<Texture> newTexture = GetInterface<IResourceManager>( )->CreateTexture( desc, debugName, ResourceState::Common, initData );
 		EnqueueRenderTask(
 			[texture = newTexture]()
 			{
@@ -44,7 +44,7 @@ namespace agl
 
 	RefHandle<Texture> Texture::Create( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
 	{
-		auto newTexture = GetInterface<IResourceManager>()->CreateTexture( desc, debugName, initialState, initData );
+		RefHandle<Texture> newTexture = GetInterface<IResourceManager>()->CreateTexture( desc, debugName, initialState, initData );
 		EnqueueRenderTask(
 			[texture = newTexture]()
 			{

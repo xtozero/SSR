@@ -20,8 +20,6 @@ namespace agl
 	public:
 		virtual void OnBeginFrameRendering() override
 		{
-			GetInterface<IAgl>()->OnBeginFrameRendering();
-
 			agl::Texture* backBuffer = Texture();
 			if ( backBuffer == nullptr )
 			{
@@ -71,9 +69,7 @@ namespace agl
 				return DeviceError::DeviceLost;
 			}
 
-			uint32 oldBufferIndex = m_bufferIndex;
 			m_bufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
-			GetInterface<IAgl>()->OnEndFrameRendering( oldBufferIndex, m_bufferIndex );
 
 			return DeviceError::None;
 		}
@@ -187,6 +183,11 @@ namespace agl
 		virtual agl::Texture* Texture() override
 		{
 			return m_backBuffers[m_bufferIndex].Get();
+		}
+
+		virtual uint32 GetBackBufferIndex() const override
+		{
+			return m_bufferIndex;
 		}
 
 		DxgiSwapchain( IUnknown& device, IDXGIFactory7& factory, uint32 width, uint32 height, uint32 bufferCount, void* hWnd, DXGI_FORMAT format, const float4 clearColor )

@@ -50,7 +50,7 @@ namespace agl
 
 	RefHandle<VertexShader> VertexShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		auto newShader = GetInterface<IResourceManager>( )->CreateVertexShader( byteCode, byteCodeSize, paramInfo );
+		RefHandle<VertexShader> newShader = GetInterface<IResourceManager>( )->CreateVertexShader( byteCode, byteCodeSize, paramInfo );
 		EnqueueRenderTask(
 			[shader = newShader]
 			{
@@ -62,7 +62,7 @@ namespace agl
 
 	RefHandle<GeometryShader> GeometryShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		auto newShader = GetInterface<IResourceManager>( )->CreateGeometryShader( byteCode, byteCodeSize, paramInfo );
+		RefHandle<GeometryShader> newShader = GetInterface<IResourceManager>( )->CreateGeometryShader( byteCode, byteCodeSize, paramInfo );
 		EnqueueRenderTask(
 			[shader = newShader]
 			{
@@ -74,7 +74,7 @@ namespace agl
 
 	RefHandle<PixelShader> PixelShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		auto newShader = GetInterface<IResourceManager>( )->CreatePixelShader( byteCode, byteCodeSize, paramInfo );
+		RefHandle<PixelShader> newShader = GetInterface<IResourceManager>( )->CreatePixelShader( byteCode, byteCodeSize, paramInfo );
 		EnqueueRenderTask(
 			[shader = newShader]
 			{
@@ -86,7 +86,7 @@ namespace agl
 
 	RefHandle<ComputeShader> ComputeShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		auto newShader = GetInterface<IResourceManager>( )->CreateComputeShader( byteCode, byteCodeSize, paramInfo );
+		RefHandle<ComputeShader> newShader = GetInterface<IResourceManager>( )->CreateComputeShader( byteCode, byteCodeSize, paramInfo );
 		EnqueueRenderTask(
 			[shader = newShader]
 			{
@@ -98,7 +98,7 @@ namespace agl
 
 	RefHandle<MeshShader> MeshShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		auto newShader = GetInterface<IResourceManager>()->CreateMeshShader( byteCode, byteCodeSize, paramInfo );
+		RefHandle<MeshShader> newShader = GetInterface<IResourceManager>()->CreateMeshShader( byteCode, byteCodeSize, paramInfo );
 		EnqueueRenderTask(
 			[shader = newShader]
 			{
@@ -110,7 +110,7 @@ namespace agl
 
 	RefHandle<AmplificationShader> AmplificationShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
 	{
-		auto newShader = GetInterface<IResourceManager>()->CreateAmplificationShader( byteCode, byteCodeSize, paramInfo );
+		RefHandle<AmplificationShader> newShader = GetInterface<IResourceManager>()->CreateAmplificationShader( byteCode, byteCodeSize, paramInfo );
 		EnqueueRenderTask(
 			[shader = newShader]
 			{
@@ -133,7 +133,7 @@ namespace agl
 
 	RefHandle<RayGenerationShader> RayGenerationShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
 	{
-		auto newShader = GetInterface<IResourceManager>()->CreateRayGenerationShader( byteCode, byteCodeSize, paramInfo, exportName );
+		RefHandle<RayGenerationShader> newShader = GetInterface<IResourceManager>()->CreateRayGenerationShader( byteCode, byteCodeSize, paramInfo, exportName );
 		EnqueueRenderTask(
 			[shader = newShader]
 			{
@@ -145,7 +145,7 @@ namespace agl
 
 	RefHandle<IntersectionShader> IntersectionShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
 	{
-		auto newShader = GetInterface<IResourceManager>()->CreateIntersectionShader( byteCode, byteCodeSize, paramInfo, exportName );
+		RefHandle<IntersectionShader> newShader = GetInterface<IResourceManager>()->CreateIntersectionShader( byteCode, byteCodeSize, paramInfo, exportName );
 		EnqueueRenderTask(
 			[shader = newShader]
 			{
@@ -157,7 +157,7 @@ namespace agl
 
 	RefHandle<AnyHitShader> AnyHitShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
 	{
-		auto newShader = GetInterface<IResourceManager>()->CreateAnyHitShader( byteCode, byteCodeSize, paramInfo, exportName );
+		RefHandle<AnyHitShader> newShader = GetInterface<IResourceManager>()->CreateAnyHitShader( byteCode, byteCodeSize, paramInfo, exportName );
 		EnqueueRenderTask(
 			[shader = newShader]
 			{
@@ -169,7 +169,7 @@ namespace agl
 
 	RefHandle<ClosestHitShader> ClosestHitShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
 	{
-		auto newShader = GetInterface<IResourceManager>()->CreateClosestHitShader( byteCode, byteCodeSize, paramInfo, exportName );
+		RefHandle<ClosestHitShader> newShader = GetInterface<IResourceManager>()->CreateClosestHitShader( byteCode, byteCodeSize, paramInfo, exportName );
 		EnqueueRenderTask(
 			[shader = newShader]
 			{
@@ -181,7 +181,7 @@ namespace agl
 
 	RefHandle<MissShader> MissShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
 	{
-		auto newShader = GetInterface<IResourceManager>()->CreateMissShader( byteCode, byteCodeSize, paramInfo, exportName );
+		RefHandle<MissShader> newShader = GetInterface<IResourceManager>()->CreateMissShader( byteCode, byteCodeSize, paramInfo, exportName );
 		EnqueueRenderTask(
 			[shader = newShader]
 			{
@@ -193,7 +193,7 @@ namespace agl
 
 	RefHandle<CallableShader> CallableShader::Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
 	{
-		auto newShader = GetInterface<IResourceManager>()->CreateCallableShader( byteCode, byteCodeSize, paramInfo, exportName );
+		RefHandle<CallableShader> newShader = GetInterface<IResourceManager>()->CreateCallableShader( byteCode, byteCodeSize, paramInfo, exportName );
 		EnqueueRenderTask(
 			[shader = newShader]
 			{

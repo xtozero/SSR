@@ -12,6 +12,9 @@ namespace engine
 		virtual void UpdateSize( uint32 width, uint32 height ) = 0;
 		virtual void Resize( uint32 width, uint32 height ) = 0;
 
+		virtual void SetCapture() = 0;
+		virtual void ReleaseCapture() = 0;
+
 		template <typename RT>
 		RT GetRawHandle()
 		{

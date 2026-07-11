@@ -12,9 +12,10 @@ namespace rendercore
 	{
 	public:
 		virtual bool BootUp() = 0;
-		virtual void Render( RenderGraph& renderGraph, Canvas& canvas ) = 0;
 
-		virtual void UpdateUIDrawInfo() = 0;
+		virtual void Render( RenderGraph& renderGraph ) = 0;
+
+		virtual void UpdateUIDrawInfo( Canvas& canvas ) = 0;
 
 		virtual ~UserInterfaceRenderer() = default;
 	};

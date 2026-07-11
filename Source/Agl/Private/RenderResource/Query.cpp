@@ -7,7 +7,7 @@ namespace agl
 {
 	RefHandle<GpuTimer> GpuTimer::Create()
 	{
-		auto newGpuTimer = GetInterface<IResourceManager>()->CreateGpuTimer();
+		RefHandle<GpuTimer> newGpuTimer = GetInterface<IResourceManager>()->CreateGpuTimer();
 		EnqueueRenderTask(
 			[gpuTimer = newGpuTimer]()
 			{
@@ -19,7 +19,7 @@ namespace agl
 
 	RefHandle<OcclusionQuery> OcclusionQuery::Create()
 	{
-		auto newQuery = GetInterface<IResourceManager>()->CreateOcclusionQuery();
+		RefHandle<OcclusionQuery> newQuery = GetInterface<IResourceManager>()->CreateOcclusionQuery();
 		EnqueueRenderTask(
 			[query = newQuery]()
 			{
@@ -31,7 +31,7 @@ namespace agl
 
 	RefHandle<PipelineStatistics> PipelineStatistics::Create()
 	{
-		auto newPipelineStatistics = GetInterface<IResourceManager>()->CreatePipelineStatistics();
+		RefHandle<PipelineStatistics> newPipelineStatistics = GetInterface<IResourceManager>()->CreatePipelineStatistics();
 		EnqueueRenderTask(
 			[pipelineStatistics = newPipelineStatistics]()
 			{

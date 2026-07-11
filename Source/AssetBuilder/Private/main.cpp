@@ -35,6 +35,9 @@ namespace
 		virtual void UpdateSize( [[maybe_unused]] uint32 width, [[maybe_unused]] uint32 height ) override {}
 		virtual void Resize( [[maybe_unused]] uint32 width, [[maybe_unused]] uint32 height ) override {}
 
+		virtual void SetCapture() override {}
+		virtual void ReleaseCapture() override {}
+
 	private:
 		virtual void* GetRawHandleImple() const noexcept override
 		{

@@ -7,7 +7,7 @@ namespace agl
 {
 	RefHandle<Buffer> Buffer::Create( const BufferDesc& desc, const char* debugName )
 	{
-		auto newBuffer = GetInterface<IResourceManager>()->CreateBuffer( desc, debugName, ResourceState::Common, nullptr );
+		RefHandle<Buffer> newBuffer = GetInterface<IResourceManager>()->CreateBuffer( desc, debugName, ResourceState::Common, nullptr );
 		EnqueueRenderTask(
 			[buffer = newBuffer]()
 			{
@@ -19,7 +19,7 @@ namespace agl
 
 	RefHandle<Buffer> Buffer::Create( const BufferDesc& desc, const char* debugName, ResourceState initialState )
 	{
-		auto newBuffer = GetInterface<IResourceManager>()->CreateBuffer( desc, debugName, initialState, nullptr );
+		RefHandle<Buffer> newBuffer = GetInterface<IResourceManager>()->CreateBuffer( desc, debugName, initialState, nullptr );
 		EnqueueRenderTask(
 			[buffer = newBuffer]()
 			{
@@ -31,7 +31,7 @@ namespace agl
 
 	RefHandle<Buffer> Buffer::Create( const BufferDesc& desc, const char* debugName, const void* initData )
 	{
-		auto newBuffer = GetInterface<IResourceManager>()->CreateBuffer( desc, debugName, ResourceState::Common, initData );
+		RefHandle<Buffer> newBuffer = GetInterface<IResourceManager>()->CreateBuffer( desc, debugName, ResourceState::Common, initData );
 		EnqueueRenderTask(
 			[buffer = newBuffer]()
 			{
@@ -43,7 +43,7 @@ namespace agl
 
 	RefHandle<Buffer> Buffer::Create( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData )
 	{
-		auto newBuffer = GetInterface<IResourceManager>()->CreateBuffer( desc, debugName, initialState, initData );
+		RefHandle<Buffer> newBuffer = GetInterface<IResourceManager>()->CreateBuffer( desc, debugName, initialState, initData );
 		EnqueueRenderTask(
 			[buffer = newBuffer]()
 			{

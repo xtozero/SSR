@@ -308,7 +308,7 @@ namespace agl
 			}
 		}
 
-		auto newPipelineState = new D3D12RaytracingPipelineState( desc );
+		RefHandle<D3D12RaytracingPipelineState> newPipelineState = new D3D12RaytracingPipelineState( desc );
 		EnqueueRenderTask(
 			[pipelineState = newPipelineState]()
 			{
@@ -318,7 +318,7 @@ namespace agl
 		std::unique_lock<std::shared_mutex> lock( m_d3d12RaytracingPipelineMutex );
 		m_d3d12RaytracingPipelineStates.emplace( pipelineStateHash, newPipelineState );
 
-		return newPipelineState;
+		return newPipelineState.Get();
 	}
 
 	D3D12HitGroup* D3D12ResourceManager::CreateHitGroup( const HitGroupDesc& desc )
@@ -334,7 +334,7 @@ namespace agl
 			}
 		}
 
-		auto newHitGroup = new D3D12HitGroup( desc );
+		RefHandle<D3D12HitGroup> newHitGroup = new D3D12HitGroup( desc );
 		EnqueueRenderTask(
 			[hitGroup = newHitGroup]()
 			{
@@ -344,7 +344,7 @@ namespace agl
 		std::unique_lock<std::shared_mutex> lock( m_d3d12HitGroupMutex );
 		m_d3d12HitGroups.emplace( hitGroupHash, newHitGroup );
 
-		return newHitGroup;
+		return newHitGroup.Get();
 	}
 
 	D3D12RaytracingShaderTable* D3D12ResourceManager::CreateRaytracingShaderTable( const RaytracingShaderTableDesc& desc )
@@ -360,7 +360,7 @@ namespace agl
 			}
 		}
 
-		auto newShaderTable = new D3D12RaytracingShaderTable( desc );
+		RefHandle<D3D12RaytracingShaderTable> newShaderTable = new D3D12RaytracingShaderTable( desc );
 		EnqueueRenderTask(
 			[shaderTable = newShaderTable]()
 			{
@@ -370,7 +370,7 @@ namespace agl
 		std::unique_lock<std::shared_mutex> lock( m_d3d12ShaderTableMutex );
 		m_d3d12ShaderTables.emplace( shaderTableHash, newShaderTable );
 
-		return newShaderTable;
+		return newShaderTable.Get();
 	}
 
 	ID3D12PipelineState* D3D12ResourceManager::FindOrCreate( const D3D12ComputePipelineState* pipelineState )

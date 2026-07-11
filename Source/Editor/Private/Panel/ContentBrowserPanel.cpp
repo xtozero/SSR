@@ -33,10 +33,6 @@ namespace editor
 		ImGui::End();
 	}
 
-	void ContentBrowserPanel::HandleUserInput( [[maybe_unused]] const engine::UserInput& input )
-	{
-	}
-
 	ContentBrowserPanel::ContentBrowserPanel( IEditor& editor )
 		: Panel( editor )
         , m_curDirectory( engine::PlatformProcess::GetWorkingDirectory() )

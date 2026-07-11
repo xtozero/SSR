@@ -7,7 +7,7 @@ namespace agl
 {
 	RefHandle<Canvas> Canvas::Create( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& clearColor )
 	{
-		auto newCanvas = GetInterface<IResourceManager>()->CreateCanvas( width, height, hWnd, format, clearColor );
+		RefHandle<Canvas> newCanvas = GetInterface<IResourceManager>()->CreateCanvas( width, height, hWnd, format, clearColor );
 		EnqueueRenderTask(
 			[canvas = newCanvas]()
 			{

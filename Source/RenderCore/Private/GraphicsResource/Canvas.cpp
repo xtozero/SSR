@@ -82,6 +82,16 @@ namespace rendercore
 		return nullptr;
 	}
 
+	uint32 Canvas::GetBackBufferIndex() const
+	{
+		if ( m_canvas.Get() )
+		{
+			return m_canvas->GetBackBufferIndex();
+		}
+
+		return 0;
+	}
+
 	Canvas::Canvas( uint32 width, uint32 height, void* hWnd, agl::ResourceFormat format, const float4& clearColor )
 	{
 		m_canvas = agl::Canvas::Create( width, height, hWnd, format, clearColor );

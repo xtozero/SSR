@@ -243,8 +243,10 @@ namespace
 
 namespace engine
 {
-	bool WindowPlatformInputConvertor::Initialize()
+	bool WindowPlatformInputConvertor::Initialize( IPlatform& platform )
 	{
+		m_windowPlatform = &platform;
+
 		return m_inputMap.Initialize();
 	}
 
@@ -381,7 +383,7 @@ namespace engine
 			break;
 		}
 
-		logic.HandleUserInput( input );
+		logic.HandleUserInput( *m_windowPlatform, input );
 	}
 
 	UserInputCode WindowPlatformInputConvertor::ConvertToUserInputCode( uint32 msg )

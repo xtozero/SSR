@@ -108,7 +108,7 @@ namespace logic
 		m_world.Resume();
 	}
 
-	void GameLogic::HandleUserInput( const engine::UserInput& input )
+	void GameLogic::HandleUserInput( [[maybe_unused]] engine::IPlatform& platform, const engine::UserInput& input )
 	{
 		if ( m_inputController == nullptr )
 		{
@@ -296,7 +296,7 @@ namespace logic
 		auto uiRenderer = GetInterface<rendercore::UserInterfaceRenderer>();
 		if ( uiRenderer )
 		{
-			uiRenderer->UpdateUIDrawInfo();
+			uiRenderer->UpdateUIDrawInfo( *m_canvas );
 		}
 	}
 

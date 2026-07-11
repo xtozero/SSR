@@ -57,8 +57,4 @@ namespace editor
 			ImGui::EndMainMenuBar();
 		}
 	}
-
-	void MainMenuPanel::HandleUserInput( [[maybe_unused]] const engine::UserInput& input )
-	{
-	}
 }

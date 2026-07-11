@@ -7,7 +7,7 @@ namespace agl
 {
 	RefHandle<Viewport> Viewport::Create( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor )
 	{
-		auto newViewport = GetInterface<IResourceManager>()->CreateViewport( width, height, format, bgColor );
+		RefHandle<Viewport> newViewport = GetInterface<IResourceManager>()->CreateViewport( width, height, format, bgColor );
 		EnqueueRenderTask(
 			[viewport = newViewport]()
 			{
@@ -19,7 +19,7 @@ namespace agl
 
 	RefHandle<Viewport> Viewport::Create( Canvas& canvas )
 	{
-		auto newViewport = GetInterface<IResourceManager>()->CreateViewport( canvas );
+		RefHandle<Viewport> newViewport = GetInterface<IResourceManager>()->CreateViewport( canvas );
 		EnqueueRenderTask(
 			[viewport = newViewport]()
 			{

@@ -25,7 +25,10 @@ namespace imgui
 			io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 			io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 			io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+			io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 			io.IniFilename = "./Configs/imgui.ini";
+
+			io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;
 
 			ImGui::StyleColorsDark();
 

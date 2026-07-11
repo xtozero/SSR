@@ -14,6 +14,8 @@ namespace logic
 
 namespace engine
 {
+	class IPlatform;
+
 	class WindowPlatformInputMap
 	{
 	public:
@@ -31,11 +33,14 @@ namespace engine
 	class WindowPlatformInputConvertor
 	{
 	public:
-		bool Initialize();
+		bool Initialize( IPlatform& platform );
 		void ProcessInput( logic::ILogic& logic, const MSG& wndMsg );
 
 	private:
 		UserInputCode ConvertToUserInputCode( uint32 msg );
+
+		IPlatform* m_windowPlatform = nullptr;
+
 		WindowPlatformInputMap m_inputMap;
 
 		Vector2 m_prevMousePos;

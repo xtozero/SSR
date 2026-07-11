@@ -24,5 +24,7 @@ namespace agl
 		virtual void Resize( uint32 width, uint32 height ) = 0;
 
 		virtual Texture* Texture() = 0;
+
+		virtual uint32 GetBackBufferIndex() const = 0;
 	};
 }

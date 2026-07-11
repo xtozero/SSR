@@ -92,7 +92,7 @@ namespace editor
 	    ImGui::End();
 	}
 
-    void ScenePanel::HandleUserInput( const engine::UserInput& input )
+    void ScenePanel::HandleUserInput( engine::IPlatform& platform, const engine::UserInput& input )
     {
         m_consoleInputWidget.HandleUserInput( input );
 
@@ -142,7 +142,7 @@ namespace editor
 
         if ( logic )
         {
-            logic->HandleUserInput( inputForLogic );
+            logic->HandleUserInput( platform, inputForLogic );
         }
     }
 }

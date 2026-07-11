@@ -6,6 +6,11 @@
 
 #include <utility>
 
+namespace engine
+{
+	class IPlatform;
+}
+
 namespace rendercore
 {
 	class HitProxy;
@@ -19,7 +24,7 @@ namespace editor
 
 	public:
 		virtual void Draw() override;
-		virtual void HandleUserInput( const engine::UserInput& input ) override;
+		virtual void HandleUserInput( engine::IPlatform& platform, const engine::UserInput& input ) override;
 
 	private:
 		RectangleArea<float> m_panelArea = {};

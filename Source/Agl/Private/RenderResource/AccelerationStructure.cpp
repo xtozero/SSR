@@ -6,7 +6,7 @@ namespace agl
 {
     RefHandle<BLAS> BLAS::Create( const BLASDesc& desc, const char* debugName )
     {
-        auto newBLAS = GetInterface<IResourceManager>()->CreateBLAS( desc, debugName );
+        RefHandle<BLAS> newBLAS = GetInterface<IResourceManager>()->CreateBLAS( desc, debugName );
         EnqueueRenderTask(
             [blas = newBLAS]()
             {
@@ -23,7 +23,7 @@ namespace agl
 
     RefHandle<TLAS> TLAS::Create( const TLASDesc& desc, const char* debugName )
     {
-        auto newTLAS = GetInterface<IResourceManager>()->CreateTLAS( desc, debugName );
+        RefHandle<TLAS> newTLAS = GetInterface<IResourceManager>()->CreateTLAS( desc, debugName );
         EnqueueRenderTask(
             [tlas = newTLAS]()
             {

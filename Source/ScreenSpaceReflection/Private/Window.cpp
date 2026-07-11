@@ -31,6 +31,19 @@ namespace app
 		UpdateSize( width, height );
 	}
 
+	void Window::SetCapture()
+	{
+		::SetCapture( m_hwnd );
+	}
+
+	void Window::ReleaseCapture()
+	{
+		if ( GetCapture() == m_hwnd )
+		{
+			::ReleaseCapture();
+		}
+	}
+
 	bool Window::Run( const WindowSetup& setup, WNDPROC wndProc )
 	{
 		WNDCLASSEXA wndclsex = setup.GetWndClass();

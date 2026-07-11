@@ -8,7 +8,7 @@ namespace agl
 {
 	RefHandle<BlendState> BlendState::Create( const BlendStateDesc& desc )
 	{
-		auto newState = GetInterface<IResourceManager>()->CreateBlendState( desc );
+		RefHandle<BlendState> newState = GetInterface<IResourceManager>()->CreateBlendState( desc );
 		newState->SetHash( desc.GetHash() );
 
 		EnqueueRenderTask(
@@ -22,7 +22,7 @@ namespace agl
 
 	RefHandle<DepthStencilState> DepthStencilState::Create( const DepthStencilStateDesc& desc )
 	{
-		auto newState = GetInterface<IResourceManager>()->CreateDepthStencilState( desc );
+		RefHandle<DepthStencilState> newState = GetInterface<IResourceManager>()->CreateDepthStencilState( desc );
 		newState->SetHash( desc.GetHash() );
 
 		EnqueueRenderTask(
@@ -36,7 +36,7 @@ namespace agl
 
 	RefHandle<RasterizerState> RasterizerState::Create( const RasterizerStateDesc& desc )
 	{
-		auto newState = GetInterface<IResourceManager>()->CreateRasterizerState( desc );
+		RefHandle<RasterizerState> newState = GetInterface<IResourceManager>()->CreateRasterizerState( desc );
 		newState->SetHash( desc.GetHash() );
 
 		EnqueueRenderTask(
@@ -50,7 +50,7 @@ namespace agl
 
 	RefHandle<SamplerState> SamplerState::Create( const SamplerStateDesc& desc )
 	{
-		auto newState = GetInterface<IResourceManager>()->CreateSamplerState( desc );
+		RefHandle<SamplerState> newState = GetInterface<IResourceManager>()->CreateSamplerState( desc );
 		EnqueueRenderTask(
 			[state = newState]()
 			{

@@ -174,7 +174,14 @@ namespace editor
             panel->Draw();
         }
 
+        ImGui::EndFrame();
         ImGui::Render();
+
+        ImGuiIO& io = ImGui::GetIO();
+        if ( io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable )
+        {
+            ImGui::UpdatePlatformWindows();
+        }
 
         m_logic->Update();
     }
@@ -189,7 +196,7 @@ namespace editor
         m_logic->Resume();
     }
 
-    void ImguiEditor::HandleUserInput( const engine::UserInput& input )
+    void ImguiEditor::HandleUserInput( engine::IPlatform& platform, const engine::UserInput& input )
     {
         if ( ImGui::GetCurrentContext() == nullptr )
         {
@@ -220,8 +227,18 @@ namespace editor
                 button = 2;
             }
 
+            bool down = input.m_axis[UserInput::Z_AXIS] < 0;
+            if ( down )
+            {
+                platform.SetCapture();
+            }
+            else
+            {
+                platform.ReleaseCapture();
+            }
+
             io.AddMouseSourceEvent( ImGuiMouseSource_Mouse );
-            io.AddMouseButtonEvent( button, input.m_axis[UserInput::Z_AXIS] < 0 );
+            io.AddMouseButtonEvent( button, down );
             break;
         }
         case UIC_MOUSE_WHEELSPIN:
@@ -242,7 +259,7 @@ namespace editor
 
         for ( auto& panel : m_panels )
         {
-            panel->HandleUserInput( input );
+            panel->HandleUserInput( platform, input );
         }
     }
 

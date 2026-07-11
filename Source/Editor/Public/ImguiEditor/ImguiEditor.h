@@ -22,7 +22,7 @@ namespace editor
 		virtual void Update() override;
 		virtual void Pause() override;
 		virtual void Resume() override;
-		virtual void HandleUserInput( const engine::UserInput& input ) override;
+		virtual void HandleUserInput( engine::IPlatform& platform, const engine::UserInput& input ) override;
 		virtual void HandleTextInput( uint64 text, bool bUnicode ) override;
 		virtual void AppSizeChanged( engine::IPlatform& platform ) override;
 		virtual logic::GameClientViewport * GetGameClientViewport() override;

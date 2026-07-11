@@ -42,7 +42,7 @@ namespace engine
 
 		GetInterface<CommandLine>()->Parse( argv );
 
-		if ( !m_inputConvertor.Initialize() )
+		if ( !m_inputConvertor.Initialize( platform ) )
 		{
 			return false;
 		}

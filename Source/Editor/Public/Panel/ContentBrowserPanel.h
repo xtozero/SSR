@@ -11,7 +11,6 @@ namespace editor
 	{
 	public:
 		virtual void Draw() override;
-		virtual void HandleUserInput( const engine::UserInput& input ) override;
 
 		explicit ContentBrowserPanel( IEditor& editor );
 

@@ -282,6 +282,8 @@ namespace rendercore
 
 				GraphicsResourcePool::GetInstance().Tick();
 
+				GetInterface<agl::IAgl>()->OnBeginFrameRendering();
+
 				canvas.OnBeginFrameRendering();
 				canvas.Clear();
 			} );
@@ -331,7 +333,7 @@ namespace rendercore
 					CPU_PROFILE( RenderUI );
 					GPU_PROFILE_EVENT( m_renderGraph, RenderUI );
 
-					m_uiRenderer->Render( m_renderGraph, canvas );
+					m_uiRenderer->Render( m_renderGraph );
 				}
 
 				GetPrimitiveIdPool().DiscardAll();
@@ -353,12 +355,20 @@ namespace rendercore
 
 				{
 					CPU_PROFILE( Present );
+					uint32 oldBackBufferIndex = canvas.GetBackBufferIndex();
+
 					bool useVSync = DefaultRenderCore::UseVSync();
 					bool allowTearing = DefaultRenderCore::AllowTearing();
 					canvas.Present( useVSync, allowTearing );
+
+					uint32 curBackBufferIndex = canvas.GetBackBufferIndex();
+
+					GetInterface<agl::IAgl>()->OnEndFrameRendering( oldBackBufferIndex, curBackBufferIndex );
 				}
 
 				renderthread::TextureStreamingManager::GetInstance().Tick();
+
+				OnEndFrameRendering.Boardcast();
 			} );
 	}
 
@@ -566,4 +576,6 @@ namespace rendercore
 	}
 
 	uint32 NumLanes = 0xFFFFFFFF;
+
+	MulticastDelegate<> IRenderCore::OnEndFrameRendering;
 }

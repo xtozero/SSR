@@ -43,6 +43,9 @@ namespace app
 		virtual void UpdateSize( uint32 width, uint32 height ) override;
 		virtual void Resize( uint32 width, uint32 height ) override;
 
+		virtual void SetCapture() override;
+		virtual void ReleaseCapture() override;
+
 		bool Run( const WindowSetup& setup, WNDPROC wndProc );
 		HWND GetHwnd() const noexcept { return m_hwnd; }
 

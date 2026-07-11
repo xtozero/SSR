@@ -22,7 +22,7 @@ namespace logic
 		virtual void Update() = 0;
 		virtual void Pause() = 0;
 		virtual void Resume() = 0;
-		virtual void HandleUserInput( const engine::UserInput& ) = 0;
+		virtual void HandleUserInput( engine::IPlatform& platform, const engine::UserInput& ) = 0;
 		virtual void HandleTextInput( uint64 text, bool bUnicode ) = 0;
 		virtual void AppSizeChanged( engine::IPlatform& platform ) = 0;
 		virtual GameClientViewport* GetGameClientViewport() = 0;

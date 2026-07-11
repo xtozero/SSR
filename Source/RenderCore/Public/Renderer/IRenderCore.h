@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Delegate.h"
 #include "GuideTypes.h"
 
 namespace logic
@@ -35,6 +36,8 @@ namespace rendercore
 		virtual void GetRawHitProxyData( Viewport& viewport, std::vector<Color>& outHitProxyData ) = 0;
 
 		virtual ~IRenderCore() = default;
+
+		static MulticastDelegate<> OnEndFrameRendering;
 
 	protected:
 		IRenderCore() = default;
