@@ -196,11 +196,11 @@ namespace editor
         m_logic->Resume();
     }
 
-    void ImguiEditor::HandleUserInput( engine::IPlatform& platform, const engine::UserInput& input )
+    bool ImguiEditor::HandleUserInput( engine::IPlatform& platform, const engine::UserInput& input )
     {
         if ( ImGui::GetCurrentContext() == nullptr )
         {
-            return;
+            return false;
         }
 
         ImGuiIO& io = ImGui::GetIO();
@@ -261,6 +261,8 @@ namespace editor
         {
             panel->HandleUserInput( platform, input );
         }
+
+        return true;
     }
 
     void ImguiEditor::HandleTextInput( uint64 text, bool bUnicode )

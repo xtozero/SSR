@@ -108,14 +108,15 @@ namespace logic
 		m_world.Resume();
 	}
 
-	void GameLogic::HandleUserInput( [[maybe_unused]] engine::IPlatform& platform, const engine::UserInput& input )
+	bool GameLogic::HandleUserInput( [[maybe_unused]] engine::IPlatform& platform, const engine::UserInput& input )
 	{
 		if ( m_inputController == nullptr )
 		{
-			return;
+			return false;
 		}
 
 		m_inputController->ProcessInput( input );
+		return true;
 	}
 
 	void GameLogic::HandleTextInput( [[maybe_unused]] uint64 text, [[maybe_unused]] bool bUnicode )

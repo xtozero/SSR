@@ -34,7 +34,7 @@ namespace engine
 	{
 	public:
 		bool Initialize( IPlatform& platform );
-		void ProcessInput( logic::ILogic& logic, const MSG& wndMsg );
+		bool ProcessInput( logic::ILogic& logic, const MSG& wndMsg );
 
 	private:
 		UserInputCode ConvertToUserInputCode( uint32 msg );

@@ -621,8 +621,8 @@ namespace rendercore
 	void ImguiRenderer::CreateMultiViewportCanvas( ImGuiViewport& viewport )
 	{
 		auto canvas = std::make_shared<Canvas>(
-			viewport.Size.x,
-			viewport.Size.y,
+			static_cast<uint32>( viewport.Size.x ),
+			static_cast<uint32>( viewport.Size.y ),
 			viewport.PlatformHandle,
 			agl::ResourceFormat::R8G8B8A8_UNORM,
 			DefaultRenderCore::GetDefaultBackgroundColor() );

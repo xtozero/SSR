@@ -68,6 +68,11 @@ PRIVATE
 	Imgui
 	Logic
 	RenderCore)
+
+target_compile_definitions(Editor
+PRIVATE
+	IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+)
 							
 add_custom_command(TARGET Editor POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/\$\(Configuration\)/Editor.dll" "${CMAKE_SOURCE_DIR}/Program/Binaries/Editor.dll")

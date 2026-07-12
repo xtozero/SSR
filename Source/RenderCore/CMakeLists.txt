@@ -300,6 +300,7 @@ PRIVATE
 target_compile_definitions(RenderCore
 PRIVATE
 	$<$<BOOL:${ENABLE_EDITOR}>:WITH_EDITOR>
+	IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 )
 
 add_custom_command(TARGET RenderCore POST_BUILD

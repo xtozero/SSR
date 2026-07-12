@@ -130,9 +130,11 @@ namespace engine
 			m_isAvailable = msg.message != WM_QUIT;
 
 			TranslateMessage( &msg );
-			DispatchMessage( &msg );
 
-			m_inputConvertor.ProcessInput( *m_logic, msg );
+			if ( m_inputConvertor.ProcessInput( *m_logic, msg ) == false )
+			{
+				DispatchMessage( &msg );
+			}
 		}
 	}
 

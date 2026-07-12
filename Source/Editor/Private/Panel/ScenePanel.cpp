@@ -57,8 +57,9 @@ namespace editor
 
 	    ImGui::Begin( "Scene" );
         {
-            ImVec2 panelMin = ImGui::GetWindowContentRegionMin() + ImGui::GetWindowPos();
-            ImVec2 panelMax = ImGui::GetWindowContentRegionMax() + ImGui::GetWindowPos();
+            ImVec2 panelMin = ImGui::GetCursorScreenPos();
+            ImVec2 contentRegionAvail = ImGui::GetContentRegionAvail();
+            ImVec2 panelMax = panelMin + contentRegionAvail;
             m_panelArea = {
                 .m_left = panelMin.x,
                 .m_top = panelMin.y,
@@ -68,7 +69,6 @@ namespace editor
 
             m_passingInputToLogic = ( ImGui::IsWindowHovered() && ImGui::IsWindowFocused() && ImGui::IsWindowDocked() );
 
-            ImVec2 contentRegionAvail = ImGui::GetContentRegionAvail();
             if ( contentRegionAvail.x > 0 && contentRegionAvail.y > 0 )
             {
                 std::pair<uint32, uint32> viewportResolution = {
@@ -85,6 +85,8 @@ namespace editor
                 {
                     ImGui::Image( (ImTextureID)viewport->Texture(), contentRegionAvail );
                 }
+
+                ImGui::SetCursorScreenPos( panelMin );
 
                 m_consoleInputWidget.Draw();
             }
@@ -106,8 +108,9 @@ namespace editor
         engine::UserInput inputForLogic = input;
         if ( IsMouseClick( input ) )
         {
-            inputForLogic.m_axis[UserInput::X_AXIS] = std::clamp( inputForLogic.m_axis[UserInput::X_AXIS], m_panelArea.m_left, m_panelArea.m_right );
-            inputForLogic.m_axis[UserInput::Y_AXIS] = std::clamp( inputForLogic.m_axis[UserInput::Y_AXIS], m_panelArea.m_top, m_panelArea.m_bottom );
+            ImVec2 mousePos = ImGui::GetMousePos();
+            inputForLogic.m_axis[UserInput::X_AXIS] = std::clamp( mousePos.x, m_panelArea.m_left, m_panelArea.m_right );
+            inputForLogic.m_axis[UserInput::Y_AXIS] = std::clamp( mousePos.y, m_panelArea.m_top, m_panelArea.m_bottom );
 
             inputForLogic.m_axis[UserInput::X_AXIS] -= m_panelArea.m_left;
             inputForLogic.m_axis[UserInput::Y_AXIS] -= m_panelArea.m_top;

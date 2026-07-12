@@ -17,23 +17,19 @@ namespace editor
 {
     void ConsoleInputWidget::DrawFull()
     {
+        float baseY = ImGui::GetCursorPos().y + ImGui::GetWindowHeight() * ConsoleWindowSizeRatio;
+
         DrawConsole();
-        float consoleBaseY = ImGui::GetWindowContentRegionMin().y + ImGui::GetWindowContentRegionMax().y * ConsoleWindowSizeRatio;
-
-        float autoCompletionBaseY = consoleBaseY - ImGui::GetTextLineHeight();
-        DrawAutoCompletion( autoCompletionBaseY );
-
-        float consoleInputBaseY = consoleBaseY - ImGui::GetFrameHeight();
-        DrawConsoleInput( consoleInputBaseY );
+        DrawAutoCompletion( baseY );
+        DrawConsoleInput( baseY );
     }
 
     void ConsoleInputWidget::DrawMinimal()
     {
-        float autoCompletionBaseY = ImGui::GetWindowContentRegionMax().y - ImGui::GetTextLineHeight();
-        DrawAutoCompletion( autoCompletionBaseY );
+        float baseY = ImGui::GetContentRegionAvail().y + ImGui::GetCursorPos().y - ImGui::GetFrameHeight();
 
-        float consoleInputBaseY = ImGui::GetWindowContentRegionMax().y - ImGui::GetFrameHeight();
-        DrawConsoleInput( consoleInputBaseY );
+        DrawAutoCompletion( baseY );
+        DrawConsoleInput( baseY );
     }
 
     void ConsoleInputWidget::Draw()
@@ -164,11 +160,11 @@ namespace editor
 
     void ConsoleInputWidget::DrawConsole() const
     {
-        ImGui::SetNextWindowPos( ImGui::GetWindowContentRegionMin() + ImGui::GetWindowPos() );
+        ImGui::SetNextWindowPos( ImGui::GetCursorScreenPos() );
 
         ImGui::PushStyleColor( ImGuiCol_ChildBg, static_cast<ImVec4>( ImColor( 0.f, 0.f, 0.f, 0.5f ) ) );
 
-        ImVec2 ConsoleWindowSize( ImGui::GetContentRegionAvail().x, ImGui::GetWindowContentRegionMax().y * ConsoleWindowSizeRatio );
+        ImVec2 ConsoleWindowSize( ImGui::GetContentRegionAvail().x, ImGui::GetWindowHeight() * ConsoleWindowSizeRatio );
         ImGui::BeginChild( "ConsoleWindow", ConsoleWindowSize );
         {
             ImGui::PushStyleVar( ImGuiStyleVar_ItemSpacing, ImVec2( 0, 0 ) );
@@ -207,21 +203,20 @@ namespace editor
         }
 
         float contentHeight = ImGui::GetTextLineHeightWithSpacing() * itemSize;
-        float cursorPosY = baseY - contentHeight;
-        ImGui::SetNextWindowPos( ImVec2( ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMin().x, cursorPosY ) );
+        const auto& imGuiStyle = ImGui::GetStyle();
+        float paddingSize = imGuiStyle.ChildBorderSize + imGuiStyle.WindowPadding.y + imGuiStyle.FramePadding.y;
+        float cursorPosY = baseY - contentHeight - paddingSize;
 
-        ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar
-            | ImGuiWindowFlags_NoResize
-            | ImGuiWindowFlags_NoMove
-            | ImGuiWindowFlags_NoScrollbar
-            | ImGuiWindowFlags_NoScrollWithMouse
-            | ImGuiWindowFlags_NoCollapse
-            | ImGuiWindowFlags_AlwaysAutoResize
-            | ImGuiWindowFlags_NoSavedSettings
-            | ImGuiWindowFlags_NoFocusOnAppearing
-            | ImGuiWindowFlags_NoNav;
+        ImGui::SetCursorPosY( cursorPosY );
 
-        ImGui::Begin( "AutoCompletionWindow", nullptr, windowFlags );
+        ImGuiChildFlags childFlags = ImGuiChildFlags_Borders
+            | ImGuiChildFlags_AutoResizeX
+            | ImGuiChildFlags_AutoResizeY
+            | ImGuiChildFlags_AlwaysAutoResize;
+
+        ImGui::PushStyleColor( ImGuiCol_ChildBg, ImGui::GetColorU32( ImGuiCol_WindowBg ) );
+
+        ImGui::BeginChild( "AutoCompletionWindow", ImVec2(0, 0), childFlags, 0 );
         {
             for ( int32 i = 0; i < itemSize; ++i )
             {
@@ -233,15 +228,17 @@ namespace editor
                     ImVec2 min = ImGui::GetCursorScreenPos();
                     ImVec2 max = min + ImVec2( ImGui::CalcTextSize( name ).x, ImGui::GetTextLineHeight() );
 
-                    min -= ImGui::GetStyle().FramePadding;
-                    max += ImGui::GetStyle().FramePadding;
+                    min -= imGuiStyle.FramePadding;
+                    max += imGuiStyle.FramePadding;
 
-                    ImGui::GetWindowDrawList()->AddRectFilled( min, max, ImGui::GetColorU32(ImGuiCol_HeaderHovered ) );
+                    ImGui::GetWindowDrawList()->AddRectFilled( min, max, ImGui::GetColorU32( ImGuiCol_HeaderHovered ) );
                 }
                 ImGui::Text( name );
             }
         }
-        ImGui::End();
+        ImGui::EndChild();
+
+        ImGui::PopStyleColor();
     }
 
     void ConsoleInputWidget::DrawConsoleInput( float baseY )
@@ -249,7 +246,7 @@ namespace editor
         ImGui::SetCursorPosY( baseY );
 
         ImVec2 min = ImGui::GetCursorScreenPos();
-        ImVec2 max = min + ImVec2( ImGui::GetWindowContentRegionMax().x, 0.f );
+        ImVec2 max = min + ImVec2( ImGui::GetContentRegionAvail().x, 0.f );
 
         min.y -= 2.f;
 
@@ -257,7 +254,7 @@ namespace editor
         separatorColor.w = 1.f;
         ImGui::GetWindowDrawList()->AddRectFilled( min, max, ImGui::GetColorU32( separatorColor ) );
 
-        ImVec2 ConsoleInputWindowSize( ImGui::GetWindowSize().x, ImGui::GetFrameHeight() );
+        ImVec2 ConsoleInputWindowSize( ImGui::GetContentRegionAvail().x, ImGui::GetFrameHeight() );
         ImGui::BeginChild( "ConsoleInputWindow", ConsoleInputWindowSize );
         {
             if ( m_needInputTextFocus )

@@ -250,7 +250,7 @@ namespace engine
 		return m_inputMap.Initialize();
 	}
 
-	void WindowPlatformInputConvertor::ProcessInput( logic::ILogic& logic, const MSG& wndMsg )
+	bool WindowPlatformInputConvertor::ProcessInput( logic::ILogic& logic, const MSG& wndMsg )
 	{
 		UserInput input( m_buttonStates );
 
@@ -310,7 +310,7 @@ namespace engine
 				input.m_code = ConvertToUserInputCode( vk );
 				if ( input.m_code == UIC_UNKNOWN )
 				{
-					return;
+					return false;
 				}
 			}
 
@@ -330,7 +330,7 @@ namespace engine
 			input.m_code = ConvertToUserInputCode( message );
 			if ( input.m_code == UIC_UNKNOWN )
 			{
-				return;
+				return false;
 			}
 
 			POINT pt{ GET_X_LPARAM( lParam ),  GET_Y_LPARAM( lParam ) };
@@ -375,15 +375,15 @@ namespace engine
 				::MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED, (char*)&wParam, 1, &wch, 1 );
 				logic.HandleTextInput( wch, false );
 			}
-			return;
+			return true;
 			break;
 		default:
 			//Message UnHandled;
-			return;
+			return false;
 			break;
 		}
 
-		logic.HandleUserInput( *m_windowPlatform, input );
+		return logic.HandleUserInput( *m_windowPlatform, input );
 	}
 
 	UserInputCode WindowPlatformInputConvertor::ConvertToUserInputCode( uint32 msg )

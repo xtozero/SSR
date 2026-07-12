@@ -87,7 +87,7 @@ namespace editor
 
             int32 n = 0;
             ImGuiStyle& style = ImGui::GetStyle();
-            float windowVisibleX = ImGui::GetWindowPos().x + ImGui::GetWindowContentRegionMax().x;
+            float windowVisibleX = ImGui::GetWindowPos().x + ImGui::GetContentRegionAvail().x;
             for ( const auto& entry : fs::directory_iterator( m_curDirectory ) )
             {
 				fs::path filename = entry.path().filename();
