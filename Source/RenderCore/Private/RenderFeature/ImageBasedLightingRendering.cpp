@@ -39,18 +39,18 @@ namespace rendercore
 		using GlobalShaderBase::GlobalShaderBase;
 
 	private:
-		DEFINE_SHADER_PARAM( CubeMap );
-		DEFINE_SHADER_PARAM( LinearSampler );
-		DEFINE_SHADER_PARAM( Coeffs );
+		DECLARE_SHADER_PARAM( CubeMap );
+		DECLARE_SHADER_PARAM( LinearSampler );
+		DECLARE_SHADER_PARAM( Coeffs );
 	};
 
 	class PrefilteredSpecularCS final : public GlobalShaderBase<ComputeShader, PrefilteredSpecularCS>
 	{
 	private:
-		DEFINE_SHADER_PARAM( Roughness );
-		DEFINE_SHADER_PARAM( EnvMap );
-		DEFINE_SHADER_PARAM( EnvMapSampler );
-		DEFINE_SHADER_PARAM( Prefiltered );
+		DECLARE_SHADER_PARAM( Roughness );
+		DECLARE_SHADER_PARAM( EnvMap );
+		DECLARE_SHADER_PARAM( EnvMapSampler );
+		DECLARE_SHADER_PARAM( Prefiltered );
 	};
 
 	REGISTER_GLOBAL_SHADER( DrawIrradianceMapVS, "IndirectLighting/IrradianceMap/VS_DrawIrradianceMap.fx", "main" );

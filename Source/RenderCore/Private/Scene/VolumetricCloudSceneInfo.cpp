@@ -11,17 +11,17 @@ namespace rendercore
 {
 	class PerlinWorleyCS final : public GlobalShaderBase<ComputeShader, PerlinWorleyCS>
 	{
-		DEFINE_SHADER_PARAM( NoiseTex );
+		DECLARE_SHADER_PARAM( NoiseTex );
 	};
 
 	class WorleyCS final : public GlobalShaderBase<ComputeShader, WorleyCS>
 	{
-		DEFINE_SHADER_PARAM( NoiseTex );
+		DECLARE_SHADER_PARAM( NoiseTex );
 	};
 
 	class WeatherMapCS final : public GlobalShaderBase<ComputeShader, WeatherMapCS>
 	{
-		DEFINE_SHADER_PARAM( WeatherTex );
+		DECLARE_SHADER_PARAM( WeatherTex );
 	};
 
 	REGISTER_GLOBAL_SHADER( PerlinWorleyCS, "Cloud/CS_PerlinWorley.fx","main" );

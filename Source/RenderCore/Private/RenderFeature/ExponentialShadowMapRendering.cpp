@@ -40,17 +40,17 @@ namespace rendercore
 		CascadedESMsBlurCS() = default;
 
 	private:
-		DEFINE_SHADER_PARAM( KernelBuffer );
-		DEFINE_SHADER_PARAM( SrcTexture );
-		DEFINE_SHADER_PARAM( PointSampler );
-		DEFINE_SHADER_PARAM( DestTexture );
+		DECLARE_SHADER_PARAM( KernelBuffer );
+		DECLARE_SHADER_PARAM( SrcTexture );
+		DECLARE_SHADER_PARAM( PointSampler );
+		DECLARE_SHADER_PARAM( DestTexture );
 	};
 
 	class CascadedESMsCS final : public GlobalShaderBase<ComputeShader, CascadedESMsCS>
 	{
-		DEFINE_SHADER_PARAM( SrcTexture );
-		DEFINE_SHADER_PARAM( ESMsTexture );
-		DEFINE_SHADER_PARAM( ParameterC );
+		DECLARE_SHADER_PARAM( SrcTexture );
+		DECLARE_SHADER_PARAM( ESMsTexture );
+		DECLARE_SHADER_PARAM( ParameterC );
 	};
 
 	REGISTER_GLOBAL_SHADER( CascadedESMsBlurCS, "Shadow/CS_CascadedESMsBlur.fx", "main" );

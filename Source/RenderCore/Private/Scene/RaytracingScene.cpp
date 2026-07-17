@@ -25,6 +25,7 @@ namespace rendercore
             m_blasToBuild.clear();
 
             renderGraph.AddPass(
+                true,
                 [blasToBuild = std::move( blasList )]( ComputeCommandList& commandList )
                 {
                     for ( const RefHandle<agl::BLAS>& blas : blasToBuild )
@@ -51,6 +52,7 @@ namespace rendercore
             m_tlas = agl::TLAS::Create( desc, "RaytracingScene" );
 
             renderGraph.AddPass(
+                true,
                 [tlas = m_tlas]( ComputeCommandList& commandList )
                 {
                     commandList.BuildTLAS( tlas );

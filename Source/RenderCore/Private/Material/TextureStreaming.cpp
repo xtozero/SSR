@@ -190,8 +190,8 @@ namespace rendercore::renderthread
 {
     class ClearTextureFeedbackCS final : public GlobalShaderBase<ComputeShader, ClearTextureFeedbackCS>
     {
-        DEFINE_SHADER_PARAM( NumElement );
-        DEFINE_SHADER_PARAM( TextureFeedback );
+        DECLARE_SHADER_PARAM( NumElement );
+        DECLARE_SHADER_PARAM( TextureFeedback );
     };
 
     REGISTER_GLOBAL_SHADER( ClearTextureFeedbackCS, "Common/CS_ClearTextureFeedback.fx", "main" );

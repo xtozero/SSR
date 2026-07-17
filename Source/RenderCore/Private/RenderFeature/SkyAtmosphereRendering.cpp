@@ -18,79 +18,79 @@ namespace rendercore
 {
 	class TransmittanceCS final : public GlobalShaderBase<ComputeShader, TransmittanceCS>
 	{
-		DEFINE_SHADER_PARAM( Transmittance );
+		DECLARE_SHADER_PARAM( Transmittance );
 	};
 
 	class IrradianceOneCS final : public GlobalShaderBase<ComputeShader, IrradianceOneCS>
 	{
-		DEFINE_SHADER_PARAM( TransmittanceLut );
-		DEFINE_SHADER_PARAM( TransmittanceLutSampler );
-		DEFINE_SHADER_PARAM( DeltaE );
+		DECLARE_SHADER_PARAM( TransmittanceLut );
+		DECLARE_SHADER_PARAM( TransmittanceLutSampler );
+		DECLARE_SHADER_PARAM( DeltaE );
 	};
 
 	class InscatterOneCS final : public GlobalShaderBase<ComputeShader, InscatterOneCS>
 	{
-		DEFINE_SHADER_PARAM( TransmittanceLut );
-		DEFINE_SHADER_PARAM( TransmittanceLutSampler );
-		DEFINE_SHADER_PARAM( DeltaSR );
-		DEFINE_SHADER_PARAM( DeltaSM );
+		DECLARE_SHADER_PARAM( TransmittanceLut );
+		DECLARE_SHADER_PARAM( TransmittanceLutSampler );
+		DECLARE_SHADER_PARAM( DeltaSR );
+		DECLARE_SHADER_PARAM( DeltaSM );
 	};
 
 	class CopyInscatterOneCS final : public GlobalShaderBase<ComputeShader, CopyInscatterOneCS>
 	{
-		DEFINE_SHADER_PARAM( DeltaSRLut );
-		DEFINE_SHADER_PARAM( DeltaSRLutSampler );
-		DEFINE_SHADER_PARAM( DeltaSMLut );
-		DEFINE_SHADER_PARAM( DeltaSMLutSampler );
-		DEFINE_SHADER_PARAM( Inscatter );
+		DECLARE_SHADER_PARAM( DeltaSRLut );
+		DECLARE_SHADER_PARAM( DeltaSRLutSampler );
+		DECLARE_SHADER_PARAM( DeltaSMLut );
+		DECLARE_SHADER_PARAM( DeltaSMLutSampler );
+		DECLARE_SHADER_PARAM( Inscatter );
 	};
 
 	class InscatterSCS final : public GlobalShaderBase<ComputeShader, InscatterSCS>
 	{
-		DEFINE_SHADER_PARAM( TransmittanceLut );
-		DEFINE_SHADER_PARAM( TransmittanceLutSampler );
-		DEFINE_SHADER_PARAM( DeltaELut );
-		DEFINE_SHADER_PARAM( DeltaELutSampler );
-		DEFINE_SHADER_PARAM( DeltaSRLut );
-		DEFINE_SHADER_PARAM( DeltaSRLutSampler );
-		DEFINE_SHADER_PARAM( DeltaSMLut );
-		DEFINE_SHADER_PARAM( DeltaSMLutSampler );
-		DEFINE_SHADER_PARAM( Order );
-		DEFINE_SHADER_PARAM( ThreadGroupZ );
-		DEFINE_SHADER_PARAM( DeltaJ );
+		DECLARE_SHADER_PARAM( TransmittanceLut );
+		DECLARE_SHADER_PARAM( TransmittanceLutSampler );
+		DECLARE_SHADER_PARAM( DeltaELut );
+		DECLARE_SHADER_PARAM( DeltaELutSampler );
+		DECLARE_SHADER_PARAM( DeltaSRLut );
+		DECLARE_SHADER_PARAM( DeltaSRLutSampler );
+		DECLARE_SHADER_PARAM( DeltaSMLut );
+		DECLARE_SHADER_PARAM( DeltaSMLutSampler );
+		DECLARE_SHADER_PARAM( Order );
+		DECLARE_SHADER_PARAM( ThreadGroupZ );
+		DECLARE_SHADER_PARAM( DeltaJ );
 	};
 
 	class IrradianceNCS final : public GlobalShaderBase<ComputeShader, IrradianceNCS>
 	{
-		DEFINE_SHADER_PARAM( DeltaSRLut );
-		DEFINE_SHADER_PARAM( DeltaSRLutSampler );
-		DEFINE_SHADER_PARAM( DeltaSMLut );
-		DEFINE_SHADER_PARAM( DeltaSMLutSampler );
-		DEFINE_SHADER_PARAM( Order );
-		DEFINE_SHADER_PARAM( Irradiance );
+		DECLARE_SHADER_PARAM( DeltaSRLut );
+		DECLARE_SHADER_PARAM( DeltaSRLutSampler );
+		DECLARE_SHADER_PARAM( DeltaSMLut );
+		DECLARE_SHADER_PARAM( DeltaSMLutSampler );
+		DECLARE_SHADER_PARAM( Order );
+		DECLARE_SHADER_PARAM( Irradiance );
 	};
 
 	class InscatterNCS final : public GlobalShaderBase<ComputeShader, InscatterNCS>
 	{
-		DEFINE_SHADER_PARAM( TransmittanceLut );
-		DEFINE_SHADER_PARAM( TransmittanceLutSampler );
-		DEFINE_SHADER_PARAM( DeltaJLut );
-		DEFINE_SHADER_PARAM( DeltaJLutSampler );
-		DEFINE_SHADER_PARAM( DeltaSR );
+		DECLARE_SHADER_PARAM( TransmittanceLut );
+		DECLARE_SHADER_PARAM( TransmittanceLutSampler );
+		DECLARE_SHADER_PARAM( DeltaJLut );
+		DECLARE_SHADER_PARAM( DeltaJLutSampler );
+		DECLARE_SHADER_PARAM( DeltaSR );
 	};
 
 	class CopyIrradianceCS final : public GlobalShaderBase<ComputeShader, CopyIrradianceCS>
 	{
-		DEFINE_SHADER_PARAM( DeltaELut );
-		DEFINE_SHADER_PARAM( DeltaELutSampler );
-		DEFINE_SHADER_PARAM( Irradiance );
+		DECLARE_SHADER_PARAM( DeltaELut );
+		DECLARE_SHADER_PARAM( DeltaELutSampler );
+		DECLARE_SHADER_PARAM( Irradiance );
 	};
 
 	class CopyInscatterNCS final : public GlobalShaderBase<ComputeShader, CopyInscatterNCS>
 	{
-		DEFINE_SHADER_PARAM( DeltaSRLut );
-		DEFINE_SHADER_PARAM( DeltaSRLutSampler );
-		DEFINE_SHADER_PARAM( Inscatter );
+		DECLARE_SHADER_PARAM( DeltaSRLut );
+		DECLARE_SHADER_PARAM( DeltaSRLutSampler );
+		DECLARE_SHADER_PARAM( Inscatter );
 	};
 
 	class DrawAtmospherePS final : public GlobalShaderBase<PixelShader, DrawAtmospherePS>

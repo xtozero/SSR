@@ -26,10 +26,10 @@ namespace rendercore
 		using GlobalShaderBase::GlobalShaderBase;
 
 	private:
-		DEFINE_SHADER_PARAM( CoeffR );
-		DEFINE_SHADER_PARAM( CoeffG );
-		DEFINE_SHADER_PARAM( CoeffB );
-		DEFINE_SHADER_PARAM( CoeffOcclusion );
+		DECLARE_SHADER_PARAM( CoeffR );
+		DECLARE_SHADER_PARAM( CoeffG );
+		DECLARE_SHADER_PARAM( CoeffB );
+		DECLARE_SHADER_PARAM( CoeffOcclusion );
 	};
 
 	class DownSampleRSMsCS final : public GlobalShaderBase<ComputeShader, DownSampleRSMsCS>
@@ -37,26 +37,26 @@ namespace rendercore
 		using GlobalShaderBase::GlobalShaderBase;
 
 	private:
-		DEFINE_SHADER_PARAM( LPVCommonParameters ); // b5
+		DECLARE_SHADER_PARAM( LPVCommonParameters ); // b5
 
-		DEFINE_SHADER_PARAM( RSMsDimensions );
-		DEFINE_SHADER_PARAM( KernelSize );
-		DEFINE_SHADER_PARAM( ToLightDir );
+		DECLARE_SHADER_PARAM( RSMsDimensions );
+		DECLARE_SHADER_PARAM( KernelSize );
+		DECLARE_SHADER_PARAM( ToLightDir );
 
-		DEFINE_SHADER_PARAM( RSMsNormal );
-		DEFINE_SHADER_PARAM( RSMsWorldPosition );
-		DEFINE_SHADER_PARAM( RSMsFlux );
+		DECLARE_SHADER_PARAM( RSMsNormal );
+		DECLARE_SHADER_PARAM( RSMsWorldPosition );
+		DECLARE_SHADER_PARAM( RSMsFlux );
 
-		DEFINE_SHADER_PARAM( OutRSMsNormal );
-		DEFINE_SHADER_PARAM( OutRSMsWorldPosition );
-		DEFINE_SHADER_PARAM( OutRSMsFlux );
+		DECLARE_SHADER_PARAM( OutRSMsNormal );
+		DECLARE_SHADER_PARAM( OutRSMsWorldPosition );
+		DECLARE_SHADER_PARAM( OutRSMsFlux );
 	};
 
 	class LightInjectionVS final : public GlobalShaderBase<VertexShader, LightInjectionVS>
 	{
 	private:
-		DEFINE_SHADER_PARAM( RSMsDimensions );
-		DEFINE_SHADER_PARAM( SurfelArea );
+		DECLARE_SHADER_PARAM( RSMsDimensions );
+		DECLARE_SHADER_PARAM( SurfelArea );
 	};
 
 	class LightInjectionGS final : public GlobalShaderBase<GeometryShader, LightInjectionGS>
@@ -68,8 +68,8 @@ namespace rendercore
 	class GeometryInjectionVS final : public GlobalShaderBase<VertexShader, GeometryInjectionVS>
 	{
 	private:
-		DEFINE_SHADER_PARAM( RSMsDimensions );
-		DEFINE_SHADER_PARAM( LightDirection );
+		DECLARE_SHADER_PARAM( RSMsDimensions );
+		DECLARE_SHADER_PARAM( LightDirection );
 	};
 
 	class GeometryInjectionGS final : public GlobalShaderBase<GeometryShader, GeometryInjectionGS>
@@ -81,19 +81,19 @@ namespace rendercore
 	class LightPropagationCS final : public GlobalShaderBase<ComputeShader, LightPropagationCS>
 	{
 	private:
-		DEFINE_SHADER_PARAM( LPVCommonParameters ); // b5
+		DECLARE_SHADER_PARAM( LPVCommonParameters ); // b5
 
-		DEFINE_SHADER_PARAM( CoeffR );
-		DEFINE_SHADER_PARAM( CoeffG );
-		DEFINE_SHADER_PARAM( CoeffB );
-		DEFINE_SHADER_PARAM( OutCoeffR );
-		DEFINE_SHADER_PARAM( OutCoeffG );
-		DEFINE_SHADER_PARAM( OutCoeffB );
+		DECLARE_SHADER_PARAM( CoeffR );
+		DECLARE_SHADER_PARAM( CoeffG );
+		DECLARE_SHADER_PARAM( CoeffB );
+		DECLARE_SHADER_PARAM( OutCoeffR );
+		DECLARE_SHADER_PARAM( OutCoeffG );
+		DECLARE_SHADER_PARAM( OutCoeffB );
 
-		DEFINE_SHADER_PARAM( CoeffOcclusion );
-		DEFINE_SHADER_PARAM( BlackBorderLinearSampler );
+		DECLARE_SHADER_PARAM( CoeffOcclusion );
+		DECLARE_SHADER_PARAM( BlackBorderLinearSampler );
 
-		DEFINE_SHADER_PARAM( InterationCount );
+		DECLARE_SHADER_PARAM( InterationCount );
 	};
 
 	class RenderLpvPS final : public GlobalShaderBase<PixelShader, RenderLpvPS>

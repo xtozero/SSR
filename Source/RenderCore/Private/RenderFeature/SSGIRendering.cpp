@@ -17,23 +17,23 @@ namespace rendercore
 
 	class SSGIPassCS final : public GlobalShaderBase<ComputeShader, SSGIPassCS>
 	{
-		DEFINE_SHADER_PARAM( SceneViewParameters );
+		DECLARE_SHADER_PARAM( SceneViewParameters );
 
-		DEFINE_SHADER_PARAM( SceneColor );
-		DEFINE_SHADER_PARAM( ViewSpaceDistance );
-		DEFINE_SHADER_PARAM( WorldNormal );
+		DECLARE_SHADER_PARAM( SceneColor );
+		DECLARE_SHADER_PARAM( ViewSpaceDistance );
+		DECLARE_SHADER_PARAM( WorldNormal );
 
-		DEFINE_SHADER_PARAM( BlackBorderSampler );
+		DECLARE_SHADER_PARAM( BlackBorderSampler );
 
-		DEFINE_SHADER_PARAM( SSGI );
+		DECLARE_SHADER_PARAM( SSGI );
 
-		DEFINE_SHADER_PARAM( Thickness );
-		DEFINE_SHADER_PARAM( ViewSpaceRadius );
-		DEFINE_SHADER_PARAM( NumSlices );
-		DEFINE_SHADER_PARAM( NumSteps );
-		DEFINE_SHADER_PARAM( ScreenSize );
-		DEFINE_SHADER_PARAM( InvScreenSize );
-		DEFINE_SHADER_PARAM( ColorIntensity );
+		DECLARE_SHADER_PARAM( Thickness );
+		DECLARE_SHADER_PARAM( ViewSpaceRadius );
+		DECLARE_SHADER_PARAM( NumSlices );
+		DECLARE_SHADER_PARAM( NumSteps );
+		DECLARE_SHADER_PARAM( ScreenSize );
+		DECLARE_SHADER_PARAM( InvScreenSize );
+		DECLARE_SHADER_PARAM( ColorIntensity );
 	};
 
 	class SSGICompositeVS final : public GlobalShaderBase<VertexShader, SSGICompositeVS>

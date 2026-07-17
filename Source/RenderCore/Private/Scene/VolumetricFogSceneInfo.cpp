@@ -26,36 +26,36 @@ namespace rendercore
 		using PermutationType = ShaderPermutation<EnableESMDim>;
 
 	private:
-		DEFINE_SHADER_PARAM( AsymmetryParameterG );
-		DEFINE_SHADER_PARAM( UniformDensity );
-		DEFINE_SHADER_PARAM( Intensity );
-		DEFINE_SHADER_PARAM( TemporalAccum );
-		DEFINE_SHADER_PARAM( ShadowBias );
+		DECLARE_SHADER_PARAM( AsymmetryParameterG );
+		DECLARE_SHADER_PARAM( UniformDensity );
+		DECLARE_SHADER_PARAM( Intensity );
+		DECLARE_SHADER_PARAM( TemporalAccum );
+		DECLARE_SHADER_PARAM( ShadowBias );
 
-		DEFINE_SHADER_PARAM( FrustumVolume );
+		DECLARE_SHADER_PARAM( FrustumVolume );
 
-		DEFINE_SHADER_PARAM( SceneViewParameters );
+		DECLARE_SHADER_PARAM( SceneViewParameters );
 
-		DEFINE_SHADER_PARAM( ForwardLightConstant );
-		DEFINE_SHADER_PARAM( ForwardLight );
+		DECLARE_SHADER_PARAM( ForwardLightConstant );
+		DECLARE_SHADER_PARAM( ForwardLight );
 
-		DEFINE_SHADER_PARAM( ShadowTexture );
-		DEFINE_SHADER_PARAM( ShadowSampler );
-		DEFINE_SHADER_PARAM( ShadowDepthPassParameters );
-		DEFINE_SHADER_PARAM( ESMsParameters );
+		DECLARE_SHADER_PARAM( ShadowTexture );
+		DECLARE_SHADER_PARAM( ShadowSampler );
+		DECLARE_SHADER_PARAM( ShadowDepthPassParameters );
+		DECLARE_SHADER_PARAM( ESMsParameters );
 
-		DEFINE_SHADER_PARAM( VolumetricFogParameterBuffer );
+		DECLARE_SHADER_PARAM( VolumetricFogParameterBuffer );
 
-		DEFINE_SHADER_PARAM( HistoryVolume );
-		DEFINE_SHADER_PARAM( HistorySampler );
+		DECLARE_SHADER_PARAM( HistoryVolume );
+		DECLARE_SHADER_PARAM( HistorySampler );
 	};
 
 	class AccumulateScatteringCS final : public GlobalShaderBase<ComputeShader, AccumulateScatteringCS>
 	{
-		DEFINE_SHADER_PARAM( FrustumVolume );
-		DEFINE_SHADER_PARAM( AccumulatedVolume );
+		DECLARE_SHADER_PARAM( FrustumVolume );
+		DECLARE_SHADER_PARAM( AccumulatedVolume );
 
-		DEFINE_SHADER_PARAM( VolumetricFogParameterBuffer );
+		DECLARE_SHADER_PARAM( VolumetricFogParameterBuffer );
 	};
 
 	REGISTER_GLOBAL_SHADER( InscatteringCS, "VolumetricFog/CS_Inscattering.fx", "main" );

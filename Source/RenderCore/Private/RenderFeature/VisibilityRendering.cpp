@@ -10,58 +10,58 @@ namespace rendercore
     class InitCounterCS final : public GlobalShaderBase<ComputeShader,  InitCounterCS>
     {
     private:
-        DEFINE_SHADER_PARAM( Counter );
-        DEFINE_SHADER_PARAM( IndirectArgs );
+        DECLARE_SHADER_PARAM( Counter );
+        DECLARE_SHADER_PARAM( IndirectArgs );
 
-        DEFINE_SHADER_PARAM( NumDrawCallIds );
+        DECLARE_SHADER_PARAM( NumDrawCallIds );
     };
 
     class CountDrawCallIdCS final : public GlobalShaderBase<ComputeShader, CountDrawCallIdCS>
     {
     private:
-        DEFINE_SHADER_PARAM( Visibility );
-        DEFINE_SHADER_PARAM( Counter );
+        DECLARE_SHADER_PARAM( Visibility );
+        DECLARE_SHADER_PARAM( Counter );
 
-        DEFINE_SHADER_PARAM( ScreenSize );
+        DECLARE_SHADER_PARAM( ScreenSize );
     };
 
     class InitPrefixSumBufferCS final : public GlobalShaderBase<ComputeShader, InitPrefixSumBufferCS>
     {
     private:
-        DEFINE_SHADER_PARAM( BlockId );
-        DEFINE_SHADER_PARAM( BlockStatus );
+        DECLARE_SHADER_PARAM( BlockId );
+        DECLARE_SHADER_PARAM( BlockStatus );
 
-        DEFINE_SHADER_PARAM( NumBlocks );
+        DECLARE_SHADER_PARAM( NumBlocks );
     };
 
     class PrefixSumCS final : public GlobalShaderBase<ComputeShader, PrefixSumCS>
     {
-        DEFINE_SHADER_PARAM( Input );
+        DECLARE_SHADER_PARAM( Input );
 
-        DEFINE_SHADER_PARAM( BlockId );
-        DEFINE_SHADER_PARAM( BlockStatus );
+        DECLARE_SHADER_PARAM( BlockId );
+        DECLARE_SHADER_PARAM( BlockStatus );
 
-        DEFINE_SHADER_PARAM( Output );
+        DECLARE_SHADER_PARAM( Output );
 
-        DEFINE_SHADER_PARAM( NumItems );
+        DECLARE_SHADER_PARAM( NumItems );
     };
 
     class BuildWorkListCS final : public GlobalShaderBase<ComputeShader, BuildWorkListCS>
     {
-        DEFINE_SHADER_PARAM( Visibility );
-        DEFINE_SHADER_PARAM( Offset );
+        DECLARE_SHADER_PARAM( Visibility );
+        DECLARE_SHADER_PARAM( Offset );
 
-        DEFINE_SHADER_PARAM( IndirectArgs );
-        DEFINE_SHADER_PARAM( WorkList );
+        DECLARE_SHADER_PARAM( IndirectArgs );
+        DECLARE_SHADER_PARAM( WorkList );
 
-        DEFINE_SHADER_PARAM( ScreenSize );
+        DECLARE_SHADER_PARAM( ScreenSize );
     };
 
     class FinalizeIndirectArgsCS final : public GlobalShaderBase<ComputeShader, FinalizeIndirectArgsCS>
     {
-        DEFINE_SHADER_PARAM( IndirectArgs );
+        DECLARE_SHADER_PARAM( IndirectArgs );
 
-        DEFINE_SHADER_PARAM( NumDrawCallIds );
+        DECLARE_SHADER_PARAM( NumDrawCallIds );
     };
 
     REGISTER_GLOBAL_SHADER( InitCounterCS, "Visibility/CS_InitCounter.fx", "main" );

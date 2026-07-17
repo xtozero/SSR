@@ -49,12 +49,12 @@ namespace rendercore
 
 	class EditorOutlineCS : public GlobalShaderBase<ComputeShader, EditorOutlineCS>
 	{
-		DEFINE_SHADER_PARAM( OutlineColor );
-		DEFINE_SHADER_PARAM( OutlineWidth );
-		DEFINE_SHADER_PARAM( ScreenSize );
+		DECLARE_SHADER_PARAM( OutlineColor );
+		DECLARE_SHADER_PARAM( OutlineWidth );
+		DECLARE_SHADER_PARAM( ScreenSize );
 
-		DEFINE_SHADER_PARAM( OutlineMask );
-		DEFINE_SHADER_PARAM( SceneColor );
+		DECLARE_SHADER_PARAM( OutlineMask );
+		DECLARE_SHADER_PARAM( SceneColor );
 	};
 
     REGISTER_GLOBAL_SHADER( EditorOutlineMaskingVS, "Common/EditorOutline.fx", "VSMain" );

@@ -74,7 +74,7 @@ namespace rendercore
 {
 	class QueryLaneCountCS final : public GlobalShaderBase<ComputeShader, QueryLaneCountCS>
 	{
-		DEFINE_SHADER_PARAM( LaneCount );
+		DECLARE_SHADER_PARAM( LaneCount );
 	};
 
 	REGISTER_GLOBAL_SHADER( QueryLaneCountCS, "Visibility/CS_QueryLaneCount.fx", "main" );

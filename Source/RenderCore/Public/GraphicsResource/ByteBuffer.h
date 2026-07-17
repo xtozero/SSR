@@ -17,10 +17,10 @@ namespace rendercore
 	public:
 		static constexpr uint32 ThreadGroupX = 64;
 
-		DEFINE_SHADER_PARAM( NumDistribution );
-		DEFINE_SHADER_PARAM( Src );
-		DEFINE_SHADER_PARAM( Distributer );
-		DEFINE_SHADER_PARAM( Dest );
+		DECLARE_SHADER_PARAM( NumDistribution );
+		DECLARE_SHADER_PARAM( Src );
+		DECLARE_SHADER_PARAM( Distributer );
+		DECLARE_SHADER_PARAM( Dest );
 	};
 
 	class GpuMemcpy

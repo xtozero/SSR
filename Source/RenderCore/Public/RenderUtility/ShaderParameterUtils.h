@@ -128,7 +128,7 @@ namespace rendercore
 	}
 }
 
-#define DEFINE_SHADER_PARAM( paramName ) \
+#define DECLARE_SHADER_PARAM( paramName ) \
 public:	\
 	const agl::ShaderParameter& paramName##() const \
 	{ \

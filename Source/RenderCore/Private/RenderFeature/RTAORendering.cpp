@@ -47,20 +47,20 @@ namespace rendercore
 {
     class RTAORayGen : public GlobalShaderBase<RayGenerationShader, RTAORayGen>
     {
-        DEFINE_SHADER_PARAM( SceneViewParameters );
+        DECLARE_SHADER_PARAM( SceneViewParameters );
 
-        DEFINE_SHADER_PARAM( AccelerationStructure );
+        DECLARE_SHADER_PARAM( AccelerationStructure );
 
-        DEFINE_SHADER_PARAM( ViewSpaceDistance );
-        DEFINE_SHADER_PARAM( WorldNormal );
+        DECLARE_SHADER_PARAM( ViewSpaceDistance );
+        DECLARE_SHADER_PARAM( WorldNormal );
 
-        DEFINE_SHADER_PARAM( BlackBorderSampler );
+        DECLARE_SHADER_PARAM( BlackBorderSampler );
 
-        DEFINE_SHADER_PARAM( AmbientOcclusion );
+        DECLARE_SHADER_PARAM( AmbientOcclusion );
 
-        DEFINE_SHADER_PARAM( SampleCount );
-        DEFINE_SHADER_PARAM( AORadius );
-        DEFINE_SHADER_PARAM( AOIntensity );
+        DECLARE_SHADER_PARAM( SampleCount );
+        DECLARE_SHADER_PARAM( AORadius );
+        DECLARE_SHADER_PARAM( AOIntensity );
     };
 
     class RTAOClosestHit : public GlobalShaderBase<ClosestHitShader, RTAOClosestHit>

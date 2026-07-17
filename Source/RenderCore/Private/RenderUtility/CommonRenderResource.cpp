@@ -100,24 +100,24 @@ namespace rendercore
 	class PrecomputedBrdfCS final : public GlobalShaderBase<ComputeShader, PrecomputedBrdfCS>
 	{
 	private:
-		DEFINE_SHADER_PARAM( Precomputed );
+		DECLARE_SHADER_PARAM( Precomputed );
 	};
 
 	class DenoiseCS final : public GlobalShaderBase<ComputeShader, DenoiseCS>
 	{
-		DEFINE_SHADER_PARAM( PrevImage );
-		DEFINE_SHADER_PARAM( Image );
-		DEFINE_SHADER_PARAM( PrevViewSpaceDistance );
-		DEFINE_SHADER_PARAM( ViewSpaceDistance );
-		DEFINE_SHADER_PARAM( Velocity );
+		DECLARE_SHADER_PARAM( PrevImage );
+		DECLARE_SHADER_PARAM( Image );
+		DECLARE_SHADER_PARAM( PrevViewSpaceDistance );
+		DECLARE_SHADER_PARAM( ViewSpaceDistance );
+		DECLARE_SHADER_PARAM( Velocity );
 
-		DEFINE_SHADER_PARAM( Sampler );
+		DECLARE_SHADER_PARAM( Sampler );
 
-		DEFINE_SHADER_PARAM( Denoised );
+		DECLARE_SHADER_PARAM( Denoised );
 
-		DEFINE_SHADER_PARAM( KernelRadius );
-		DEFINE_SHADER_PARAM( ScreenSize );
-		DEFINE_SHADER_PARAM( InvScreenSize );
+		DECLARE_SHADER_PARAM( KernelRadius );
+		DECLARE_SHADER_PARAM( ScreenSize );
+		DECLARE_SHADER_PARAM( InvScreenSize );
 	};
 
 	REGISTER_GLOBAL_SHADER( FullScreenQuadVS, "Common/VS_FullScreenQuad.fx", "main" );
