@@ -5,9 +5,9 @@
 
 namespace agl
 {
-	RefHandle<Canvas> Canvas::Create( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& clearColor )
+	RefHandle<Canvas> Canvas::Create( uint32 width, uint32 height, const engine::PlatformWindowContext& windowCtx, ResourceFormat format, const float4& clearColor )
 	{
-		RefHandle<Canvas> newCanvas = GetInterface<IResourceManager>()->CreateCanvas( width, height, hWnd, format, clearColor );
+		RefHandle<Canvas> newCanvas = GetInterface<IResourceManager>()->CreateCanvas( width, height, windowCtx, format, clearColor );
 		EnqueueRenderTask(
 			[canvas = newCanvas]()
 			{

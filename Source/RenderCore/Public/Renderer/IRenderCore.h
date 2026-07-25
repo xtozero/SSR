@@ -17,7 +17,7 @@ namespace rendercore
 	class IRenderCore
 	{
 	public:
-		virtual bool BootUp() = 0;
+		virtual bool BootUp( const engine::PlatformWindowContext& windowCtx ) = 0;
 		virtual bool IsReady() const = 0;
 
 		virtual void ReloadShaders() = 0;

@@ -58,13 +58,14 @@ namespace logic
 			return false;
 		}
 
-		m_wndHwnd = platform.GetRawHandle<HWND>();
+		m_windowCtx.m_nativeContext = platform.GetRawInstance<HINSTANCE>();
+		m_windowCtx.m_nativeWindow = platform.GetRawHandle<HWND>();
 		srand( static_cast<uint32>( time( nullptr ) ) );
 
 		m_appSize = platform.GetSize();
 		UtilWindowInfo::GetInstance().SetRect( m_appSize.first, m_appSize.second );
 
-		if ( m_pRenderCore->BootUp() == false )
+		if ( m_pRenderCore->BootUp( m_windowCtx ) == false )
 		{
 			return false;
 		}
@@ -311,7 +312,7 @@ namespace logic
 		m_canvas = std::make_unique<rendercore::Canvas>(
 			m_appSize.first,
 			m_appSize.second,
-			m_wndHwnd,
+			m_windowCtx,
 			agl::ResourceFormat::R8G8B8A8_UNORM,
 			rendercore::DefaultRenderCore::GetDefaultBackgroundColor() );
 

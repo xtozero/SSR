@@ -52,6 +52,11 @@ namespace app
 		Window( const std::string& title, uint32 style = WS_OVERLAPPEDWINDOW ) noexcept;
 
 	private:
+		virtual void* GetRawInstanceImple() const noexcept override
+		{
+			return m_hInstance;
+		}
+
 		virtual void* GetRawHandleImple() const noexcept override
 		{
 			return m_hwnd;
@@ -59,6 +64,7 @@ namespace app
 
 		std::string m_wndTitle = "default window";
 		uint32 m_style = 0;
+		HINSTANCE m_hInstance = nullptr;
 		HWND m_hwnd = nullptr;
 
 		uint32 m_width = 0;

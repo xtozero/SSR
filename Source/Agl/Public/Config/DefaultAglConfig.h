@@ -15,6 +15,8 @@ namespace agl
 		AGL_DLL static uint32 GetBufferCount();
 		AGL_DLL static bool SupportsBindless();
 		static bool IsGpuValidationEnabled();
+		AGL_DLL static bool UseVSync();
+		AGL_DLL static bool AllowTearing();
 		
 	private:
 		PROPERTY( type )
@@ -28,5 +30,11 @@ namespace agl
 
 		PROPERTY( gpuValidationEnabled )
 		bool m_gpuValidationEnabled = false;
+
+		PROPERTY( useVSync )
+		bool m_useVSync = false;
+
+		PROPERTY( allowTearing )
+		bool m_allowTearing = false;
 	};
 }

@@ -16,6 +16,12 @@ namespace engine
 		virtual void ReleaseCapture() = 0;
 
 		template <typename RT>
+		RT GetRawInstance()
+		{
+			return static_cast<RT>( GetRawInstanceImple() );
+		}
+
+		template <typename RT>
 		RT GetRawHandle()
 		{
 			return static_cast<RT>( GetRawHandleImple() );
@@ -24,6 +30,7 @@ namespace engine
 		virtual ~IPlatform() = default;
 
 	private:
+		virtual void* GetRawInstanceImple() const noexcept = 0;
 		virtual void* GetRawHandleImple() const noexcept = 0;
 	};
 }

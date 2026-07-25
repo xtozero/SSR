@@ -28,7 +28,6 @@
 #if _WIN64
 #include <optional>
 #include <shlobj.h>
-#pragma comment(lib, "WinPixEventRuntime.lib")
 #endif
 
 namespace
@@ -82,7 +81,7 @@ namespace rendercore
 	class RenderCore final : public IRenderCore
 	{
 	public:
-		virtual bool BootUp() override;
+		virtual bool BootUp( const engine::PlatformWindowContext& windowCtx ) override;
 		virtual bool IsReady() const override;
 
 		virtual void ReloadShaders() override;
@@ -136,7 +135,7 @@ namespace rendercore
 		delete pRenderCore;
 	}
 
-	bool RenderCore::BootUp()
+	bool RenderCore::BootUp( const engine::PlatformWindowContext& windowCtx )
 	{
 #if _WIN64
 		if ( DefaultRenderCore::IsPIXEnabled() )
@@ -163,7 +162,7 @@ namespace rendercore
 			return false;
 		}
 
-		if ( m_agl->BootUp() == false )
+		if ( m_agl->BootUp( windowCtx ) == false )
 		{
 			return false;
 		}
@@ -357,8 +356,8 @@ namespace rendercore
 					CPU_PROFILE( Present );
 					uint32 oldBackBufferIndex = canvas.GetBackBufferIndex();
 
-					bool useVSync = DefaultRenderCore::UseVSync();
-					bool allowTearing = DefaultRenderCore::AllowTearing();
+					bool useVSync = agl::DefaultAgl::UseVSync();
+					bool allowTearing = agl::DefaultAgl::AllowTearing();
 					canvas.Present( useVSync, allowTearing );
 
 					uint32 curBackBufferIndex = canvas.GetBackBufferIndex();

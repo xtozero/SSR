@@ -17,7 +17,7 @@
 
 #include "DxgiSwapchain.h"
 
-#include "EnumStringMap.h"
+#include "Platform/WindowPlatformEngine.h"
 
 #include "Texture.h"
 
@@ -196,9 +196,9 @@ namespace agl
 		return pipelineState;
 	}
 
-	Canvas* D3D11ResourceManager::CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& clearColor ) const
+	Canvas* D3D11ResourceManager::CreateCanvas( uint32 width, uint32 height, const engine::PlatformWindowContext& windowCtx, ResourceFormat format, const float4& clearColor ) const
 	{
-		return new DxgiSwapchain<AglType::D3D11>( D3D11Device(), D3D11Factory(), width, height, 1, hWnd, ConvertFormatToDxgiFormat( format ), clearColor );
+		return new DxgiSwapchain<AglType::D3D11>( D3D11Device(), D3D11Factory(), width, height, 1, windowCtx.m_nativeWindow, ConvertFormatToDxgiFormat( format ), clearColor );
 	}
 
 	Viewport* D3D11ResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) const

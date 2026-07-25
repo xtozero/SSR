@@ -3,6 +3,8 @@ add_definitions(-DUNICODE=1)
 add_definitions(-D_UNICODE=1)
 add_definitions(-DNOMINMAX=1)
 
+find_package(Vulkan QUIET)
+
 set (COMMON_HEADER
 	Public/Common/GraphicsApiResource.h
 	Public/Common/IAgl.h
@@ -173,6 +175,25 @@ set (RENDER_RESOURCE_SOURCE
 	Private/RenderResource/ShaderResource.cpp
 	Private/RenderResource/Texture.cpp
 	Private/RenderResource/Viewport.cpp)
+	
+set (VULKAN_SOURCE
+	Public/Vulkan/VulkanApi.h
+	Private/Vulkan/VulkanApi.cpp)
+
+set (VULKAN_RENDER_RESOURCE_HEADER
+	Public/Vulkan/VulkanBuffer.h
+	Public/Vulkan/VulkanFlagConverter.h
+	Public/Vulkan/VulkanResourceManager.h
+	Public/Vulkan/VulkanSamplerState.h
+	Public/Vulkan/VulkanSwapchain.h
+	Public/Vulkan/VulkanTexture.h)
+
+set (VULKAN_RENDER_RESOURCE_SOURCE
+	Private/Vulkan/VulkanBuffer.cpp
+	Private/Vulkan/VulkanResourceManager.cpp
+	Private/Vulkan/VulkanSamplerState.cpp
+	Private/Vulkan/VulkanSwapchain.cpp
+	Private/Vulkan/VulkanTexture.cpp)
 
 source_group("Config" FILES ${CONFIG_HEADER} ${CONFIG_SOURCE})
 source_group("Direct11\\RenderResource" FILES ${D3D11_RENDER_RESOURCE_HEADER} ${D3D11_RENDER_RESOURCE_SOURCE})
@@ -185,6 +206,8 @@ source_group("DXC" FILES ${DXC_SOURCE})
 source_group("DXGI" FILES ${DXGI_SOURCE})
 source_group("RenderCommon" FILES ${COMMON_HEADER} ${COMMON_SOURCE})
 source_group("RenderResource" FILES ${RENDER_RESOURCE_HEADER} ${RENDER_RESOURCE_SOURCE})
+source_group("Vulkan" FILES ${VULKAN_SOURCE})
+source_group("Vulkan\\RenderResource" FILES ${VULKAN_RENDER_RESOURCE_HEADER} ${VULKAN_RENDER_RESOURCE_SOURCE})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -260,6 +283,32 @@ PUBLIC
 PRIVATE
 	${D3D11_RENDER_RESOURCE_HEADER}
 	${D3D12_RENDER_RESOURCE_HEADER})
+
+if(Vulkan_FOUND)
+target_link_libraries(Agl
+PRIVATE
+	Vulkan::Vulkan)
+
+target_sources(Agl
+PUBLIC
+PRIVATE
+	${VULKAN_RENDER_RESOURCE_HEADER}
+	${VULKAN_RENDER_RESOURCE_SOURCE}
+	${VULKAN_SOURCE})
+
+target_include_directories(Agl
+PUBLIC
+PRIVATE
+	./Public/Vulkan)
+
+target_compile_definitions(Agl
+PRIVATE
+	HAS_VULKAN)
+
+target_precompile_headers(Agl
+PRIVATE
+	${VULKAN_RENDER_RESOURCE_HEADER})
+endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 add_custom_command(TARGET Agl POST_BUILD

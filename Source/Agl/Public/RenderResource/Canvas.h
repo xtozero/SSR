@@ -11,7 +11,7 @@ namespace agl
 	class Canvas : public GraphicsApiResource
 	{
 	public:
-		AGL_DLL static RefHandle<Canvas> Create( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& clearColor );
+		AGL_DLL static RefHandle<Canvas> Create( uint32 width, uint32 height, const engine::PlatformWindowContext& windowCtx, ResourceFormat format, const float4& clearColor );
 
 		virtual void OnBeginFrameRendering() = 0;
 		virtual void OnEndFrameRendering() = 0;

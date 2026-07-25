@@ -39,6 +39,11 @@ namespace
 		virtual void ReleaseCapture() override {}
 
 	private:
+		virtual void* GetRawInstanceImple() const noexcept override
+		{
+			return nullptr;
+		}
+
 		virtual void* GetRawHandleImple() const noexcept override
 		{
 			return nullptr;

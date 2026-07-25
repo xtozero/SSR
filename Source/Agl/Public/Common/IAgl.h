@@ -2,11 +2,11 @@
 
 #include "GraphicsApiResource.h"
 #include "ICommandList.h"
+#include "Platform/PlatformTypes.h"
 #include "ShaderResource.h"
 #include "SizedTypes.h"
 
 #include <filesystem>
-#include <memory>
 
 class BinaryChunk;
 
@@ -20,7 +20,8 @@ namespace agl
 	enum class AglType : uint8
 	{
 		D3D11 = 0,
-		D3D12
+		D3D12,
+		Vulkan
 	};
 
 	enum class QueueType : uint8
@@ -34,7 +35,7 @@ namespace agl
 	public:
 		virtual AglType GetType() const = 0;
 
-		virtual bool BootUp() = 0;
+		virtual bool BootUp( const engine::PlatformWindowContext& windowCtx ) = 0;
 		virtual void OnShutdown() = 0;
 
 		virtual void HandleDeviceLost() = 0;

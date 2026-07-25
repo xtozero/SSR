@@ -6,6 +6,7 @@
 #include "ILogic.h"
 #include "Physics/BoundingSphere.h"
 #include "Physics/CollideBroad.h"
+#include "Platform/PlatformTypes.h"
 #include "Scene/SSRManager.h"
 #include "SizedTypes.h"
 #include "UserInput/Controller.h"
@@ -65,7 +66,7 @@ namespace logic
 
 		HMODULE m_renderCoreDll = nullptr;
 
-		HWND	m_wndHwnd = nullptr;
+		engine::PlatformWindowContext m_windowCtx;
 		std::pair<uint32, uint32> m_appSize;
 
 		std::unique_ptr<InputController> m_inputController;

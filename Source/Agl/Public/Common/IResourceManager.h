@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GraphicsApiResource.h"
+#include "Platform/PlatformTypes.h"
 #include "SizedTypes.h"
 
 #include <map>
@@ -69,7 +70,7 @@ namespace agl
 		virtual GraphicsPipelineState* CreatePipelineState( const GraphicsPipelineStateDesc& desc ) = 0;
 		virtual ComputePipelineState* CreatePipelineState( const ComputePipelineStateDesc& desc ) = 0;
 
-		virtual Canvas* CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& clearColor ) const = 0;
+		virtual Canvas* CreateCanvas( uint32 width, uint32 height, const engine::PlatformWindowContext& windowCtx, ResourceFormat format, const float4& clearColor ) const = 0;
 
 		virtual Viewport* CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) const = 0;
 		virtual Viewport* CreateViewport( Canvas& canvas ) const = 0;

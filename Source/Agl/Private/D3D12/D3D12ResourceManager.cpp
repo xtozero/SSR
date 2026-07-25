@@ -1,5 +1,7 @@
 #include "D3D12ResourceManager.h"
 
+#include "AccelerationStructure.h"
+
 #include "Config/DefaultAglConfig.h"
 
 #include "D3D12Api.h"
@@ -20,10 +22,10 @@
 #include "DxgiFlagConvertor.h"
 #include "DxgiSwapchain.h"
 
+#include "Platform/WindowPlatformEngine.h"
+
 #include <cassert>
 #include <directx/d3dx12_pipeline_state_stream.h>
-
-#include "AccelerationStructure.h"
 
 namespace agl
 {
@@ -205,9 +207,9 @@ namespace agl
 		return pipelineState;
 	}
 
-	Canvas* D3D12ResourceManager::CreateCanvas( uint32 width, uint32 height, void* hWnd, ResourceFormat format, const float4& clearColor ) const
+	Canvas* D3D12ResourceManager::CreateCanvas( uint32 width, uint32 height, const engine::PlatformWindowContext& windowCtx, ResourceFormat format, const float4& clearColor ) const
 	{
-		return new DxgiSwapchain<AglType::D3D12>( D3D12DirectCommandQueue(), D3D12Factory(), width, height, DefaultAgl::GetBufferCount(), hWnd, ConvertFormatToDxgiFormat( format ), clearColor );
+		return new DxgiSwapchain<AglType::D3D12>( D3D12DirectCommandQueue(), D3D12Factory(), width, height, DefaultAgl::GetBufferCount(), windowCtx.m_nativeWindow, ConvertFormatToDxgiFormat( format ), clearColor );
 	}
 
 	Viewport* D3D12ResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) const

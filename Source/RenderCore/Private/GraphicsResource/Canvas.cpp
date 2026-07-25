@@ -92,9 +92,9 @@ namespace rendercore
 		return 0;
 	}
 
-	Canvas::Canvas( uint32 width, uint32 height, void* hWnd, agl::ResourceFormat format, const float4& clearColor )
+	Canvas::Canvas( uint32 width, uint32 height, const engine::PlatformWindowContext& windowCtx, agl::ResourceFormat format, const float4& clearColor )
 	{
-		m_canvas = agl::Canvas::Create( width, height, hWnd, format, clearColor );
+		m_canvas = agl::Canvas::Create( width, height, windowCtx, format, clearColor );
 	}
 
 	Canvas::~Canvas() = default;

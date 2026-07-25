@@ -620,10 +620,15 @@ namespace rendercore
 
 	void ImguiRenderer::CreateMultiViewportCanvas( ImGuiViewport& viewport )
 	{
+		engine::PlatformWindowContext windowCtx = {
+			.m_nativeWindow = static_cast<HWND>( viewport.PlatformHandle ),
+			.m_nativeContext = nullptr,
+		};
+
 		auto canvas = std::make_shared<Canvas>(
 			static_cast<uint32>( viewport.Size.x ),
 			static_cast<uint32>( viewport.Size.y ),
-			viewport.PlatformHandle,
+			windowCtx,
 			agl::ResourceFormat::R8G8B8A8_UNORM,
 			DefaultRenderCore::GetDefaultBackgroundColor() );
 
@@ -661,8 +666,8 @@ namespace rendercore
 
 	void ImguiRenderer::SwapMultiViewportBuffers()
 	{
-		bool useVSync = DefaultRenderCore::UseVSync();
-		bool allowTearing = DefaultRenderCore::AllowTearing();
+		bool useVSync = agl::DefaultAgl::UseVSync();
+		bool allowTearing = agl::DefaultAgl::AllowTearing();
 
 		for ( size_t i = 1; i < m_imguiDrawInfo.size(); ++i )
 		{

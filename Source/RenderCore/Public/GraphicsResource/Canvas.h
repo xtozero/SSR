@@ -2,6 +2,7 @@
 
 #include "ColorTypes.h"
 #include "GraphicsApiResource.h"
+#include "Platform/PlatformTypes.h"
 
 namespace agl
 {
@@ -31,7 +32,7 @@ namespace rendercore
 		RENDERCORE_DLL uint32 GetBackBufferIndex() const;
 
 		RENDERCORE_DLL Canvas() = default;
-		RENDERCORE_DLL Canvas( uint32 width, uint32 height, void* hWnd, agl::ResourceFormat format, const float4& clearColor );
+		RENDERCORE_DLL Canvas( uint32 width, uint32 height, const engine::PlatformWindowContext& windowCtx, agl::ResourceFormat format, const float4& clearColor );
 		RENDERCORE_DLL ~Canvas();
 
 	private:

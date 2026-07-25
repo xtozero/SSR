@@ -20,9 +20,6 @@ namespace rendercore
 		GENERATE_CLASS_TYPE_INFO( DefaultRenderCore );
 
 	public:
-		static bool UseVSync();
-		static bool AllowTearing();
-
 		RENDERCORE_DLL static const float4& GetDefaultBackgroundColor();
 
 		static bool IsPIXEnabled();
@@ -49,12 +46,6 @@ namespace rendercore
 		static bool SupportsVisibilityRendering();
 
 	private:
-		PROPERTY( useVSync )
-		bool m_useVSync = false;
-
-		PROPERTY( allowTearing )
-		bool m_allowTearing = false;
-
 		PROPERTY( defaultBackgroundColor )
 		float4 m_defaultBackgroundColor = {};
 

@@ -2,6 +2,16 @@
 
 namespace agl
 {
+	bool DefaultAgl::UseVSync()
+	{
+		return GetInstance().m_useVSync;
+	}
+
+	bool DefaultAgl::AllowTearing()
+	{
+		return GetInstance().m_allowTearing;
+	}
+
 	AglType DefaultAgl::GetType()
 	{
 		return static_cast<AglType>( GetInstance().m_type );

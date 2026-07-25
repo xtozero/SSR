@@ -62,7 +62,6 @@ PRIVATE
 
 target_link_libraries(Editor
 PRIVATE
-	Agl
 	Core
 	Engine
 	Imgui

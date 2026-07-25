@@ -78,6 +78,8 @@ namespace app
 			ShowWindow( m_hwnd, SW_SHOWNORMAL );
 			UpdateWindow( m_hwnd );
 
+			m_hInstance = setup.GethInstance();
+
 			return true;
 		}
 

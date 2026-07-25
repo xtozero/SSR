@@ -46,6 +46,7 @@ set (PLATFORM_SOURCE
 	Public/Platform/CommandLine.h
 	Public/Platform/IPlatform.h
 	Public/Platform/PlatformProcess.h
+	Public/Platform/PlatformTypes.h
 	Public/Platform/WindowPlatformEngine.h
 	Public/Platform/WindowPlatformInputConvertor.h
 	Public/Platform/WindowPlatformProcess.h)

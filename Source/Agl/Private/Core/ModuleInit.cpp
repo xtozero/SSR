@@ -6,6 +6,8 @@
 #include "EnumStringMap.h"
 #include "IAgl.h"
 #include "InterfaceFactories.h"
+#include "VulkanApi.h"
+#include "VulkanResourceManager.h"
 
 using ::agl::AglType;
 using ::agl::Blend;
@@ -30,25 +32,33 @@ namespace
 
 	void CreateGraphicsApi()
 	{
-		if ( agl::DefaultAgl::GetType() == AglType::D3D12 )
+		if ( agl::DefaultAgl::GetType() == AglType::D3D11 )
+		{
+			g_abstractGraphicsLibrary = agl::CreateD3D11GraphicsApi();
+		}
+		else if ( agl::DefaultAgl::GetType() == AglType::D3D12 )
 		{
 			g_abstractGraphicsLibrary = agl::CreateD3D12GraphicsApi();
 		}
-		else
+		else // agl::DefaultAgl::GetType() == AglType::Vulkan
 		{
-			g_abstractGraphicsLibrary = agl::CreateD3D11GraphicsApi();
+			g_abstractGraphicsLibrary = agl::CreateVulkanGraphicsApi();
 		}
 	}
 
 	void CreateResourceManager()
 	{
-		if ( agl::DefaultAgl::GetType() == AglType::D3D12 )
+		if ( agl::DefaultAgl::GetType() == AglType::D3D11 )
+		{
+			g_resourceManager = agl::CreateD3D11ResourceManager();
+		}
+		else if ( agl::DefaultAgl::GetType() == AglType::D3D12 )
 		{
 			g_resourceManager = agl::CreateD3D12ResourceManager();
 		}
-		else
+		else // agl::DefaultAgl::GetType() == AglType::Vulkan
 		{
-			g_resourceManager = agl::CreateD3D11ResourceManager();
+			g_resourceManager = agl::CreateVulkanResourceManager();
 		}
 	}
 
@@ -77,6 +87,7 @@ namespace
 		// Register enum string
 		REGISTER_ENUM_STRING( AglType::D3D11 );
 		REGISTER_ENUM_STRING( AglType::D3D12 );
+		REGISTER_ENUM_STRING( AglType::Vulkan );
 
 		// Blend
 		REGISTER_ENUM_STRING( Blend::Zero );

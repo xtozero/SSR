@@ -200,7 +200,7 @@ namespace agl
 	public:
 		virtual AglType GetType() const override;
 
-		virtual bool BootUp() override;
+		virtual bool BootUp( const engine::PlatformWindowContext& windowCtx ) override;
 		virtual void OnShutdown() override;
 
 		virtual void HandleDeviceLost() override;
@@ -323,7 +323,7 @@ namespace agl
 		return AglType::D3D12;
 	}
 
-	bool Direct3D12::BootUp()
+	bool Direct3D12::BootUp( [[maybe_unused]] const engine::PlatformWindowContext& windowCtx )
 	{
 		if ( CreateDeviceIndependentResource() == false )
 		{

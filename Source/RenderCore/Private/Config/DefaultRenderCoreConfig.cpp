@@ -2,16 +2,6 @@
 
 namespace rendercore
 {
-	bool DefaultRenderCore::UseVSync()
-	{
-		return GetInstance().m_useVSync;
-	}
-
-	bool DefaultRenderCore::AllowTearing()
-	{
-		return GetInstance().m_allowTearing;
-	}
-
 	const float4& DefaultRenderCore::GetDefaultBackgroundColor()
 	{
 		return GetInstance().m_defaultBackgroundColor;

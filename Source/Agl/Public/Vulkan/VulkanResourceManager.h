@@ -1,0 +1,72 @@
+#pragma once
+
+#include "GuideTypes.h"
+#include "IResourceManager.h"
+
+namespace agl
+{
+    class VulkanResourceManager final : public IResourceManager
+    {
+    public:
+        virtual void Shutdown() override;
+
+        // Texture
+        virtual Texture* CreateTexture( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData ) const override;
+
+        // Buffer
+        virtual Buffer* CreateBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData ) const override;
+
+        // Shader
+        virtual VertexLayout* CreateVertexLayout( const VertexShader* vs, const VertexLayoutData* layoutData, uint32 size ) const override;
+        virtual ComputeShader* CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
+        virtual VertexShader* CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
+        virtual GeometryShader* CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
+        virtual PixelShader* CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
+        virtual MeshShader* CreateMeshShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
+        virtual AmplificationShader* CreateAmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const override;
+        virtual RayGenerationShader* CreateRayGenerationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const override;
+        virtual IntersectionShader* CreateIntersectionShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const override;
+        virtual AnyHitShader* CreateAnyHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const override;
+        virtual ClosestHitShader* CreateClosestHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const override;
+        virtual MissShader* CreateMissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const override;
+        virtual CallableShader* CreateCallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const override;
+
+        // RenderState
+        virtual BlendState* CreateBlendState( const BlendStateDesc& desc ) const override;
+        virtual DepthStencilState* CreateDepthStencilState( const DepthStencilStateDesc& desc ) const override;
+        virtual RasterizerState* CreateRasterizerState( const RasterizerStateDesc& desc ) const override;
+        virtual SamplerState* CreateSamplerState( const SamplerStateDesc& desc ) const override;
+        virtual GraphicsPipelineState* CreatePipelineState( const GraphicsPipelineStateDesc& desc ) override;
+        virtual ComputePipelineState* CreatePipelineState( const ComputePipelineStateDesc& desc ) override;
+
+        // Canvas
+        virtual Canvas* CreateCanvas( uint32 width, uint32 height, const engine::PlatformWindowContext& windowCtx, ResourceFormat format, const float4& clearColor ) const override;
+
+        // Viewport
+        virtual Viewport* CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) const override;
+        virtual Viewport* CreateViewport( Canvas& canvas ) const override;
+
+        virtual GpuTimer* CreateGpuTimer() const override;
+        virtual OcclusionQuery* CreateOcclusionQuery() const override;
+        virtual PipelineStatistics* CreatePipelineStatistics() const override;
+
+        virtual void SetPSOCache( std::map<uint64, BinaryChunk>& psoCache ) override;
+        virtual void SetPSOCache( const BinaryChunk& psoCache ) override;
+        virtual BinaryChunk SerializePSOLibraryCache() override;
+
+        virtual void PostReloadShaders() override;
+
+        virtual BLAS* CreateBLAS( const BLASDesc& desc, const char* debugName ) const override;
+        virtual TLAS* CreateTLAS( const TLASDesc& desc, const char* debugName ) const override;
+        virtual RaytracingPipelineState* CreateRaytracingPipelineState( const RaytracingPipelineStateDesc& desc ) override;
+
+        VulkanResourceManager() = default;
+        virtual ~VulkanResourceManager() override;
+        VulkanResourceManager( const VulkanResourceManager& ) = delete;
+        VulkanResourceManager( VulkanResourceManager&& ) = delete;
+        VulkanResourceManager& operator=( const VulkanResourceManager& ) = delete;
+        VulkanResourceManager& operator=( VulkanResourceManager&& ) = delete;
+    };
+
+    Owner<IResourceManager*> CreateVulkanResourceManager();
+}
