@@ -30,6 +30,21 @@ namespace agl
 
         virtual uint32 GetBackBufferIndex() const override;
 
+        uint32 Width() const
+        {
+            return m_width;
+        }
+
+        uint32 Height() const
+        {
+            return m_height;
+        }
+
+        VkFormat Format() const
+        {
+            return m_format;
+        }
+
         VulkanSwapchain( uint32 width, uint32 height, uint32 bufferCount, const engine::PlatformWindowContext& windowCtx, VkFormat format, const float4 clearColor );
 
         static VkSurfaceKHR CreateSurface( VkInstance vkInstance, const engine::PlatformWindowContext& windowCtx );
@@ -53,8 +68,8 @@ namespace agl
 
         VkSurfaceKHR m_surface = VK_NULL_HANDLE;
         VkSwapchainKHR m_swapchain = VK_NULL_HANDLE;
-        std::vector<VkImageView> m_swapchainImageViews;
 
         uint32 m_bufferIndex = 0;
+        std::vector<RefHandle<agl::Texture>, InlineAllocator<RefHandle<agl::Texture>, 2>> m_backBuffers;
     };
 }

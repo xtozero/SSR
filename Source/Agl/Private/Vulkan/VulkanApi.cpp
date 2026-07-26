@@ -127,11 +127,24 @@ namespace agl
 
     LockedResource Vulkan::Lock( Buffer* buffer, ResourceLockFlag lockFlag, uint32 subResource )
     {
-        return {};
+        auto vulkanBuffer = static_cast<VulkanBuffer*>( buffer );
+        if ( vulkanBuffer == nullptr )
+        {
+            return {};
+        }
+
+        return vulkanBuffer->Lock( subResource, lockFlag );
     }
 
     void Vulkan::UnLock( Buffer* buffer, uint32 subResource )
     {
+        auto vulkanBuffer = static_cast<VulkanBuffer*>( buffer );
+        if ( vulkanBuffer == nullptr )
+        {
+            return;
+        }
+
+        return vulkanBuffer->UnLock( subResource );
     }
 
     LockedResource Vulkan::Lock( Texture* texture, ResourceLockFlag lockFlag, uint32 subResource )

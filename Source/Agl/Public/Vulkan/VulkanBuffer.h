@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vulkan/vulkan_core.h>
+
 #include "Buffer.h"
 
 namespace agl
@@ -12,6 +14,9 @@ namespace agl
 
         virtual void* Resource() const override;
 
+        virtual LockedResource Lock( uint32 subResource = 0, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard );
+        virtual void UnLock( uint32 subResource = 0 );
+
         VulkanBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData );
         virtual ~VulkanBuffer() override;
         VulkanBuffer( const VulkanBuffer& ) = delete;
@@ -19,8 +24,35 @@ namespace agl
         VulkanBuffer( VulkanBuffer&& ) = delete;
         VulkanBuffer& operator=( VulkanBuffer&& ) = delete;
 
+    protected:
+        virtual void CreateBuffer();
+        virtual void DestroyBuffer();
+
+        uint8* m_dataStorage = nullptr;
+        bool m_hasInitData = false;
+
+        bool m_neverLocked = true;
+
     private:
         virtual void InitResource() override;
         virtual void FreeResource() override;
+
+        VkBuffer m_buffer = VK_NULL_HANDLE;
+        VkDeviceMemory m_deviceMemory = VK_NULL_HANDLE;
+    };
+
+    class VulkanConstantBuffer final : public VulkanBuffer
+    {
+    public:
+        VulkanConstantBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData );
+        virtual ~VulkanConstantBuffer() override = default;
+        VulkanConstantBuffer( const VulkanConstantBuffer& ) = delete;
+        VulkanConstantBuffer& operator=( const VulkanConstantBuffer& ) = delete;
+        VulkanConstantBuffer( VulkanConstantBuffer&& ) = delete;
+        VulkanConstantBuffer& operator=( VulkanConstantBuffer&& ) = delete;
+
+    protected:
+        virtual void CreateBuffer() override;
+        virtual void DestroyBuffer() override;
     };
 }

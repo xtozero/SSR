@@ -31,11 +31,6 @@ namespace agl
 			m_d3dDesc( desc )
 		{}
 
-		virtual ~D3D12ViewBase() override
-		{
-			this->Free();
-		}
-
 		D3D12ViewBase( const D3D12ViewBase& other )
 		{
 			*this = other;
@@ -104,11 +99,10 @@ namespace agl
 
 		void UpdateTextureMips( ID3D12Resource* resource, uint32 mipLevels );
 
-	protected:
+	private:
 		virtual void InitResource() override;
 		virtual void FreeResource() override;
 
-	private:
 		int32 m_bindlessHandle = NullBindlessHandle;
 	};
 
@@ -122,11 +116,10 @@ namespace agl
 
 		virtual int32 GetBindlessHandle() const override;
 
-	protected:
+	private:
 		virtual void InitResource() override;
 		virtual void FreeResource() override;
 
-	private:
 		int32 m_bindlessHandle = NullBindlessHandle;
 	};
 
@@ -141,10 +134,9 @@ namespace agl
 
 		ColorF GetClearColor() const;
 
-	protected:
+	private:
 		virtual void InitResource() override;
 
-	private:
 		ColorF m_clearColor = ColorF::Black;
 	};
 
@@ -160,10 +152,9 @@ namespace agl
 		float GetDepthClearValue() const;
 		uint8 GetStencilClearValue() const;
 
-	protected:
+	private:
 		virtual void InitResource() override;
 
-	private:
 		float m_depthClearValue = 0.f;
 		uint8 m_stencilClearValue = 0;
 	};
@@ -178,11 +169,10 @@ namespace agl
 
 		virtual int32 GetBindlessHandle() const override;
 
-	protected:
+	private:
 		virtual void InitResource() override;
 		virtual void FreeResource() override;
 
-	private:
 		int32 m_bindlessHandle = NullBindlessHandle;
 	};
 }

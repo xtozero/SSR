@@ -42,7 +42,7 @@ namespace agl
 
     agl::Texture* VulkanSwapchain::Texture()
     {
-        return nullptr;
+        return m_backBuffers[m_bufferIndex].Get();
     }
 
     uint32 VulkanSwapchain::GetBackBufferIndex() const
@@ -122,40 +122,36 @@ namespace agl
         std::vector<VkImage> swapchainImages( numSwapchainImages );
         vkGetSwapchainImagesKHR( VulkanDevice(), m_swapchain, &numSwapchainImages, swapchainImages.data() );
 
-        m_swapchainImageViews.resize( numSwapchainImages );
+        m_backBuffers.resize( numSwapchainImages );
+
+        auto resourceFormat = ConvertVkFormatToFormat( m_format );
+        TextureDesc desc = {
+            .m_width = m_width,
+            .m_height = m_height,
+            .m_depth = 1,
+            .m_sampleCount = 1,
+            .m_sampleQuality = 0,
+            .m_mipLevels = 1,
+            .m_format = resourceFormat,
+            .m_access = ResourceAccess::Default,
+            .m_bindType = ResourceBindType::RenderTarget,
+            .m_miscFlag = ResourceMisc::None,
+            .m_clearValue = ResourceClearValue{
+                .m_format = resourceFormat,
+                .m_color = { m_clearColor[0], m_clearColor[1], m_clearColor[2], m_clearColor[3] },
+            }
+        };
+
         for ( uint32 i = 0; i < numSwapchainImages; ++i )
         {
-            VkImageViewCreateInfo imageViewCreateInfo = {
-                .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-                .image = swapchainImages[i],
-                .viewType = VK_IMAGE_VIEW_TYPE_2D,
-                .format = m_format,
-                .components = {
-                    .r = VK_COMPONENT_SWIZZLE_IDENTITY,
-                    .g = VK_COMPONENT_SWIZZLE_IDENTITY,
-                    .b = VK_COMPONENT_SWIZZLE_IDENTITY,
-                    .a = VK_COMPONENT_SWIZZLE_IDENTITY,
-                },
-                .subresourceRange = {
-                    .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                    .baseMipLevel = 0,
-                    .levelCount = 1,
-                    .baseArrayLayer = 0,
-                    .layerCount = 1,
-                }
-            };
-
-            result = vkCreateImageView( VulkanDevice(), &imageViewCreateInfo, nullptr, &m_swapchainImageViews[i] );
-            assert( result == VK_SUCCESS );
+            m_backBuffers[i] = new VulkanTexture2D( swapchainImages[i], "SwapChain", desc );
+            m_backBuffers[i]->Init();
         }
     }
 
     void VulkanSwapchain::FreeResource()
     {
-        for ( VkImageView swapchainImageView : m_swapchainImageViews )
-        {
-            vkDestroyImageView( VulkanDevice(), swapchainImageView, nullptr );
-        }
+        m_backBuffers.clear();
 
         if ( m_swapchain != VK_NULL_HANDLE )
         {

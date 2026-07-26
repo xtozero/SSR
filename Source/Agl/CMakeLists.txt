@@ -184,16 +184,20 @@ set (VULKAN_RENDER_RESOURCE_HEADER
 	Public/Vulkan/VulkanBuffer.h
 	Public/Vulkan/VulkanFlagConverter.h
 	Public/Vulkan/VulkanResourceManager.h
+	Public/Vulkan/VulkanResourceVeiws.h
 	Public/Vulkan/VulkanSamplerState.h
 	Public/Vulkan/VulkanSwapchain.h
-	Public/Vulkan/VulkanTexture.h)
+	Public/Vulkan/VulkanTexture.h
+	Public/Vulkan/VulkanViewport.h)
 
 set (VULKAN_RENDER_RESOURCE_SOURCE
 	Private/Vulkan/VulkanBuffer.cpp
 	Private/Vulkan/VulkanResourceManager.cpp
+	Private/Vulkan/VulkanResourceVeiws.cpp
 	Private/Vulkan/VulkanSamplerState.cpp
 	Private/Vulkan/VulkanSwapchain.cpp
-	Private/Vulkan/VulkanTexture.cpp)
+	Private/Vulkan/VulkanTexture.cpp
+	Private/Vulkan/VulkanViewport.cpp)
 
 source_group("Config" FILES ${CONFIG_HEADER} ${CONFIG_SOURCE})
 source_group("Direct11\\RenderResource" FILES ${D3D11_RENDER_RESOURCE_HEADER} ${D3D11_RENDER_RESOURCE_SOURCE})

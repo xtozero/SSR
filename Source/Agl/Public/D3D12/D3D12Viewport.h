@@ -1,12 +1,7 @@
 #pragma once
 
 #include "D3D12Texture.h"
-#include "Memory/InlineMemoryAllocator.h"
 #include "Viewport.h"
-
-#include <dxgi1_6.h>
-#include <vector>
-#include <wrl/client.h>
 
 namespace agl
 {

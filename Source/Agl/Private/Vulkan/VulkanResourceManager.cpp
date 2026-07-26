@@ -5,6 +5,7 @@
 #include "VulkanSamplerState.h"
 #include "VulkanSwapchain.h"
 #include "VulkanTexture.h"
+#include "VulkanViewport.h"
 
 namespace agl
 {
@@ -17,7 +18,7 @@ namespace agl
         Texture* newTexture = nullptr;
 
         // TODO
-        newTexture = new VulkanTexture2D();
+        newTexture = new VulkanTexture2D( desc, debugName, initialState, initData );
 
         return newTexture;
     }
@@ -131,12 +132,14 @@ namespace agl
 
     Viewport* VulkanResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) const
     {
-        return nullptr;
+        // ToDo
+        return new VulkanViewport( width, height, ConvertFormatToVkFormat( format ), bgColor );
     }
 
     Viewport* VulkanResourceManager::CreateViewport( Canvas& canvas ) const
     {
-        return nullptr;
+        // ToDo
+        return new VulkanViewport( *reinterpret_cast<VulkanSwapchain*>( &canvas ) );
     }
 
     GpuTimer* VulkanResourceManager::CreateGpuTimer() const

@@ -165,6 +165,16 @@ namespace agl
 			m_bufferIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 		}
 
+		virtual agl::Texture* Texture() override
+		{
+			return m_backBuffers[m_bufferIndex].Get();
+		}
+
+		virtual uint32 GetBackBufferIndex() const override
+		{
+			return m_bufferIndex;
+		}
+
 		uint32 Width() const
 		{
 			return m_width;
@@ -178,16 +188,6 @@ namespace agl
 		DXGI_FORMAT Format() const
 		{
 			return m_format;
-		}
-
-		virtual agl::Texture* Texture() override
-		{
-			return m_backBuffers[m_bufferIndex].Get();
-		}
-
-		virtual uint32 GetBackBufferIndex() const override
-		{
-			return m_bufferIndex;
 		}
 
 		DxgiSwapchain( IUnknown& device, IDXGIFactory7& factory, uint32 width, uint32 height, uint32 bufferCount, void* hWnd, DXGI_FORMAT format, const float4 clearColor )
