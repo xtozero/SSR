@@ -60,6 +60,8 @@ namespace agl
         bool CreateDeviceDependentResource( const engine::PlatformWindowContext& windowCtx );
         bool CreateDeviceIndependentResource();
 
+        VkPhysicalDevice SelectPhysicalDevice( const std::vector<VkPhysicalDevice>& physicalDevices );
+
         VkInstance m_vkInstance = VK_NULL_HANDLE;
         VkPhysicalDevice m_vkPhysicalDevice = VK_NULL_HANDLE;
         VkDevice m_vkDevice = VK_NULL_HANDLE;
@@ -251,7 +253,7 @@ namespace agl
             return false;
         }
 
-        m_vkPhysicalDevice = physicalDevices[0];
+        m_vkPhysicalDevice = SelectPhysicalDevice( physicalDevices );
 
         VkSurfaceKHR surface = VulkanSwapchain::CreateSurface( m_vkInstance, windowCtx );
         if ( surface == VK_NULL_HANDLE )
@@ -417,6 +419,22 @@ namespace agl
         }
 
         return true;
+    }
+
+    VkPhysicalDevice Vulkan::SelectPhysicalDevice( const std::vector<VkPhysicalDevice>& physicalDevices )
+    {
+        for ( VkPhysicalDevice physicalDevice : physicalDevices )
+        {
+            VkPhysicalDeviceProperties properties;
+            vkGetPhysicalDeviceProperties( physicalDevice, &properties);
+
+            if ( properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU )
+            {
+                return physicalDevice;
+            }
+        }
+
+        return VK_NULL_HANDLE;
     }
 
     Owner<IAgl*> CreateVulkanGraphicsApi()

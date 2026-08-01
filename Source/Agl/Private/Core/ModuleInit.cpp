@@ -6,8 +6,10 @@
 #include "EnumStringMap.h"
 #include "IAgl.h"
 #include "InterfaceFactories.h"
+#ifdef HAS_VULKAN
 #include "VulkanApi.h"
 #include "VulkanResourceManager.h"
+#endif
 
 using ::agl::AglType;
 using ::agl::Blend;
@@ -32,33 +34,49 @@ namespace
 
 	void CreateGraphicsApi()
 	{
-		if ( agl::DefaultAgl::GetType() == AglType::D3D11 )
+		const auto aglType = agl::DefaultAgl::GetType();
+		switch ( aglType )
 		{
+		case AglType::D3D11:
 			g_abstractGraphicsLibrary = agl::CreateD3D11GraphicsApi();
-		}
-		else if ( agl::DefaultAgl::GetType() == AglType::D3D12 )
-		{
+			break;
+		case AglType::D3D12:
 			g_abstractGraphicsLibrary = agl::CreateD3D12GraphicsApi();
-		}
-		else // agl::DefaultAgl::GetType() == AglType::Vulkan
-		{
+			break;
+		case AglType::Vulkan:
+#ifdef HAS_VULKAN
 			g_abstractGraphicsLibrary = agl::CreateVulkanGraphicsApi();
+#else
+			assert( false && "Vulkan backend is not compiled." );
+#endif
+			break;
+		default:
+			assert( false && "Unsupported graphics backend." );
+			break;
 		}
 	}
 
 	void CreateResourceManager()
 	{
-		if ( agl::DefaultAgl::GetType() == AglType::D3D11 )
+		const auto aglType = agl::DefaultAgl::GetType();
+		switch ( aglType )
 		{
+		case AglType::D3D11:
 			g_resourceManager = agl::CreateD3D11ResourceManager();
-		}
-		else if ( agl::DefaultAgl::GetType() == AglType::D3D12 )
-		{
+			break;
+		case AglType::D3D12:
 			g_resourceManager = agl::CreateD3D12ResourceManager();
-		}
-		else // agl::DefaultAgl::GetType() == AglType::Vulkan
-		{
+			break;
+		case AglType::Vulkan:
+#ifdef HAS_VULKAN
 			g_resourceManager = agl::CreateVulkanResourceManager();
+#else
+			assert( false && "Vulkan backend is not compiled." );
+#endif
+			break;
+		default:
+			assert( false && "Unsupported graphics backend." );
+			break;
 		}
 	}
 

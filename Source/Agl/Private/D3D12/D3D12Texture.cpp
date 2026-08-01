@@ -689,9 +689,7 @@ namespace agl
 	}
 
 	D3D12Texture2D::D3D12Texture2D( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
-		: D3D12Texture( desc, debugName, initialState, initData )
-	{
-	}
+		: D3D12Texture( desc, debugName, initialState, initData ) {}
 
 	D3D12Texture2D::D3D12Texture2D( ID3D12Resource* texture, const char* debugName, const float4& clearColor, const D3D12_RESOURCE_DESC* desc )
 	{

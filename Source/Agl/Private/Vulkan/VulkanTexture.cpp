@@ -17,6 +17,9 @@ namespace agl
     {
     }
 
+    VulkanTexture::VulkanTexture( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
+        : TextureBase( desc, debugName, initialState, initData ) {}
+
     void VulkanTexture::CreateTexture()
     {
     }
@@ -76,8 +79,7 @@ namespace agl
     }
 
     VulkanTexture2D::VulkanTexture2D( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
-    {
-    }
+        : VulkanTexture( desc, debugName, initialState, initData ) {}
 
     VulkanTexture2D::VulkanTexture2D( VkImage image, const char* debugName, const TextureDesc& desc )
     {

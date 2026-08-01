@@ -12,6 +12,13 @@ namespace agl
         virtual void CreateShaderResource( std::optional<ResourceFormat> overrideFormat = {} ) override;
         virtual void CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat = {} ) override;
 
+        VulkanTexture( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData );
+        VulkanTexture() = default;
+        VulkanTexture( const VulkanTexture& ) = delete;
+        VulkanTexture& operator=( const VulkanTexture& ) = delete;
+        VulkanTexture( VulkanTexture&& ) = delete;
+        VulkanTexture& operator=( VulkanTexture&& ) = delete;
+
     protected:
         virtual void CreateTexture() override;
 
