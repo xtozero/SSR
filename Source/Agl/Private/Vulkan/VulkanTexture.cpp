@@ -1,20 +1,29 @@
 #include "VulkanTexture.h"
 
 #include "VulkanApi.h"
+#include "VulkanResourceVeiws.h"
 
 namespace agl
 {
     void* VulkanTexture::Resource() const
     {
-        return nullptr;
+        return m_image;
     }
 
     void VulkanTexture::CreateShaderResource( std::optional<ResourceFormat> overrideFormat )
     {
+        m_srv = new VulkanImageShaderResourceView( this );
+        m_srv->Init();
     }
 
     void VulkanTexture::CreateUnorderedAccess( std::optional<ResourceFormat> overrideFormat )
     {
+        m_uav.resize( m_desc.m_mipLevels );
+        for ( uint32 mipSlice = 0; mipSlice < m_desc.m_mipLevels; ++mipSlice )
+        {
+            m_uav[mipSlice] = new VulkanImageUnorderedAccessView( this );
+            m_uav[mipSlice]->Init();
+        }
     }
 
     VulkanTexture::VulkanTexture( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
@@ -67,15 +76,20 @@ namespace agl
         if ( ( m_image != VK_NULL_HANDLE ) && ( m_isExternalImage == false ) )
         {
             vkDestroyImage( VulkanDevice(), m_image, nullptr );
+            m_image = VK_NULL_HANDLE;
         }
     }
 
     void VulkanTexture2D::CreateRenderTarget( std::optional<ResourceFormat> overrideFormat )
     {
+        m_rtv = new VulkanImageRenderTargetView( this );
+        m_rtv->Init();
     }
 
     void VulkanTexture2D::CreateDepthStencil( std::optional<ResourceFormat> overrideFormat )
     {
+        m_dsv = new VulkanImageDepthStencilView( this );
+        m_dsv->Init();
     }
 
     VulkanTexture2D::VulkanTexture2D( const TextureDesc& desc, const char* debugName, ResourceState initialState, const ResourceInitData* initData )
@@ -90,31 +104,6 @@ namespace agl
 
         m_image = image;
         m_isExternalImage = true;
-
-        /*
-        VkImageViewCreateInfo imageViewCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-            .image = image,
-            .viewType = VK_IMAGE_VIEW_TYPE_2D,
-            .format = ConvertFormatToVkFormat( desc.m_format ),
-            .components = {
-                .r = VK_COMPONENT_SWIZZLE_IDENTITY,
-                .g = VK_COMPONENT_SWIZZLE_IDENTITY,
-                .b = VK_COMPONENT_SWIZZLE_IDENTITY,
-                .a = VK_COMPONENT_SWIZZLE_IDENTITY,
-            },
-            .subresourceRange = {
-                .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                .baseMipLevel = 0,
-                .levelCount = 1,
-                .baseArrayLayer = 0,
-                .layerCount = 1,
-            }
-        };
-
-        VkResult result = vkCreateImageView( VulkanDevice(), &imageViewCreateInfo, nullptr, &m_imageView );
-        assert( result == VK_SUCCESS );
-        */
 
         Rename( Name( debugName ) );
         m_desc = desc;

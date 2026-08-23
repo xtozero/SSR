@@ -2,6 +2,7 @@
 
 #include "VulkanApi.h"
 #include "VulkanFlagConverter.h"
+#include "VulkanResourceVeiws.h"
 
 using ::agl::BufferDesc;
 using ::agl::ResourceBindType;
@@ -71,15 +72,19 @@ namespace agl
 {
     void VulkanBuffer::CreateShaderResource()
     {
+        m_srv = new VulkanBufferShaderResourceView( this );
+        m_srv->Init();
     }
 
     void VulkanBuffer::CreateUnorderedAccess()
     {
+        m_uav = new VulkanBufferUnorderedAccessView( this );
+        m_uav->Init();
     }
 
     void* VulkanBuffer::Resource() const
     {
-        return nullptr;
+        return m_buffer;
     }
 
     LockedResource VulkanBuffer::Lock( uint32 subResource, ResourceLockFlag lockFlag )
@@ -192,18 +197,38 @@ namespace agl
                 // ToDo
             }
         }
+
+        if ( HasAnyFlags( m_desc.m_miscFlag, ResourceMisc::Intermediate | ResourceMisc::WithoutViews ) )
+        {
+            return;
+        }
+
+        if ( HasAnyFlags( m_desc.m_bindType, ResourceBindType::ShaderResource ) )
+        {
+            CreateShaderResource();
+        }
+
+        if ( HasAnyFlags( m_desc.m_bindType, ResourceBindType::RandomAccess ) )
+        {
+            CreateUnorderedAccess();
+        }
     }
 
     void VulkanBuffer::DestroyBuffer()
     {
+        m_srv = nullptr;
+        m_uav = nullptr;
+
         if ( m_buffer != VK_NULL_HANDLE )
         {
             vkDestroyBuffer( VulkanDevice(), m_buffer, nullptr );
+            m_buffer = VK_NULL_HANDLE;
         }
 
         if ( m_deviceMemory != VK_NULL_HANDLE )
         {
             vkFreeMemory( VulkanDevice(), m_deviceMemory, nullptr );
+            m_deviceMemory = VK_NULL_HANDLE;
         }
     }
 
@@ -215,18 +240,5 @@ namespace agl
     void VulkanBuffer::FreeResource()
     {
         DestroyBuffer();
-    }
-
-    VulkanConstantBuffer::VulkanConstantBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData )
-        : VulkanBuffer( desc, debugName, initialState, initData )
-    {
-    }
-
-    void VulkanConstantBuffer::CreateBuffer()
-    {
-    }
-
-    void VulkanConstantBuffer::DestroyBuffer()
-    {
     }
 }

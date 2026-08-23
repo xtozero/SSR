@@ -70,6 +70,7 @@ namespace agl
         VkSwapchainKHR m_swapchain = VK_NULL_HANDLE;
 
         uint32 m_bufferIndex = 0;
+        mutable uint32 m_imageIndex = 0;
         std::vector<RefHandle<agl::Texture>, InlineAllocator<RefHandle<agl::Texture>, 2>> m_backBuffers;
     };
 }

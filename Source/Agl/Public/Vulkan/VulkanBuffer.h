@@ -40,19 +40,4 @@ namespace agl
         VkBuffer m_buffer = VK_NULL_HANDLE;
         VkDeviceMemory m_deviceMemory = VK_NULL_HANDLE;
     };
-
-    class VulkanConstantBuffer final : public VulkanBuffer
-    {
-    public:
-        VulkanConstantBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData );
-        virtual ~VulkanConstantBuffer() override = default;
-        VulkanConstantBuffer( const VulkanConstantBuffer& ) = delete;
-        VulkanConstantBuffer& operator=( const VulkanConstantBuffer& ) = delete;
-        VulkanConstantBuffer( VulkanConstantBuffer&& ) = delete;
-        VulkanConstantBuffer& operator=( VulkanConstantBuffer&& ) = delete;
-
-    protected:
-        virtual void CreateBuffer() override;
-        virtual void DestroyBuffer() override;
-    };
 }

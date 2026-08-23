@@ -28,6 +28,13 @@ namespace agl
 	class UnorderedAccessView;
 	class VertexShader;
 
+	enum CommandListType : uint8
+	{
+		General,
+		Compute,
+		Copy,
+	};
+
 	enum class IndirectCommandType : uint8
 	{
 		Draw,

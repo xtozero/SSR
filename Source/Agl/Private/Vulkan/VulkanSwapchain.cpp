@@ -11,14 +11,64 @@ namespace agl
 {
     void VulkanSwapchain::OnBeginFrameRendering()
     {
+        constexpr uint64 MaxWaitTime = std::numeric_limits<uint64>::max();
+        VkResult result = vkAcquireNextImageKHR( VulkanDevice(), m_swapchain, MaxWaitTime, VulkanFrameSync().m_imageAvailable, VK_NULL_HANDLE, &m_imageIndex );
+
+        agl::Texture* backBuffer = Texture();
+        if ( backBuffer == nullptr )
+        {
+            return;
+        }
+
+        ResourceTransition transition
+        {
+            .m_pResource = backBuffer->Resource(),
+            .m_pTransitionable = backBuffer,
+            .m_subResource = AllSubResource,
+            .m_state = ResourceState::RenderTarget
+        };
+
+        ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
+        commandList->AddTransition( transition );
     }
 
     void VulkanSwapchain::OnEndFrameRendering()
     {
+        agl::Texture* backBuffer = Texture();
+        if ( backBuffer == nullptr )
+        {
+            return;
+        }
+
+        ResourceTransition transition
+        {
+            .m_pResource = backBuffer->Resource(),
+            .m_pTransitionable = backBuffer,
+            .m_subResource = AllSubResource,
+            .m_state = ResourceState::Present
+        };
+
+        ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
+        commandList->AddTransition( transition );
     }
 
     DeviceError VulkanSwapchain::Present( bool vSync, bool allowTearing )
     {
+        // Temp
+        VkSemaphore waitSemaphores[] = { VulkanFrameSync().m_imageAvailable };
+
+        VkPresentInfoKHR presentInfo = {
+            .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+            .waitSemaphoreCount = 1,
+            .pWaitSemaphores = waitSemaphores,
+            .swapchainCount = 1,
+            .pSwapchains = &m_swapchain,
+            .pImageIndices = &m_bufferIndex,
+        };
+
+        vkQueuePresentKHR( VulkanPresentQueue(), &presentInfo );
+        m_bufferIndex = ( m_bufferIndex + 1 ) % m_bufferCount;
+
         return DeviceError::None;
     }
 
@@ -38,11 +88,28 @@ namespace agl
 
     void VulkanSwapchain::Resize( uint32 width, uint32 height )
     {
+        if ( width == 0 || height == 0 )
+        {
+            return;
+        }
+
+        TaskHandle handle = EnqueueThreadTask<ThreadType::RenderThread>(
+            []()
+            {
+                GetInterface<IAgl>()->WaitGPU();
+            } );
+        GetInterface<ITaskScheduler>()->Wait( handle );
+
+        m_width = width;
+        m_height = height;
+
+        FreeResource();
+        InitResource();
     }
 
     agl::Texture* VulkanSwapchain::Texture()
     {
-        return m_backBuffers[m_bufferIndex].Get();
+        return m_backBuffers[m_imageIndex].Get();
     }
 
     uint32 VulkanSwapchain::GetBackBufferIndex() const
@@ -104,7 +171,7 @@ namespace agl
             .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
             .presentMode = ChooseSwapchainPresentMode( supportDetails ),
             .clipped = VK_TRUE,
-            .oldSwapchain = VK_NULL_HANDLE,
+            .oldSwapchain = m_swapchain,
         };
 
         {
@@ -145,8 +212,11 @@ namespace agl
         for ( uint32 i = 0; i < numSwapchainImages; ++i )
         {
             m_backBuffers[i] = new VulkanTexture2D( swapchainImages[i], "SwapChain", desc );
+            m_backBuffers[i]->SetResourceState( ResourceState::Unknown );
             m_backBuffers[i]->Init();
         }
+
+        m_bufferIndex = 0;
     }
 
     void VulkanSwapchain::FreeResource()
@@ -156,11 +226,13 @@ namespace agl
         if ( m_swapchain != VK_NULL_HANDLE )
         {
             vkDestroySwapchainKHR( VulkanDevice(), m_swapchain, nullptr );
+            m_swapchain = VK_NULL_HANDLE;
         }
 
         if ( m_surface != VK_NULL_HANDLE )
         {
             vkDestroySurfaceKHR( VulkanInstance(), m_surface, nullptr );
+            m_surface = VK_NULL_HANDLE;
         }
     }
 

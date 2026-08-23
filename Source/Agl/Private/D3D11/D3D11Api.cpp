@@ -147,7 +147,7 @@ namespace agl
 		virtual void HandleDeviceLost() override;
 		virtual void AppSizeChanged() override;
 		virtual void OnBeginFrameRendering() override;
-		virtual void OnEndFrameRendering( [[maybe_unused]] uint32 oldFrameIndex, [[maybe_unused]] uint32 newFrameIndex ) override {}
+		virtual void OnEndFrameRendering( [[maybe_unused]] uint32 oldFrameIndex, [[maybe_unused]] uint32 nextFrameIndex ) override {}
 		virtual void WaitGPU() override;
 		virtual void WaitQueue( [[maybe_unused]] QueueType type ) override {}
 

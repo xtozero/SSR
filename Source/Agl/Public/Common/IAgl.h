@@ -41,7 +41,7 @@ namespace agl
 		virtual void HandleDeviceLost() = 0;
 		virtual void AppSizeChanged() = 0;
 		virtual void OnBeginFrameRendering() = 0;
-		virtual void OnEndFrameRendering( uint32 oldFrameIndex, uint32 newFrameIndex ) = 0;
+		virtual void OnEndFrameRendering( uint32 oldFrameIndex, uint32 nextFrameIndex ) = 0;
 		virtual void WaitGPU() = 0;
 		virtual void WaitQueue( QueueType type ) = 0;
 

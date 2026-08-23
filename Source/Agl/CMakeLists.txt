@@ -181,22 +181,38 @@ set (VULKAN_SOURCE
 	Private/Vulkan/VulkanApi.cpp)
 
 set (VULKAN_RENDER_RESOURCE_HEADER
+	Public/Vulkan/VulkanBlendState.h
 	Public/Vulkan/VulkanBuffer.h
+	Public/Vulkan/VulkanCommandList.h
+	Public/Vulkan/VulkanDepthStencilState.h
 	Public/Vulkan/VulkanFlagConverter.h
+	Public/Vulkan/VulkanPipelineState.h
+	Public/Vulkan/VulkanQuery.h
+	Public/Vulkan/VulkanRasterizerState.h
 	Public/Vulkan/VulkanResourceManager.h
 	Public/Vulkan/VulkanResourceVeiws.h
 	Public/Vulkan/VulkanSamplerState.h
+	Public/Vulkan/VulkanShaders.h
 	Public/Vulkan/VulkanSwapchain.h
 	Public/Vulkan/VulkanTexture.h
+	Public/Vulkan/VulkanVertexLayout.h
 	Public/Vulkan/VulkanViewport.h)
 
 set (VULKAN_RENDER_RESOURCE_SOURCE
+	Private/Vulkan/VulkanBlendState.cpp
 	Private/Vulkan/VulkanBuffer.cpp
+	Private/Vulkan/VulkanCommandList.cpp
+	Private/Vulkan/VulkanDepthStencilState.cpp
+	Private/Vulkan/VulkanPipelineState.cpp
+	Private/Vulkan/VulkanQuery.cpp
+	Private/Vulkan/VulkanRasterizerState.cpp
 	Private/Vulkan/VulkanResourceManager.cpp
 	Private/Vulkan/VulkanResourceVeiws.cpp
 	Private/Vulkan/VulkanSamplerState.cpp
+	Private/Vulkan/VulkanShaders.cpp
 	Private/Vulkan/VulkanSwapchain.cpp
 	Private/Vulkan/VulkanTexture.cpp
+	Private/Vulkan/VulkanVertexLayout.cpp
 	Private/Vulkan/VulkanViewport.cpp)
 
 source_group("Config" FILES ${CONFIG_HEADER} ${CONFIG_SOURCE})

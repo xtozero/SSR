@@ -17,8 +17,8 @@ namespace
         "r.TextureStreaming.MipBias",
         "0",
         "Controls texture streaming mip bias. "
-                    "Positive values favor lower-resolution mip levels to reduce memory usage, "
-                    "while negative values favor higher-resolution mip levels." );
+        "Positive values favor lower-resolution mip levels to reduce memory usage, "
+        "while negative values favor higher-resolution mip levels." );
 }
 
 namespace rendercore

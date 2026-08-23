@@ -545,7 +545,7 @@ namespace agl
 			{
 				uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
 			}
-			m_uav[mipSlice] = new D3D12UnorderedAccessView(this, Resource(), uavDesc );
+			m_uav[mipSlice] = new D3D12UnorderedAccessView( this, Resource(), uavDesc );
 			m_uav[mipSlice]->Init();
 		}
 	}
