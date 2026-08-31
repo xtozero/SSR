@@ -13,7 +13,7 @@ namespace agl
 		if ( beforeState != afterState )
 		{
 			m_barriers.emplace_back( ConvertToResourceBarrier( transition ) );
-			transition.m_pTransitionable->SetResourceState( transition.m_state );
+			transition.m_pTransitionable->SetResourceState( afterState );
 		}
 	}
 

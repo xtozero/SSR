@@ -82,7 +82,13 @@ namespace agl
 
     void VulkanTexture2D::CreateRenderTarget( std::optional<ResourceFormat> overrideFormat )
     {
-        m_rtv = new VulkanImageRenderTargetView( this );
+        ColorF clearColor = ColorF::Black;
+        if ( m_desc.m_clearValue )
+        {
+            clearColor = m_desc.m_clearValue->m_color;
+        }
+
+        m_rtv = new VulkanImageRenderTargetView( this, clearColor );
         m_rtv->Init();
     }
 

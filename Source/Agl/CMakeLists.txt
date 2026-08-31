@@ -181,6 +181,7 @@ set (VULKAN_SOURCE
 	Private/Vulkan/VulkanApi.cpp)
 
 set (VULKAN_RENDER_RESOURCE_HEADER
+	Public/Vulkan/VulkanBarrierBatcher.h
 	Public/Vulkan/VulkanBlendState.h
 	Public/Vulkan/VulkanBuffer.h
 	Public/Vulkan/VulkanCommandList.h
@@ -199,6 +200,7 @@ set (VULKAN_RENDER_RESOURCE_HEADER
 	Public/Vulkan/VulkanViewport.h)
 
 set (VULKAN_RENDER_RESOURCE_SOURCE
+	Private/Vulkan/VulkanBarrierBatcher.cpp
 	Private/Vulkan/VulkanBlendState.cpp
 	Private/Vulkan/VulkanBuffer.cpp
 	Private/Vulkan/VulkanCommandList.cpp

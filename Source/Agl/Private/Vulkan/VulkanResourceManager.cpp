@@ -152,13 +152,13 @@ namespace agl
 
     Canvas* VulkanResourceManager::CreateCanvas( uint32 width, uint32 height, const engine::PlatformWindowContext& windowCtx, ResourceFormat format, const float4& clearColor ) const
     {
-        return new VulkanSwapchain( width, height, DefaultAgl::GetBufferCount(), windowCtx, ConvertFormatToVkFormat( format ), clearColor );
+        return new VulkanSwapchain( width, height, DefaultAgl::GetBufferCount(), windowCtx, ConvertToVkFormat( format ), clearColor );
     }
 
     Viewport* VulkanResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) const
     {
         // ToDo
-        return new VulkanViewport( width, height, ConvertFormatToVkFormat( format ), bgColor );
+        return new VulkanViewport( width, height, ConvertToVkFormat( format ), bgColor );
     }
 
     Viewport* VulkanResourceManager::CreateViewport( Canvas& canvas ) const

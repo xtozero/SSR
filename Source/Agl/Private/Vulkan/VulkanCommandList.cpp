@@ -21,6 +21,13 @@ namespace agl
 
         result = vkAllocateCommandBuffers( VulkanDevice(), &allocateInfo, &m_commandBuffer );
         assert( result == VK_SUCCESS );
+
+        VkFenceCreateInfo fenceCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+        };
+
+        result = vkCreateFence( VulkanDevice(), &fenceCreateInfo, nullptr, &m_fence );
+        assert( result == VK_SUCCESS );
     }
 
     void VulkanCommandListResource::Destroy()
@@ -32,11 +39,38 @@ namespace agl
         }
 
         m_commandBuffer = VK_NULL_HANDLE;
+
+        if ( m_fence != VK_NULL_HANDLE )
+        {
+            vkDestroyFence( VulkanDevice(), m_fence, nullptr );
+        }
     }
 
     void VulkanCommandListResourcePool::Initialize( uint32 queueFamilyIndex )
     {
         m_queueFamilyIndex = queueFamilyIndex;
+    }
+
+    void VulkanCommandListResourcePool::Destroy()
+    {
+        VulkanCommandListResource* iter = m_freeList;
+        while ( iter != nullptr )
+        {
+            VulkanCommandListResource* next = iter->m_next;
+            iter->Destroy();
+            iter = next;
+        }
+
+        iter = m_runningList;
+        while ( iter != nullptr )
+        {
+            VulkanCommandListResource* next = iter->m_next;
+            iter->Destroy();
+            iter = next;
+        }
+
+        m_freeList = nullptr;
+        m_runningList = nullptr;
     }
 
     void VulkanCommandListResourcePool::Prepare()
@@ -85,25 +119,6 @@ namespace agl
         return *ret;
     }
 
-    VulkanCommandListResourcePool::~VulkanCommandListResourcePool()
-    {
-        VulkanCommandListResource* iter = m_freeList;
-        while ( iter != nullptr )
-        {
-            VulkanCommandListResource* next = iter->m_next;
-            iter->Destroy();
-            iter = next;
-        }
-
-        iter = m_runningList;
-        while ( iter != nullptr )
-        {
-            VulkanCommandListResource* next = iter->m_next;
-            iter->Destroy();
-            iter = next;
-        }
-    }
-
     void VulkanBaseCommandListImpl::Initialize()
     {
         InitializeCommandList();
@@ -118,22 +133,152 @@ namespace agl
         }
     }
 
+    bool VulkanBaseCommandListImpl::HasCommands() const
+    {
+        return m_numCommands > 0;
+    }
+
+    VkQueue VulkanBaseCommandListImpl::GetCommandQueue() const
+    {
+        return ( m_type == CommandListType::Compute ) ? VulkanComputeQueue() : VulkanGraphicsQueue();
+    }
+
+    VkCommandBuffer VulkanBaseCommandListImpl::GetBuffer() const
+    {
+        return m_cmdListResource.m_commandBuffer;
+    }
+
+    VkFence VulkanBaseCommandListImpl::GetFence() const
+    {
+        return m_cmdListResource.m_fence;
+    }
+
     void VulkanBaseCommandListImpl::InitializeCommandList()
     {
         m_cmdListResource = VulkanCmdPool( m_type ).GetCommandList();
         m_numCommands = 0;
+
+        VkCommandBufferBeginInfo beginInfo = {
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+        };
+
+        VkResult result = vkBeginCommandBuffer( m_cmdListResource.m_commandBuffer, &beginInfo );
+        assert( result == VK_SUCCESS );
+    }
+
+    void VulkanBaseCommandListImpl::OnCommandRecorded()
+    {
+        ++m_numCommands;
+    }
+
+    void VulkanCopyCommandListImpl::AddTransition( const ResourceTransition& transition )
+    {
+        m_barrierBatcher.AddTransition( transition );
+    }
+
+    void VulkanCopyCommandListImpl::AddUavBarrier( const UavBarrier& uavBarrier )
+    {
+        m_barrierBatcher.AddUavBarrier( uavBarrier );
+    }
+
+    void VulkanCopyCommandListImpl::PipelineBarrier( uint32 numBufferBarriers, const VkBufferMemoryBarrier2* bufferBarriers, uint32 numImageBarriers, const VkImageMemoryBarrier2* imageBarriers )
+    {
+        VkDependencyInfo dependencyInfo = {
+            .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+            .bufferMemoryBarrierCount = numBufferBarriers,
+            .pBufferMemoryBarriers = bufferBarriers,
+            .imageMemoryBarrierCount = numImageBarriers,
+            .pImageMemoryBarriers = imageBarriers,
+        };
+
+        vkCmdPipelineBarrier2( m_cmdListResource.m_commandBuffer, &dependencyInfo );
+
+        OnCommandRecorded();
+    }
+
+    void VulkanCopyCommandListImpl::Close()
+    {
+        m_barrierBatcher.Commit( *this );
+
+        VkResult result = vkEndCommandBuffer( m_cmdListResource.m_commandBuffer );
+        assert( result == VK_SUCCESS );
+    }
+
+    void VulkanCopyCommandListImpl::OnCommited()
+    {
+        InitializeCommandList();
+    }
+
+    void VulkanComputeCommandListImpl::OnCommited()
+    {
+        VulkanCopyCommandListImpl::OnCommited();
+    }
+
+    void VulkanCommandListImpl::ClearRenderTarget( RenderTargetView* renderTarget )
+    {
+        if ( renderTarget == nullptr )
+        {
+            return;
+        }
+
+        m_barrierBatcher.Commit( *this );
+
+        auto vulkanRTV = static_cast<VulkanImageRenderTargetView*>( renderTarget );
+        const ColorF& clearValue = vulkanRTV->GetClearColor();
+
+        VkClearValue vkClearValue = {
+            .color = { clearValue.R(), clearValue.G(), clearValue.B(), clearValue.A() },
+        };
+
+        VkRenderingAttachmentInfo colorAttachmentInfo = {
+            .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+            .imageView = vulkanRTV->GetImageView(),
+            .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            .resolveMode = VK_RESOLVE_MODE_NONE,
+            .resolveImageView = VK_NULL_HANDLE,
+            .resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+            .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+            .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+            .clearValue = vkClearValue,
+        };
+
+        VulkanTexture* owner = vulkanRTV->GetOwner();
+        const auto& textureDesc = owner->GetDesc();
+
+        VkRenderingInfo renderingInfo = {
+            .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
+            .renderArea = {
+                .offset = {
+                    .x = 0,
+                    .y = 0,
+                },
+                .extent = {
+                    .width = textureDesc.m_width,
+                    .height = textureDesc.m_height,
+                },
+            },
+            .layerCount = textureDesc.m_depth,
+            .colorAttachmentCount = 1,
+            .pColorAttachments = &colorAttachmentInfo,
+        };
+
+        vkCmdBeginRendering( m_cmdListResource.m_commandBuffer, &renderingInfo );
+        vkCmdEndRendering( m_cmdListResource.m_commandBuffer );
     }
 
     void VulkanComputeCommandList::Prepare()
     {
+        m_impl.Prepare();
     }
 
     void VulkanComputeCommandList::AddTransition( const ResourceTransition& transition )
     {
+        m_impl.AddTransition( transition );
     }
 
     void VulkanComputeCommandList::AddUavBarrier( const UavBarrier& uavBarrier )
     {
+        m_impl.AddUavBarrier( uavBarrier );
     }
 
     void VulkanComputeCommandList::BeginQuery( void* rawQuery )
@@ -154,6 +299,29 @@ namespace agl
 
     void VulkanComputeCommandList::Commit()
     {
+        if ( m_impl.HasCommands() == false )
+        {
+            return;
+        }
+
+        m_impl.Close();
+
+        VkCommandBufferSubmitInfo commandBufferSubmitInfo = {
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
+            .commandBuffer = m_impl.GetBuffer(),
+            .deviceMask = 0,
+        };
+
+        VkSubmitInfo2 submitInfo = {
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+            .commandBufferInfoCount = 1,
+            .pCommandBufferInfos = &commandBufferSubmitInfo
+        };
+
+        VkResult result = vkQueueSubmit2( m_impl.GetCommandQueue(), 1, &submitInfo, m_impl.GetFence() );
+        assert( result == VK_SUCCESS );
+
+        OnCommited();
     }
 
     void VulkanComputeCommandList::CopyResource( Texture* dest, Texture* src, bool bAsync )
@@ -196,16 +364,31 @@ namespace agl
     {
     }
 
+    void VulkanComputeCommandList::Initialize()
+    {
+        m_impl.Initialize();
+    }
+
+    void VulkanComputeCommandList::OnCommited()
+    {
+        m_impl.OnCommited();
+    }
+
     void VulkanCommandList::Prepare()
     {
+        m_impl.Prepare();
+
+        m_isCommitted = false;
     }
 
     void VulkanCommandList::AddTransition( const ResourceTransition& transition )
     {
+        m_impl.AddTransition( transition );
     }
 
     void VulkanCommandList::AddUavBarrier( const UavBarrier& uavBarrier )
     {
+        m_impl.AddUavBarrier( uavBarrier );
     }
 
     void VulkanCommandList::BeginQuery( void* rawQuery )
@@ -226,6 +409,38 @@ namespace agl
 
     void VulkanCommandList::Commit()
     {
+        if ( m_impl.HasCommands() == false )
+        {
+            return;
+        }
+
+        m_impl.Close();
+
+        VkSemaphoreSubmitInfo waitInfo = {
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+            .semaphore = VulkanFrameSync().m_imageAvailable,
+            .stageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
+            .deviceIndex = 0,
+        };
+
+        VkCommandBufferSubmitInfo commandBufferSubmitInfo = {
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO,
+            .commandBuffer = m_impl.GetBuffer(),
+            .deviceMask = 0,
+        };
+
+        VkSubmitInfo2 submitInfo = {
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+            .waitSemaphoreInfoCount = m_isCommitted ? 0u : 1u,
+            .pWaitSemaphoreInfos = m_isCommitted ? nullptr : &waitInfo,
+            .commandBufferInfoCount = 1,
+            .pCommandBufferInfos = &commandBufferSubmitInfo
+        };
+
+        VkResult result = vkQueueSubmit2( m_impl.GetCommandQueue(), 1, &submitInfo, m_impl.GetFence() );
+        assert( result == VK_SUCCESS );
+
+        OnCommited();
     }
 
     void VulkanCommandList::CopyResource( Texture* dest, Texture* src, bool bAsync )
@@ -306,6 +521,7 @@ namespace agl
 
     void VulkanCommandList::ClearRenderTarget( RenderTargetView* renderTarget )
     {
+        m_impl.ClearRenderTarget( renderTarget );
     }
 
     void VulkanCommandList::ClearDepthStencil( DepthStencilView* depthStencil )
@@ -315,5 +531,17 @@ namespace agl
     bool VulkanCommandList::CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult )
     {
         return false;
+    }
+
+    void VulkanCommandList::Initialize()
+    {
+        m_impl.Initialize();
+    }
+
+    void VulkanCommandList::OnCommited()
+    {
+        m_isCommitted = true;
+
+        m_impl.OnCommited();
     }
 }

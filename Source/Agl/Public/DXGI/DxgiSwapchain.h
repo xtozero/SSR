@@ -31,7 +31,8 @@ namespace agl
 				.m_pResource = backBuffer->Resource(),
 				.m_pTransitionable = backBuffer,
 				.m_subResource = AllSubResource,
-				.m_state = ResourceState::RenderTarget
+				.m_state = ResourceState::RenderTarget,
+				.m_isBuffer = false,
 			};
 
 			ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
@@ -51,7 +52,8 @@ namespace agl
 				.m_pResource = backBuffer->Resource(),
 				.m_pTransitionable = backBuffer,
 				.m_subResource = AllSubResource,
-				.m_state = ResourceState::Present
+				.m_state = ResourceState::Present,
+				.m_isBuffer = false,
 			};
 
 			ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();

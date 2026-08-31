@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ICommandList.h"
+#include "VulkanBarrierBatcher.h"
 
 #include <vulkan/vulkan.h>
 
@@ -22,12 +23,10 @@ namespace agl
     {
     public:
         void Initialize( uint32 queueFamilyIndex );
+        void Destroy();
 
         void Prepare();
         VulkanCommandListResource& GetCommandList();
-
-        VulkanCommandListResourcePool() = default;
-        ~VulkanCommandListResourcePool();
 
     private:
         uint32 m_queueFamilyIndex = 0;
@@ -43,10 +42,18 @@ namespace agl
         void Initialize();
         void Prepare();
 
+        bool HasCommands() const;
+
+        VkQueue GetCommandQueue() const;
+        VkCommandBuffer GetBuffer() const;
+        VkFence GetFence() const;
+
     protected:
         explicit VulkanBaseCommandListImpl( CommandListType type ) : m_type( type ) {}
 
         void InitializeCommandList();
+
+        void OnCommandRecorded();
 
         VulkanCommandListResource m_cmdListResource;
 
@@ -59,9 +66,20 @@ namespace agl
     class VulkanCopyCommandListImpl : public VulkanBaseCommandListImpl
     {
     public:
+        void AddTransition( const ResourceTransition& transition );
+        void AddUavBarrier( const UavBarrier& uavBarrier );
+
+        void PipelineBarrier( uint32 numBufferBarriers, const VkBufferMemoryBarrier2* bufferBarriers, uint32 numImageBarriers, const VkImageMemoryBarrier2* imageBarriers );
+
+        void Close();
+
+        void OnCommited();
+
         VulkanCopyCommandListImpl() : VulkanBaseCommandListImpl( CommandListType::Copy ) {}
 
     protected:
+        VulkanBarrierBatcher m_barrierBatcher;
+
         explicit VulkanCopyCommandListImpl( CommandListType type ) : VulkanBaseCommandListImpl( type ) {}
     };
 
@@ -70,6 +88,8 @@ namespace agl
     public:
         VulkanComputeCommandListImpl() : VulkanCopyCommandListImpl( CommandListType::Compute ) {}
 
+        void OnCommited();
+
     protected:
         explicit VulkanComputeCommandListImpl( CommandListType type ) : VulkanCopyCommandListImpl( type ) {}
     };
@@ -77,6 +97,8 @@ namespace agl
     class VulkanCommandListImpl : public VulkanComputeCommandListImpl
     {
     public:
+        void ClearRenderTarget( RenderTargetView* renderTarget );
+
         VulkanCommandListImpl() : VulkanComputeCommandListImpl( CommandListType::General ) {}
     };
 
@@ -110,6 +132,13 @@ namespace agl
 
         virtual void DispatchRays( const RaytracingPipelineState* pipelineState, const ShaderBindings& shaderBindings, uint32 width, uint32 height, uint32 depth ) override;
         virtual void ExecuteIndirect( IndirectCommandType type, Buffer* argument, uint64 argumentOffset ) override;
+
+        void Initialize();
+
+    private:
+        void OnCommited();
+
+        VulkanComputeCommandListImpl m_impl;
     };
 
     class IVulkanCommandList : public ICommandList
@@ -163,5 +192,14 @@ namespace agl
         virtual void ClearDepthStencil( DepthStencilView* depthStencil ) override;
 
         virtual bool CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult ) override;
+
+        void Initialize();
+
+    private:
+        void OnCommited();
+
+        VulkanCommandListImpl m_impl;
+
+        bool m_isCommitted = false;
     };
 }

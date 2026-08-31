@@ -648,6 +648,7 @@ namespace agl
 		ITransitionable* m_pTransitionable = nullptr;
 		uint32 m_subResource = 0;
 		ResourceState m_state = ResourceState::Common;
+		bool m_isBuffer = false;
 	};
 
 	struct UavBarrier

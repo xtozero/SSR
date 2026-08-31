@@ -4,6 +4,31 @@ namespace agl
 {
     void VulkanViewport::Clear()
     {
+        agl::Texture* backBuffer = m_frameBuffer.Get();
+        if ( backBuffer == nullptr )
+        {
+            return;
+        }
+
+        ResourceTransition transition
+        {
+            .m_pResource = backBuffer->Resource(),
+            .m_pTransitionable = backBuffer,
+            .m_subResource = AllSubResource,
+            .m_state = ResourceState::RenderTarget,
+            .m_isBuffer = false,
+        };
+
+        ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
+        commandList->AddTransition( transition );
+
+        if ( m_frameBuffer.Get() != nullptr )
+        {
+            if ( RenderTargetView* rtv = m_frameBuffer->RTV() )
+            {
+                commandList->ClearRenderTarget( rtv );
+            }
+        }
     }
 
     void VulkanViewport::Bind( ICommandList& commandList ) const

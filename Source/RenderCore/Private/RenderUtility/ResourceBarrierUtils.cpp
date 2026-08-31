@@ -9,7 +9,8 @@ namespace rendercore
 			.m_pResource = buffer.Resource(),
 			.m_pTransitionable = &buffer,
 			.m_subResource = subResource,
-			.m_state = state
+			.m_state = state,
+			.m_isBuffer = true,
 		};
 	}
 
@@ -20,7 +21,8 @@ namespace rendercore
 			.m_pResource = texture.Resource(),
 			.m_pTransitionable = &texture,
 			.m_subResource = subResource,
-			.m_state = state
+			.m_state = state,
+			.m_isBuffer = false,
 		};
 	}
 

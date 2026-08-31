@@ -10,6 +10,7 @@ namespace agl
 	class D3D12CopyCommandListImpl;
 
 	struct ResourceTransition;
+	struct UavBarrier;
 
 	class D3D12BarrierBatcher
 	{

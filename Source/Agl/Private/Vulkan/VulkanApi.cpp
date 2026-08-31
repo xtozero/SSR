@@ -125,6 +125,11 @@ namespace agl
             frameSyncContext.Destroy();
         }
         m_frameSyncContexts.clear();
+
+        for ( auto& cmdListResourcePool : m_cmdListResourcePools )
+        {
+            cmdListResourcePool.Destroy();
+        }
     }
 
     void Vulkan::HandleDeviceLost()
@@ -141,6 +146,9 @@ namespace agl
         {
             cmdPool.Prepare();
         }
+
+        GetCommandList()->Prepare();
+        GetComputeCommandList()->Prepare();
 
         VkFence fence = GetVulkanFrameSyncContext().m_frameComplete;
         VkResult result = vkResetFences( GetVulkanDevice(), 1, &fence );
@@ -482,12 +490,21 @@ namespace agl
             }
         }
 
-        m_commandList.resize( DefaultAgl::GetBufferCount() );
-        m_computeCommandList.resize( DefaultAgl::GetBufferCount() );
-
         m_cmdListResourcePools[CommandListType::General].Initialize( graphicsFamilyIndex );
         m_cmdListResourcePools[CommandListType::Compute].Initialize( computeFamilyIndex );
         m_cmdListResourcePools[CommandListType::Copy].Initialize( copyFamilyIndex );
+
+        m_commandList.resize( DefaultAgl::GetBufferCount() );
+        for ( VulkanCommandList& commandList : m_commandList )
+        {
+            commandList.Initialize();
+        }
+
+        m_computeCommandList.resize( DefaultAgl::GetBufferCount() );
+        for ( VulkanComputeCommandList& commandList : m_computeCommandList )
+        {
+            commandList.Initialize();
+        }
 
         return true;
     }

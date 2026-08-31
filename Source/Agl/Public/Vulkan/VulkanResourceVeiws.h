@@ -12,7 +12,8 @@ namespace agl
     class VulkanImageViewBase : public BaseClass
     {
     public:
-        GraphicsApiResource* GetOwner() const { return m_owner; }
+        VulkanTexture* GetOwner() const { return m_owner; }
+        VkImageView GetImageView() const { return m_view; }
 
         explicit VulkanImageViewBase( VulkanTexture* owner ) noexcept
             : m_owner( owner ) {}
@@ -82,7 +83,7 @@ namespace agl
                 .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
                 .image = static_cast<VkImage>( m_owner->Resource() ),
                 .viewType = viewType,
-                .format = ConvertFormatToVkFormat( desc.m_format ),
+                .format = ConvertToVkFormat( desc.m_format ),
                 .components = {
                     .r = VK_COMPONENT_SWIZZLE_IDENTITY,
                     .g = VK_COMPONENT_SWIZZLE_IDENTITY,
@@ -135,8 +136,14 @@ namespace agl
         using BaseClass = VulkanImageViewBase<RenderTargetView>;
 
     public:
-        using BaseClass::VulkanImageViewBase;
         using BaseClass::operator=;
+
+        VulkanImageRenderTargetView( VulkanTexture* owner, const ColorF& clearColor ) noexcept;
+
+        ColorF GetClearColor() const;
+
+    private:
+        ColorF m_clearColor = ColorF::Black;
     };
 
     class VulkanImageDepthStencilView final : public VulkanImageViewBase<DepthStencilView>

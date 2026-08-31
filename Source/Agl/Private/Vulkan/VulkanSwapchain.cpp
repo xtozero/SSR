@@ -13,6 +13,7 @@ namespace agl
     {
         constexpr uint64 MaxWaitTime = std::numeric_limits<uint64>::max();
         VkResult result = vkAcquireNextImageKHR( VulkanDevice(), m_swapchain, MaxWaitTime, VulkanFrameSync().m_imageAvailable, VK_NULL_HANDLE, &m_imageIndex );
+        // assert( result == VK_SUCCESS );
 
         agl::Texture* backBuffer = Texture();
         if ( backBuffer == nullptr )
@@ -25,7 +26,8 @@ namespace agl
             .m_pResource = backBuffer->Resource(),
             .m_pTransitionable = backBuffer,
             .m_subResource = AllSubResource,
-            .m_state = ResourceState::RenderTarget
+            .m_state = ResourceState::RenderTarget,
+            .m_isBuffer = false,
         };
 
         ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
@@ -45,7 +47,8 @@ namespace agl
             .m_pResource = backBuffer->Resource(),
             .m_pTransitionable = backBuffer,
             .m_subResource = AllSubResource,
-            .m_state = ResourceState::Present
+            .m_state = ResourceState::Present,
+            .m_isBuffer = false,
         };
 
         ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
@@ -54,8 +57,23 @@ namespace agl
 
     DeviceError VulkanSwapchain::Present( bool vSync, bool allowTearing )
     {
-        // Temp
-        VkSemaphore waitSemaphores[] = { VulkanFrameSync().m_imageAvailable };
+        VkSemaphoreSubmitInfo signalInfo = {
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+            .semaphore = VulkanFrameSync().m_renderFinished,
+            .stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+            .deviceIndex = 0,
+        };
+
+        VkSubmitInfo2 submitInfo = {
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+            .signalSemaphoreInfoCount = 1,
+            .pSignalSemaphoreInfos = &signalInfo,
+        };
+
+        VkResult result = vkQueueSubmit2( VulkanGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE );
+        assert( result == VK_SUCCESS );
+
+        VkSemaphore waitSemaphores[] = { VulkanFrameSync().m_renderFinished };
 
         VkPresentInfoKHR presentInfo = {
             .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
@@ -74,6 +92,15 @@ namespace agl
 
     void VulkanSwapchain::Clear()
     {
+        ICommandList* commandList = GetInterface<IAgl>()->GetCommandList();
+
+        if ( auto curTex = Texture() )
+        {
+            if ( auto rtv = curTex->RTV() )
+            {
+                commandList->ClearRenderTarget( rtv );
+            }
+        }
     }
 
     void* VulkanSwapchain::Handle() const

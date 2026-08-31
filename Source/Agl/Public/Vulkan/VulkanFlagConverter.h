@@ -4,7 +4,7 @@
 
 namespace agl
 {
-    inline VkFormat ConvertFormatToVkFormat( ResourceFormat format )
+    inline VkFormat ConvertToVkFormat( ResourceFormat format )
     {
         switch( format )
         {
@@ -842,5 +842,70 @@ namespace agl
         }
 
         return flags;
+    }
+
+    inline VkPipelineStageFlags2 ConvertToVkPipelineStageFlags2( ResourceState resourceState )
+    {
+        VkPipelineStageFlags2 vkPipelineStageFlags2 = VK_PIPELINE_STAGE_2_NONE;
+
+        if ( HasAnyFlags( resourceState, ResourceState::RenderTarget ) )
+        {
+            vkPipelineStageFlags2 |= VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+        }
+
+        if ( HasAnyFlags( resourceState, ResourceState::Present ) )
+        {
+            return VK_PIPELINE_STAGE_2_NONE;
+        }
+
+        return vkPipelineStageFlags2;
+    }
+
+    inline VkAccessFlags2 ConvertToVkAccessFlags2( ResourceState resourceState )
+    {
+        VkAccessFlags2 vkAccessFlags2 = VK_ACCESS_2_NONE;
+
+        if ( HasAnyFlags( resourceState, ResourceState::RenderTarget ) )
+        {
+            vkAccessFlags2 |= VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
+        }
+
+        if ( HasAnyFlags( resourceState, ResourceState::Present ) )
+        {
+            return VK_ACCESS_2_NONE;
+        }
+
+        return vkAccessFlags2;
+    }
+
+    inline VkImageLayout ConvertToVkImageLayout( ResourceState resourceState )
+    {
+        VkImageLayout vkImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+        if ( HasAnyFlags( resourceState, ResourceState::RenderTarget ) )
+        {
+            return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        }
+
+        if ( HasAnyFlags( resourceState, ResourceState::Present ) )
+        {
+            return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        }
+
+        return vkImageLayout;
+    }
+
+    inline VkImageAspectFlags ConvertToVkImageAspectFlags( ResourceState resourceState )
+    {
+        VkImageAspectFlags vkImageAspectFlags = VK_IMAGE_ASPECT_COLOR_BIT;
+
+        if ( HasAnyFlags( resourceState, ResourceState::DepthRead )
+            || HasAnyFlags( resourceState, ResourceState::DepthWrite ) )
+        {
+            // TODO
+            return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+        }
+
+        return vkImageAspectFlags;
     }
 }
