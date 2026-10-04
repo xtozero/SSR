@@ -171,6 +171,70 @@ namespace agl
         ++m_numCommands;
     }
 
+    void VulkanCopyCommandListImpl::UpdateSubresource( Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
+    {
+        auto vulkanBuffer = static_cast<VulkanBuffer*>( dest );
+        if ( vulkanBuffer == nullptr )
+        {
+            return;
+        }
+
+        m_barrierBatcher.Commit( *this );
+
+        /*
+        if ( bAsync )
+        {
+
+        }
+        else
+        */
+        {
+            if ( numByte == 0 )
+            {
+                numByte = dest->Size();
+            }
+
+            BufferDesc desc = {
+                .m_stride = numByte,
+                .m_count = 1,
+                .m_access = ResourceAccess::Upload,
+                .m_bindType = ResourceBindType::None,
+                .m_miscFlag = ResourceMisc::Intermediate,
+                .m_format = ResourceFormat::Unknown
+            };
+
+            auto intermediate = RefStaticCast<VulkanBuffer>( Buffer::Create( desc, "Uploader.Buffer.Intermediate" ) );
+
+            void* mappedData = intermediate->Lock().m_data;
+
+            std::memcpy( mappedData, src, numByte );
+
+            intermediate->UnLock();
+
+            VkBufferCopy2 copyRegion = {
+                .sType = VK_STRUCTURE_TYPE_BUFFER_COPY_2,
+                .srcOffset = 0,
+                .dstOffset = destOffset,
+                .size = numByte,
+            };
+
+            VkCopyBufferInfo2 copyInfo = {
+                .sType = VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2,
+                .srcBuffer = intermediate->Resource(),
+                .dstBuffer = vulkanBuffer->Resource(),
+                .regionCount = 1,
+                .pRegions = &copyRegion,
+            };
+
+            vkCmdCopyBuffer2( GetBuffer(), &copyInfo );
+
+            VulkanFrameResources().RegisterResource( vulkanBuffer );
+            VulkanFrameResources().RegisterResource( intermediate.Get() );
+
+            OnCommandRecorded();
+        }
+    }
+
     void VulkanCopyCommandListImpl::AddTransition( const ResourceTransition& transition )
     {
         m_barrierBatcher.AddTransition( transition );
@@ -326,18 +390,22 @@ namespace agl
 
     void VulkanComputeCommandList::CopyResource( Texture* dest, Texture* src, bool bAsync )
     {
+
     }
 
     void VulkanComputeCommandList::CopyResource( Buffer* dest, Buffer* src, bool bAsync, uint32 numByte )
     {
+
     }
 
     void VulkanComputeCommandList::UpdateSubresource( Texture* dest, const void* src, uint32 srcRowSize, bool bAsync, const CubeArea<uint32>* destArea, uint32 subresource )
     {
+
     }
 
     void VulkanComputeCommandList::UpdateSubresource( Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
     {
+        m_impl.UpdateSubresource( dest, src, bAsync, destOffset, numByte );
     }
 
     void VulkanComputeCommandList::BindPipelineState( const ComputePipelineState* pipelineState )

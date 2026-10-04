@@ -395,7 +395,7 @@ namespace rendercore
 
 							SetShaderValue( commandList, ProjectionMatrixShaderParam, imguiProjection );
 
-							auto texture = reinterpret_cast<agl::Texture*>(drawCommand.m_textureId);
+							auto texture = reinterpret_cast<agl::Texture*>( drawCommand.m_textureId );
 							commandList.AddTransition( Transition( *texture, agl::ResourceState::PixelShaderResource ) );
 
 							ResourceBinder resourceBinder;

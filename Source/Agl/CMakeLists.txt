@@ -175,6 +175,12 @@ set (RENDER_RESOURCE_SOURCE
 	Private/RenderResource/ShaderResource.cpp
 	Private/RenderResource/Texture.cpp
 	Private/RenderResource/Viewport.cpp)
+
+set (SHADER_COMPILER_HEADER
+	Public/ShaderCompiler/ShaderCompiler.h)
+
+set (SHADER_COMPILER_SOURCE
+	Private/ShaderCompiler/ShaderCompiler.cpp)
 	
 set (VULKAN_SOURCE
 	Public/Vulkan/VulkanApi.h
@@ -187,10 +193,12 @@ set (VULKAN_RENDER_RESOURCE_HEADER
 	Public/Vulkan/VulkanCommandList.h
 	Public/Vulkan/VulkanDepthStencilState.h
 	Public/Vulkan/VulkanFlagConverter.h
+	Public/Vulkan/VulkanFrameResourceCollection.h
 	Public/Vulkan/VulkanPipelineState.h
 	Public/Vulkan/VulkanQuery.h
 	Public/Vulkan/VulkanRasterizerState.h
 	Public/Vulkan/VulkanResourceManager.h
+	Public/Vulkan/VulkanResourceUploader.h
 	Public/Vulkan/VulkanResourceVeiws.h
 	Public/Vulkan/VulkanSamplerState.h
 	Public/Vulkan/VulkanShaders.h
@@ -205,10 +213,12 @@ set (VULKAN_RENDER_RESOURCE_SOURCE
 	Private/Vulkan/VulkanBuffer.cpp
 	Private/Vulkan/VulkanCommandList.cpp
 	Private/Vulkan/VulkanDepthStencilState.cpp
+	Private/Vulkan/VulkanFrameResourceCollection.cpp
 	Private/Vulkan/VulkanPipelineState.cpp
 	Private/Vulkan/VulkanQuery.cpp
 	Private/Vulkan/VulkanRasterizerState.cpp
 	Private/Vulkan/VulkanResourceManager.cpp
+	Private/Vulkan/VulkanResourceUploader.cpp
 	Private/Vulkan/VulkanResourceVeiws.cpp
 	Private/Vulkan/VulkanSamplerState.cpp
 	Private/Vulkan/VulkanShaders.cpp
@@ -251,7 +261,9 @@ add_library(Agl SHARED 	${COMMON_HEADER}
 						${DXC_SOURCE}
 						${DXGI_SOURCE}
 						${RENDER_RESOURCE_HEADER}
-						${RENDER_RESOURCE_SOURCE})
+						${RENDER_RESOURCE_SOURCE}
+						${SHADER_COMPILER_HEADER}
+						${SHADER_COMPILER_SOURCE})
 
 target_include_directories(Agl
 PUBLIC

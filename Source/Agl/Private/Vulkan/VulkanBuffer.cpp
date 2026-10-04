@@ -12,7 +12,16 @@ namespace
 {
     VkBufferUsageFlags ConvertToVkBufferUsage( const BufferDesc& desc )
     {
-        VkBufferUsageFlags usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        VkBufferUsageFlags usage = 0;
+        if ( HasAllFlags( desc.m_access, agl::ResourceAccess::Default ) )
+        {
+            usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        }
+
+        if ( HasAllFlags( desc.m_access, agl::ResourceAccess::Upload ) )
+        {
+            usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+        }
 
         if ( HasAnyFlags( desc.m_bindType, ResourceBindType::VertexBuffer ) )
         {
@@ -105,8 +114,13 @@ namespace agl
             // TODO
         }
 
+        VkMemoryMapInfo mapInfo = {
+            .sType = VK_STRUCTURE_TYPE_MEMORY_MAP_INFO,
+            .memory = m_deviceMemory,
+            .size = Size(),
+        };
         void* data = nullptr;
-        if ( vkMapMemory( VulkanDevice(), m_deviceMemory, 0, Size(), 0, &data ) != VK_SUCCESS )
+        if ( vkMapMemory2( VulkanDevice(), &mapInfo, &data ) != VK_SUCCESS )
         {
             return {};
         }
@@ -127,7 +141,16 @@ namespace agl
             return;
         }
 
-        vkUnmapMemory( VulkanDevice(), m_deviceMemory );
+        VkMemoryUnmapInfo unmapInfo = {
+            .sType = VK_STRUCTURE_TYPE_MEMORY_UNMAP_INFO,
+            .memory = m_deviceMemory,
+        };
+        vkUnmapMemory2( VulkanDevice(), &unmapInfo );
+    }
+
+    VkBuffer VulkanBuffer::Resource()
+    {
+        return m_buffer;
     }
 
     VulkanBuffer::VulkanBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData )
@@ -184,13 +207,22 @@ namespace agl
         {
             if ( HasAnyFlags( m_desc.m_access, ResourceAccess::CpuWrite ) )
             {
+                VkMemoryMapInfo mapInfo = {
+                    .sType = VK_STRUCTURE_TYPE_MEMORY_MAP_INFO,
+                    .memory = m_deviceMemory,
+                    .size = bufferCreateInfo.size,
+                };
                 void* data = nullptr;
-                result = vkMapMemory( device, m_deviceMemory, 0, bufferCreateInfo.size, 0, &data );
+                result = vkMapMemory2( device, &mapInfo, &data );
                 assert( result == VK_SUCCESS );
 
                 std::memcpy( data, m_dataStorage, Size() );
 
-                vkUnmapMemory( device, m_deviceMemory );
+                VkMemoryUnmapInfo unmapInfo = {
+                    .sType = VK_STRUCTURE_TYPE_MEMORY_UNMAP_INFO,
+                    .memory = m_deviceMemory,
+                };
+                vkUnmapMemory2( device, &unmapInfo );
             }
             else
             {

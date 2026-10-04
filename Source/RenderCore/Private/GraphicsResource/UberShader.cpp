@@ -194,9 +194,6 @@ namespace rendercore
 
 		permutation.ForEachShaderDefine( visitor );
 
-		visitor.m_defines.emplace_back( nullptr );
-		visitor.m_defines.emplace_back( nullptr );
-
 		return GraphicsInterface().CompieShader( m_shaderCode, visitor.m_defines, m_type, m_entryPoint.c_str() );
 	}
 

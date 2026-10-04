@@ -12,19 +12,12 @@ public:
 	RefHandle() = default;
 	RefHandle( ReferencedType* reference ) : m_reference( reference )
 	{
-		if ( m_reference )
-		{
-			m_reference->AddRef();
-		}
+		AddRef();
 	}
 
 	~RefHandle()
 	{
-		if ( m_reference )
-		{
-			m_reference->ReleaseRef();
-		}
-
+		ReleaseRef();
 		m_reference = nullptr;
 	}
 
@@ -37,16 +30,9 @@ public:
 	{
 		if ( this != &other )
 		{
-			if ( m_reference )
-			{
-				m_reference->ReleaseRef();
-			}
-
+			ReleaseRef();
 			m_reference = other.m_reference;
-			if ( m_reference )
-			{
-				m_reference->AddRef();
-			}
+			AddRef();
 		}
 
 		return *this;
@@ -61,11 +47,7 @@ public:
 	{
 		if ( this != &other )
 		{
-			if ( m_reference )
-			{
-				m_reference->ReleaseRef();
-			}
-
+			ReleaseRef();
 			m_reference = other.m_reference;
 			other.m_reference = nullptr;
 		}
@@ -99,6 +81,22 @@ public:
 	}
 
 private:
+	void AddRef()
+	{
+		if ( m_reference )
+		{
+			const_cast<std::remove_const_t<ReferencedType>*>(m_reference)->AddRef();
+		}
+	}
+
+	void ReleaseRef()
+	{
+		if ( m_reference )
+		{
+			const_cast<std::remove_const_t<ReferencedType>*>(m_reference)->ReleaseRef();
+		}
+	}
+
 	ReferencedType* m_reference = nullptr;
 };
 

@@ -10,6 +10,7 @@
 
 #include "IAgl.h"
 
+#include "ShaderCompiler/ShaderCompiler.h"
 #include "ShaderParameterMap.h"
 
 #include "Texture.h"
@@ -204,8 +205,6 @@ namespace agl
 		void ReportLiveDevice() const;
 		void EnumerateSampleCountAndQuality( int32* size, DXGI_SAMPLE_DESC* pSamples ) const;
 
-		const char* GetShaderProfile( ShaderType type ) const;
-
 		ComPtr<IDXGIFactory7> m_pdxgiFactory;
 
 		ComPtr<ID3D11Device> m_pd3d11Device;
@@ -215,6 +214,8 @@ namespace agl
 			.Count = 1,
 			.Quality = 0
 		};
+
+		ShaderCompiler m_shaderCompiler;
 
 		D3D11CommandList m_commandList;
 	};
@@ -232,6 +233,11 @@ namespace agl
 		}
 
 		if ( !CreateDeviceDependentResource() )
+		{
+			return false;
+		}
+
+		if ( m_shaderCompiler.Initialize( D3D_SHADER_MODEL_5_1 ) == false )
 		{
 			return false;
 		}
@@ -387,24 +393,6 @@ namespace agl
 		}
 	}
 
-	const char* Direct3D11::GetShaderProfile( ShaderType type ) const
-	{
-		switch ( type )
-		{
-		case ShaderType::Vertex:
-			return "vs_5_0";
-		case ShaderType::Geometry:
-			return "gs_5_0";
-		case ShaderType::Pixel:
-			return "ps_5_0";
-		case ShaderType::Compute:
-			return "cs_5_0";
-		}
-
-		assert( false && "Invalid shader type" );
-		return "";
-	}
-
 	void Direct3D11::GetRendererMultiSampleOption( MultiSampleOption* option )
 	{
 		assert( option != nullptr );
@@ -429,42 +417,7 @@ namespace agl
 
 	BinaryChunk Direct3D11::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, ShaderType type, const char* entryPoint ) const
 	{
-		ComPtr<ID3DBlob> byteCode = nullptr;
-		ComPtr<ID3DBlob> errorMsg = nullptr;
-
-		std::vector<D3D_SHADER_MACRO> macros;
-
-		macros.resize( ( defines.size() >> 1 ) + 1 );
-		D3D_SHADER_MACRO* macro = macros.data();
-		for ( uint32 i = 0; i < defines.size(); )
-		{
-			macro->Name = defines[i++];
-			macro->Definition = defines[i++];
-			++macro;
-		}
-		macros.back().Name = nullptr;
-		macros.back().Definition = nullptr;
-
-		HRESULT result = D3DCompile( source.Data(),
-			source.Size(),
-			nullptr,
-			macros.data(),
-			nullptr,
-			entryPoint,
-			GetShaderProfile( type ),
-			D3DCOMPILE_ENABLE_STRICTNESS,
-			0,
-			&byteCode,
-			&errorMsg );
-
-		if ( SUCCEEDED( result ) )
-		{
-			BinaryChunk compiled( static_cast<uint32>( byteCode->GetBufferSize() ) );
-			std::memcpy( compiled.Data(), byteCode->GetBufferPointer(), byteCode->GetBufferSize() );
-			return compiled;
-		}
-
-		return {};
+		return m_shaderCompiler.CompileToDXBC( source, defines, type, entryPoint ).GetByteCode();
 	}
 
 	bool Direct3D11::BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const

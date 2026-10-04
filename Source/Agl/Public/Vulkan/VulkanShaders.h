@@ -1,101 +1,110 @@
 #pragma once
 
+#include "VulkanApi.h"
+
 namespace agl
 {
-	class VulkanVertexShader final : public VertexShader
+	template <typename BaseClass>
+	class VulkanShaderBase : public BaseClass
+	{
+	protected:
+		VulkanShaderBase( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+			: BaseClass( byteCode, byteCodeSize, paramInfo ) {}
+
+		VkShaderModule m_shaderModule = VK_NULL_HANDLE;
+
+	private:
+		virtual void InitResource() override
+		{
+			VkShaderModuleCreateInfo createInfo = {
+				.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+				.codeSize = BaseClass::ByteCodeSize(),
+				.pCode = static_cast<const uint32*>( BaseClass::ByteCode() ),
+			};
+
+			VkResult result = vkCreateShaderModule( VulkanDevice(), &createInfo, nullptr, &m_shaderModule );
+			assert( result == VK_SUCCESS );
+		}
+
+		virtual void FreeResource() override
+		{
+			if ( m_shaderModule != VK_NULL_HANDLE )
+			{
+				vkDestroyShaderModule( VulkanDevice(), m_shaderModule, nullptr );
+			}
+		}
+	};
+
+	class VulkanVertexShader final : public VulkanShaderBase<VertexShader>
 	{
 	public:
 		VulkanVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: VertexShader( byteCode, byteCodeSize, paramInfo ) {}
+			: VulkanShaderBase<VertexShader>( byteCode, byteCodeSize, paramInfo ) {}
 		VulkanVertexShader( const VulkanVertexShader& ) = delete;
 		VulkanVertexShader( VulkanVertexShader&& ) = default;
 		VulkanVertexShader& operator=( const VulkanVertexShader& ) = delete;
 		VulkanVertexShader& operator=( VulkanVertexShader&& ) = default;
 		virtual ~VulkanVertexShader() override = default;
-
-	private:
-		virtual void InitResource() override {}
-		virtual void FreeResource() override {}
 	};
 
-	class VulkanGeometryShader final : public GeometryShader
+	class VulkanGeometryShader final : public VulkanShaderBase<GeometryShader>
 	{
 	public:
 		VulkanGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: GeometryShader( byteCode, byteCodeSize, paramInfo ) {}
+			: VulkanShaderBase<GeometryShader>( byteCode, byteCodeSize, paramInfo ) {}
 		VulkanGeometryShader( const VulkanGeometryShader& ) = delete;
 		VulkanGeometryShader( VulkanGeometryShader&& ) = default;
 		VulkanGeometryShader& operator=( const VulkanGeometryShader& ) = delete;
 		VulkanGeometryShader& operator=( VulkanGeometryShader&& ) = default;
 		virtual ~VulkanGeometryShader() override = default;
-
-	private:
-		virtual void InitResource() override {}
-		virtual void FreeResource() override {}
 	};
 
-	class VulkanPixelShader final : public PixelShader
+	class VulkanPixelShader final : public VulkanShaderBase<PixelShader>
 	{
 	public:
 		VulkanPixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: PixelShader( byteCode, byteCodeSize, paramInfo ) {}
+			: VulkanShaderBase<PixelShader>( byteCode, byteCodeSize, paramInfo ) {}
 		VulkanPixelShader( const VulkanPixelShader& ) = delete;
 		VulkanPixelShader( VulkanPixelShader&& ) = default;
 		VulkanPixelShader& operator=( const VulkanPixelShader& ) = delete;
 		VulkanPixelShader& operator=( VulkanPixelShader&& ) = default;
 		virtual ~VulkanPixelShader() override = default;
-
-	private:
-		virtual void InitResource() override {}
-		virtual void FreeResource() override {}
 	};
 
-	class VulkanComputeShader final : public ComputeShader
+	class VulkanComputeShader final : public VulkanShaderBase<ComputeShader>
 	{
 	public:
 		VulkanComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: ComputeShader( byteCode, byteCodeSize, paramInfo ) {}
+			: VulkanShaderBase<ComputeShader>( byteCode, byteCodeSize, paramInfo ) {}
 		VulkanComputeShader( const VulkanComputeShader& ) = delete;
 		VulkanComputeShader( VulkanComputeShader&& ) = default;
 		VulkanComputeShader& operator=( const VulkanComputeShader& ) = delete;
 		VulkanComputeShader& operator=( VulkanComputeShader&& ) = default;
 		virtual ~VulkanComputeShader() override = default;
-
-	private:
-		virtual void InitResource() override {}
-		virtual void FreeResource() override {}
 	};
 
-	class VulkanMeshShader final : public MeshShader
+	class VulkanMeshShader final : public VulkanShaderBase<MeshShader>
 	{
 	public:
 		VulkanMeshShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: MeshShader( byteCode, byteCodeSize, paramInfo ) {}
+			: VulkanShaderBase<MeshShader>( byteCode, byteCodeSize, paramInfo ) {}
 		VulkanMeshShader( const VulkanMeshShader& ) = delete;
 		VulkanMeshShader( VulkanMeshShader&& ) = default;
 		VulkanMeshShader& operator=( const VulkanMeshShader& ) = delete;
 		VulkanMeshShader& operator=( VulkanMeshShader&& ) = default;
 		virtual ~VulkanMeshShader() override = default;
-
-	private:
-		virtual void InitResource() override {}
-		virtual void FreeResource() override {}
 	};
 
-	class VulkanAmplificationShader final : public AmplificationShader
+	class VulkanAmplificationShader final : public VulkanShaderBase<AmplificationShader>
 	{
 	public:
 		VulkanAmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: AmplificationShader( byteCode, byteCodeSize, paramInfo ) {}
+			: VulkanShaderBase<AmplificationShader>( byteCode, byteCodeSize, paramInfo ) {}
 		VulkanAmplificationShader( const VulkanAmplificationShader& ) = delete;
 		VulkanAmplificationShader( VulkanAmplificationShader&& ) = default;
 		VulkanAmplificationShader& operator=( const VulkanAmplificationShader& ) = delete;
 		VulkanAmplificationShader& operator=( VulkanAmplificationShader&& ) = default;
 		virtual ~VulkanAmplificationShader() override = default;
-
-	private:
-		virtual void InitResource() override {}
-		virtual void FreeResource() override {}
 	};
 
 	class VulkanRayGenerationShader final : public RayGenerationShader

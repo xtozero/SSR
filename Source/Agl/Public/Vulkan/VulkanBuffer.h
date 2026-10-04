@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan.h>
 
 #include "Buffer.h"
 
@@ -16,6 +16,8 @@ namespace agl
 
         virtual LockedResource Lock( uint32 subResource = 0, ResourceLockFlag lockFlag = ResourceLockFlag::WriteDiscard );
         virtual void UnLock( uint32 subResource = 0 );
+
+        VkBuffer Resource();
 
         VulkanBuffer( const BufferDesc& desc, const char* debugName, ResourceState initialState, const void* initData );
         virtual ~VulkanBuffer() override;

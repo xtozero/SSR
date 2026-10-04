@@ -1,24 +1,11 @@
 #pragma once
+
 #include "AssetBuilder.h"
+#include "ShaderCompiler/ShaderCompiler.h"
 
-#include "dxcapi.h"
-
+#include <dxcapi.h>
 #include <vector>
 #include <wrl/client.h>
-
-class ShaderCompileResult
-{
-public:
-	bool Succeeded() const;
-	const char* GetErrorMessage() const;
-
-	ShaderCompileResult( bool succeeded, const Microsoft::WRL::ComPtr<IUnknown>& errorMsgBlob );
-	ShaderCompileResult() = default;
-
-private:
-	Microsoft::WRL::ComPtr<IUnknown> m_errorMsgBlob;
-	bool m_succeeded = false;
-};
 
 class ShaderBuilder final : public IAssetBuilder
 {
@@ -29,9 +16,10 @@ public:
 	virtual bool Initialize() override;
 
 private:
-	bool CompileShaderCombination( const std::string& shaderFile, agl::ShaderType shaderType,  const char* entryPoint, rendercore::IShaderPermutation& permutation, std::vector<ShaderCompileResult>& outErrorMsgs ) const;
+	bool CompileShaderCombination( const std::string& shaderFile, agl::ShaderType shaderType, const char* entryPoint, rendercore::IShaderPermutation& permutation, std::vector<BinaryChunk>& outErrorMsgs ) const;
 
-	ShaderCompileResult CompileD3D12Shader( const std::string& shaderFile,  const char* entryPoint, const char* featureLevel, const rendercore::IShaderPermutation& permutation ) const;
+	agl::ShaderCompileResult CompileD3D11Shader( const BinaryChunk& source, const std::vector<const char*>& defines, agl::ShaderType shaderType, const char* entryPoint ) const;
+	agl::ShaderCompileResult CompileD3D12Shader( const BinaryChunk& source, const std::vector<const char*>& defines, agl::ShaderType shaderType, const char* entryPoint ) const;
 
-	Microsoft::WRL::ComPtr<IDxcCompiler3> m_compiler;
+	agl::ShaderCompiler m_shaderCompiler;
 };

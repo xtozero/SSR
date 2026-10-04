@@ -8,6 +8,7 @@
 namespace agl
 {
     class VulkanCommandListResourcePool;
+    class VulkanFrameResourceCollection;
 
     class VulkanFrameSyncContext
     {
@@ -29,7 +30,9 @@ namespace agl
     VkQueue VulkanGraphicsQueue();
     VkQueue VulkanPresentQueue();
     VkQueue VulkanComputeQueue();
+    VkQueue VulkanTransferQueue();
 
     VulkanCommandListResourcePool& VulkanCmdPool( CommandListType type );
     VulkanFrameSyncContext VulkanFrameSync();
+    VulkanFrameResourceCollection& VulkanFrameResources();
 }

@@ -66,6 +66,8 @@ namespace agl
     class VulkanCopyCommandListImpl : public VulkanBaseCommandListImpl
     {
     public:
+        void UpdateSubresource( Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte );
+
         void AddTransition( const ResourceTransition& transition );
         void AddUavBarrier( const UavBarrier& uavBarrier );
 

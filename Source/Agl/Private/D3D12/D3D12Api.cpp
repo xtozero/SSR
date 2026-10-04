@@ -19,6 +19,7 @@
 #include "LibraryTool/InterfaceFactories.h"
 #include "Memory/InlineMemoryAllocator.h"
 
+#include "ShaderCompiler/ShaderCompiler.h"
 #include "ShaderParameterMap.h"
 
 #include "d3d12shader.h"
@@ -286,9 +287,10 @@ namespace agl
 		ComPtr<ID3D12Fence> m_computeFence;
 		uint64 m_computeFenceValue = 0;
 
-		ComPtr<IDxcCompiler3> m_compiler;
 		ComPtr<IDxcLibrary> m_dxcLibrary;
 		ComPtr<IDxcContainerReflection> m_reflection;
+
+		ShaderCompiler m_shaderCompiler;
 
 		bool m_psoLibraryCacheAvailable = false;
 		bool m_raytracingAvailable = false;
@@ -336,6 +338,11 @@ namespace agl
 		}
 
 		if ( CheckFeatureSupport() == false )
+		{
+			return false;
+		}
+
+		if ( m_shaderCompiler.Initialize( m_shaderModel.HighestShaderModel ) == false )
 		{
 			return false;
 		}
@@ -522,89 +529,7 @@ namespace agl
 
 	BinaryChunk Direct3D12::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, ShaderType type, const char* entryPoint ) const
 	{
-		DxcBuffer buffer = {
-			.Ptr = source.Data(),
-			.Size = source.Size(),
-			.Encoding = DXC_CP_ACP
-		};
-
-		std::vector<const wchar_t*> args;
-		args.reserve( 64 );
-
-		// entry point
-		if ( IsRaytracingShader( type ) )
-		{
-			args.push_back( L"-auto-binding-space 0" );
-			args.push_back( L"-exports" );
-		}
-		else
-		{
-			args.push_back( L"-E" );
-		}
-
-		wchar_t wEntryPoint[64] = {};
-		{
-			ToWideChar( wEntryPoint, std::extent_v<decltype( wEntryPoint )>, entryPoint );
-		}
-		args.push_back( wEntryPoint );
-
-		// target profile
-		args.push_back( L"-T" );
-		args.push_back( GetShaderProfile( type ) );
-
-#if _DEBUG
-		args.push_back( L"-Zs" );
-#endif
-
-		// defines
-		args.push_back( L"-D" );
-		args.push_back( L"D3D12=1");
-
-		constexpr int32 MaxDefineLen = 256;
-		std::vector<std::array<wchar_t, MaxDefineLen>> defineStorage;
-		defineStorage.reserve( defines.size() / 2 );
-
-		for ( uint32 i = 0; i < defines.size(); i += 2 )
-		{
-			if ( defines[i] == nullptr || defines[i + 1] == nullptr )
-			{
-				continue;
-			}
-
-			std::array<char, MaxDefineLen> define;
-
-			SPrintf( define.data(), MaxDefineLen, "%s=%s", defines[i], defines[i + 1] );
-
-			defineStorage.emplace_back();
-			std::array<wchar_t, MaxDefineLen>& wDefine = defineStorage.back();
-
-			ToWideChar( wDefine.data(), MaxDefineLen, define.data() );
-
-			args.push_back( L"-D" );
-			args.push_back( wDefine.data() );
-		}
-
-		ComPtr<IDxcResult> results;
-		m_compiler->Compile( &buffer
-			, args.data()
-			, static_cast<uint32>( args.size() )
-			, nullptr
-			, IID_PPV_ARGS( results.GetAddressOf() ) );
-
-		HRESULT hResult = S_OK;
-		results->GetStatus( &hResult );
-		assert( SUCCEEDED( hResult ) );
-
-		ComPtr<IDxcBlob> compiledBinary = nullptr;
-		ComPtr<IDxcBlobUtf16> shaderName = nullptr;
-		results->GetOutput( DXC_OUT_OBJECT, IID_PPV_ARGS( compiledBinary.GetAddressOf() ), shaderName.GetAddressOf() );
-
-		assert( compiledBinary.Get() != nullptr );
-
-		BinaryChunk binary( static_cast<uint32>( compiledBinary->GetBufferSize() ) );
-		std::memcpy( binary.Data(), compiledBinary->GetBufferPointer(), compiledBinary->GetBufferSize() );
-
-		return binary;
+		return m_shaderCompiler.CompileToDXIL( source, defines, type, entryPoint ).GetByteCode();
 	}
 
 	bool Direct3D12::BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const
@@ -942,12 +867,6 @@ namespace agl
 
 		m_fenceValues.resize( DefaultAgl::GetBufferCount(), 0 );
 		m_frameResources.resize( DefaultAgl::GetBufferCount() );
-
-		hr = DxcCreateInstance( CLSID_DxcCompiler, IID_PPV_ARGS( m_compiler.GetAddressOf() ) );
-		if ( FAILED( hr ) )
-		{
-			return false;
-		}
 
 		hr = DxcCreateInstance( CLSID_DxcLibrary, IID_PPV_ARGS( m_dxcLibrary.GetAddressOf() ) );
 		if ( FAILED( hr ) )

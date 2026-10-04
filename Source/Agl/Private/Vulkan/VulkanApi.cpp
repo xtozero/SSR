@@ -3,11 +3,15 @@
 #include "IAgl.h"
 #include "Memory/InlineMemoryAllocator.h"
 
+#include "ShaderCompiler/ShaderCompiler.h"
+
 #include "VulkanCommandList.h"
+#include "VulkanFrameResourceCollection.h"
 #include "VulkanSwapchain.h"
 
 #include <set>
 #include <vector>
+
 #ifdef _WIN32
 #include <vulkan/vulkan_win32.h>
 #endif
@@ -62,9 +66,12 @@ namespace agl
         VkQueue GetVulkanGraphicsQueue() const;
         VkQueue GetVulkanPresentQueue() const;
         VkQueue GetVulkanComputeQueue() const;
+        VkQueue GetVulkanTransferQueue() const;
 
         VulkanCommandListResourcePool& GetVulkanCmdPool( CommandListType type );
         VulkanFrameSyncContext GetVulkanFrameSyncContext() const;
+
+        VulkanFrameResourceCollection& GetFrameResourceCollection();
 
         virtual ~Vulkan() override;
 
@@ -81,8 +88,11 @@ namespace agl
         VkQueue m_vkGraphicsQueue = VK_NULL_HANDLE;
         VkQueue m_vkPresentQueue = VK_NULL_HANDLE;
         VkQueue m_vkComputeQueue = VK_NULL_HANDLE;
+        VkQueue m_vkTransferQueue = VK_NULL_HANDLE;
 
         std::vector<VulkanFrameSyncContext, InlineAllocator<VulkanFrameSyncContext, 2>> m_frameSyncContexts;
+
+        ShaderCompiler m_shaderCompiler;
 
         uint32 m_frameIndex = 0;
 
@@ -90,6 +100,8 @@ namespace agl
         std::vector<VulkanComputeCommandList, InlineAllocator<VulkanComputeCommandList, 2>> m_computeCommandList;
 
         VulkanCommandListResourcePool m_cmdListResourcePools[3];
+
+        std::vector<VulkanFrameResourceCollection, InlineAllocator<VulkanFrameResourceCollection, 2>> m_frameResources;
     };
 
     AglType Vulkan::GetType() const
@@ -105,6 +117,11 @@ namespace agl
         }
 
         if ( CreateDeviceDependentResource( windowCtx ) == false )
+        {
+            return false;
+        }
+
+        if ( m_shaderCompiler.Initialize( D3D_SHADER_MODEL_6_8 ) == false )
         {
             return false;
         }
@@ -130,6 +147,11 @@ namespace agl
         {
             cmdListResourcePool.Destroy();
         }
+
+        for ( auto& frameResourceCollection : m_frameResources )
+        {
+            frameResourceCollection.ReleaseResources();
+        }
     }
 
     void Vulkan::HandleDeviceLost()
@@ -149,6 +171,8 @@ namespace agl
 
         GetCommandList()->Prepare();
         GetComputeCommandList()->Prepare();
+
+        VulkanFrameResources().ReleaseResources();
 
         VkFence fence = GetVulkanFrameSyncContext().m_frameComplete;
         VkResult result = vkResetFences( GetVulkanDevice(), 1, &fence );
@@ -234,9 +258,7 @@ namespace agl
 
     BinaryChunk Vulkan::CompileShader( const BinaryChunk& source, std::vector<const char*>& defines, ShaderType type, const char* entryPoint ) const
     {
-        // TODO
-        BinaryChunk dummy( 1 );
-        return dummy;
+        return m_shaderCompiler.CompileToDXIL( source, defines, type, entryPoint ).GetByteCode();
     }
 
     bool Vulkan::BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const
@@ -309,6 +331,11 @@ namespace agl
         return m_vkComputeQueue;
     }
 
+    VkQueue Vulkan::GetVulkanTransferQueue() const
+    {
+        return m_vkTransferQueue;
+    }
+
     VulkanCommandListResourcePool& Vulkan::GetVulkanCmdPool( CommandListType type )
     {
         switch ( type )
@@ -328,6 +355,11 @@ namespace agl
     VulkanFrameSyncContext Vulkan::GetVulkanFrameSyncContext() const
     {
         return m_frameSyncContexts[m_frameIndex];
+    }
+
+    VulkanFrameResourceCollection& Vulkan::GetFrameResourceCollection()
+    {
+        return m_frameResources[m_frameIndex];
     }
 
     Vulkan::~Vulkan()
@@ -373,7 +405,7 @@ namespace agl
         vkGetPhysicalDeviceQueueFamilyProperties( m_vkPhysicalDevice, &queueFamilyCount, queueFamilyProperties.data() );
 
         int32 computeFamilyIndex = -1;
-        int32 copyFamilyIndex = -1;
+        int32 transferFamilyIndex = -1;
         int32 graphicsFamilyIndex = -1;
         int32 presentFamilyIndex = -1;
         for ( uint32 i = 0; i < queueFamilyCount; ++i )
@@ -397,11 +429,11 @@ namespace agl
             }
             else if ( queueFamilyProperties[i].queueFlags & VK_QUEUE_TRANSFER_BIT )
             {
-                copyFamilyIndex = i;
+                transferFamilyIndex = i;
             }
 
             if ( ( computeFamilyIndex != -1 )
-                && ( copyFamilyIndex != -1 )
+                && ( transferFamilyIndex != -1 )
                 && ( graphicsFamilyIndex != -1 )
                 && ( presentFamilyIndex != -1 ) )
             {
@@ -412,7 +444,7 @@ namespace agl
         vkDestroySurfaceKHR( m_vkInstance, surface, nullptr );
 
         if ( ( computeFamilyIndex == -1 )
-            || ( copyFamilyIndex == -1 )
+            || ( transferFamilyIndex == -1 )
             || ( graphicsFamilyIndex == -1 )
             || ( presentFamilyIndex == -1 ) )
         {
@@ -426,7 +458,7 @@ namespace agl
 
         std::set<int32> uniqueQueueFamilies;
         uniqueQueueFamilies.emplace( computeFamilyIndex );
-        uniqueQueueFamilies.emplace( copyFamilyIndex );
+        uniqueQueueFamilies.emplace( transferFamilyIndex );
         uniqueQueueFamilies.emplace( graphicsFamilyIndex );
         uniqueQueueFamilies.emplace( presentFamilyIndex );
 
@@ -459,7 +491,9 @@ namespace agl
 
         std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
-        VkPhysicalDeviceFeatures deviceFeatures = {};
+        VkPhysicalDeviceFeatures deviceFeatures = {
+            .geometryShader = VK_TRUE,
+        };
 
         VkDeviceCreateInfo createInfo = {
             .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -480,6 +514,7 @@ namespace agl
         vkGetDeviceQueue( m_vkDevice, graphicsFamilyIndex, 0, &m_vkGraphicsQueue );
         vkGetDeviceQueue( m_vkDevice, presentFamilyIndex, 0, &m_vkPresentQueue );
         vkGetDeviceQueue( m_vkDevice, computeFamilyIndex, 0, &m_vkComputeQueue );
+        vkGetDeviceQueue( m_vkDevice, transferFamilyIndex, 0, &m_vkTransferQueue );
 
         m_frameSyncContexts.resize( DefaultAgl::GetBufferCount() );
         for ( auto& frameSyncContext : m_frameSyncContexts )
@@ -492,7 +527,7 @@ namespace agl
 
         m_cmdListResourcePools[CommandListType::General].Initialize( graphicsFamilyIndex );
         m_cmdListResourcePools[CommandListType::Compute].Initialize( computeFamilyIndex );
-        m_cmdListResourcePools[CommandListType::Copy].Initialize( copyFamilyIndex );
+        m_cmdListResourcePools[CommandListType::Copy].Initialize( transferFamilyIndex );
 
         m_commandList.resize( DefaultAgl::GetBufferCount() );
         for ( VulkanCommandList& commandList : m_commandList )
@@ -558,6 +593,8 @@ namespace agl
         {
             return false;
         }
+
+        m_frameResources.resize( DefaultAgl::GetBufferCount() );
 
         return true;
     }
@@ -672,6 +709,11 @@ namespace agl
         return GetVulkan().GetVulkanComputeQueue();
     }
 
+    VkQueue VulkanTransferQueue()
+    {
+        return GetVulkan().GetVulkanTransferQueue();
+    }
+
     VulkanCommandListResourcePool& VulkanCmdPool( CommandListType type )
     {
         return GetVulkan().GetVulkanCmdPool( type );
@@ -680,5 +722,10 @@ namespace agl
     VulkanFrameSyncContext VulkanFrameSync()
     {
         return GetVulkan().GetVulkanFrameSyncContext();
+    }
+
+    VulkanFrameResourceCollection& VulkanFrameResources()
+    {
+        return GetVulkan().GetFrameResourceCollection();
     }
 }
