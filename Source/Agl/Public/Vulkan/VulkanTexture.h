@@ -23,6 +23,8 @@ namespace agl
         virtual void CreateTexture() override;
 
         VkImage m_image = VK_NULL_HANDLE;
+        VkDeviceMemory m_deviceMemory = VK_NULL_HANDLE;
+
         bool m_isExternalImage = false;
 
     private:

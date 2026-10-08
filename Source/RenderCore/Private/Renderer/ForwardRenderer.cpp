@@ -93,7 +93,11 @@ namespace rendercore
 				.m_mipLevels = 1,
 				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
 				.m_access = agl::ResourceAccess::Default,
-				.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::RenderTarget | agl::ResourceBindType::RandomAccess,
+				.m_bindType = agl::ResourceBindType::ShaderResource
+							| agl::ResourceBindType::RenderTarget
+							| agl::ResourceBindType::RandomAccess
+							| agl::ResourceBindType::CopySource
+							| agl::ResourceBindType::CopyDest,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_clearValue = agl::ResourceClearValue{
 					.m_color = { clearColor[0], clearColor[1], clearColor[2], clearColor[3] }

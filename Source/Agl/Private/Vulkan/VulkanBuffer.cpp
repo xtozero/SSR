@@ -58,23 +58,6 @@ namespace
 
         return usage;
     }
-
-    uint32 FindMemoryType( uint32 typeFilter, VkMemoryPropertyFlags properties )
-    {
-        VkPhysicalDeviceMemoryProperties memProperties;
-        vkGetPhysicalDeviceMemoryProperties( agl::VulkanPhysicalDevice(), &memProperties );
-
-        for ( uint32 i = 0; i < memProperties.memoryTypeCount; ++i )
-        {
-            if ( ( typeFilter & ( 1 << i ) ) && ( ( memProperties.memoryTypes[i].propertyFlags & properties ) == properties ) )
-            {
-                return i;
-            }
-        }
-
-        assert( false );
-        return 0;
-    }
 }
 
 namespace agl
@@ -194,13 +177,20 @@ namespace agl
         VkMemoryAllocateInfo allocInfo = {
             .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
             .allocationSize = memRequirements.size,
-            .memoryTypeIndex = FindMemoryType( memRequirements.memoryTypeBits, ConvertToVkMemoryPropertyFlags( m_desc.m_access ) )
+            .memoryTypeIndex = FindVulkanMemoryType( memRequirements.memoryTypeBits, ConvertToVkMemoryPropertyFlags( m_desc.m_access ) )
         };
 
         result = vkAllocateMemory( device, &allocInfo, nullptr, &m_deviceMemory );
         assert( result == VK_SUCCESS );
 
-        result = vkBindBufferMemory( device, m_buffer, m_deviceMemory, 0 );
+        VkBindBufferMemoryInfo bindInfo = {
+            .sType = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO,
+            .buffer = m_buffer,
+            .memory = m_deviceMemory,
+            .memoryOffset = 0,
+        };
+
+        result = vkBindBufferMemory2( device, 1, &bindInfo );
         assert( result == VK_SUCCESS );
 
         if ( m_hasInitData )
@@ -226,7 +216,7 @@ namespace agl
             }
             else
             {
-                // ToDo
+                VulkanUploader().Upload( *this, m_dataStorage );
             }
         }
 

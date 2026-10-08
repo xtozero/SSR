@@ -193,7 +193,7 @@ namespace agl
             .imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
             .imageExtent = VkExtent2D( m_width, m_height ),
             .imageArrayLayers = 1,
-            .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+            .imageUsage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
             .preTransform = supportDetails.m_capabilities.currentTransform,
             .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
             .presentMode = ChooseSwapchainPresentMode( supportDetails ),

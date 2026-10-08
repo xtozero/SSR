@@ -3,8 +3,6 @@ add_definitions(-DUNICODE=1)
 add_definitions(-D_UNICODE=1)
 add_definitions(-DNOMINMAX=1)
 
-find_package(Vulkan QUIET)
-
 set (COMMON_HEADER
 	Public/Common/GraphicsApiResource.h
 	Public/Common/IAgl.h
@@ -321,7 +319,8 @@ PRIVATE
 if(Vulkan_FOUND)
 target_link_libraries(Agl
 PRIVATE
-	Vulkan::Vulkan)
+	Vulkan::Vulkan
+	spirv-cross-core)
 
 target_sources(Agl
 PUBLIC

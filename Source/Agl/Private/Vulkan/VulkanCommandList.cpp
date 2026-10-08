@@ -525,6 +525,7 @@ namespace agl
 
     void VulkanCommandList::UpdateSubresource( Buffer* dest, const void* src, bool bAsync, uint32 destOffset, uint32 numByte )
     {
+        m_impl.UpdateSubresource( dest, src, bAsync, destOffset, numByte );
     }
 
     void VulkanCommandList::BindPipelineState( const ComputePipelineState* pipelineState )

@@ -30,10 +30,10 @@ namespace agl
 		D3D12UploadContext* m_next = nullptr;
 
 	private:
+		friend D3D12ResourceUploader;
+
 		ID3D12GraphicsCommandList6* CommandList() const;
 		ID3D12Fence* Fence() const;
-
-		friend D3D12ResourceUploader;
 
 		RefHandle<Buffer> m_intermediateResource;
 		RefHandle<GraphicsApiResource> m_destResource;

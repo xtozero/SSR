@@ -92,5 +92,50 @@ namespace agl
 
     void VulkanViewport::CreateDedicateTexture()
     {
+        ResourceFormat orignalFormat = ConvertVkFormatToFormat( m_format );
+
+        TextureDesc frameBufferDesc = {
+            .m_width = m_width,
+            .m_height = m_height,
+            .m_depth = 1,
+            .m_sampleCount = 1,
+            .m_sampleQuality = 0,
+            .m_mipLevels = 1,
+            .m_format = orignalFormat,
+            .m_access = ResourceAccess::Default,
+            .m_bindType = ResourceBindType::RenderTarget | ResourceBindType::ShaderResource,
+            .m_miscFlag = ResourceMisc::WithoutViews,
+            .m_clearValue = ResourceClearValue{
+                .m_format = orignalFormat,
+                .m_color = { m_clearColor[0], m_clearColor[1], m_clearColor[2], m_clearColor[3] }
+            }
+        };
+
+        if ( m_frameBuffer == nullptr )
+        {
+            m_frameBuffer = new VulkanTexture2D( frameBufferDesc, "FrameBuffer", ResourceState::Common, nullptr);
+        }
+        /*
+        else
+        {
+            m_frameBuffer->Reconstruct( frameBufferDesc, nullptr );
+        }
+        */
+
+        EnqueueRenderTask(
+            [this, orignalFormat]()
+            {
+                GetInterface<IAgl>()->WaitGPU();
+
+                m_frameBuffer->Free();
+                m_frameBuffer->Init();
+
+                m_frameBuffer->CreateRenderTarget( orignalFormat );
+                m_frameBuffer->CreateShaderResource( orignalFormat );
+
+                const TextureDesc& desc = m_frameBuffer->GetDesc();
+                m_proxy.m_width = desc.m_width;
+                m_proxy.m_height = desc.m_height;
+            } );
     }
 }

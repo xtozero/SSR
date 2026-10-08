@@ -11,3 +11,6 @@
 [submodule "ThirdParty/DirectXHeaders"]
 	path = ThirdParty/DirectXHeaders
 	url = https://github.com/microsoft/DirectX-Headers.git
+[submodule "ThirdParty/SPIRV-Cross"]
+	path = ThirdParty/SPIRV-Cross
+	url = https://github.com/KhronosGroup/SPIRV-Cross.git

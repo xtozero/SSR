@@ -7,17 +7,130 @@
 
 #include "VulkanCommandList.h"
 #include "VulkanFrameResourceCollection.h"
+#include "VulkanResourceUploader.h"
 #include "VulkanSwapchain.h"
 
 #include <set>
+#include <spirv_cross.hpp>
 #include <vector>
 
 #ifdef _WIN32
 #include <vulkan/vulkan_win32.h>
 #endif
 
+using ::spirv_cross::ExecutionModel;
+using ::spirv_cross::Resource;
+using ::spirv_cross::SmallVector;
+using ::spirv_cross::SPIRType;
+
 namespace agl
 {
+    struct VulkanShaderReflectionLibrary
+    {
+        static ShaderType ResolveBindingStageFromExecutionModel( ExecutionModel executionModel )
+        {
+            switch ( executionModel )
+            {
+            case ExecutionModel::ExecutionModelVertex:
+                return ShaderType::Vertex;
+            case ExecutionModel::ExecutionModelGeometry:
+                return ShaderType::Geometry;
+            case ExecutionModel::ExecutionModelFragment:
+                return ShaderType::Pixel;
+            case ExecutionModel::ExecutionModelGLCompute:
+                return ShaderType::Compute;
+            case ExecutionModel::ExecutionModelRayGenerationKHR:
+                [[fallthrough]];
+            case ExecutionModel::ExecutionModelIntersectionKHR:
+                [[fallthrough]];
+            case ExecutionModel::ExecutionModelAnyHitKHR:
+                [[fallthrough]];
+            case ExecutionModel::ExecutionModelClosestHitKHR:
+                [[fallthrough]];
+            case ExecutionModel::ExecutionModelMissKHR:
+                [[fallthrough]];
+            case ExecutionModel::ExecutionModelCallableKHR:
+                return ShaderType::Compute;
+            case ExecutionModel::ExecutionModelTaskEXT:
+                return ShaderType::Amplification;
+            case ExecutionModel::ExecutionModelMeshEXT:
+                return ShaderType::Mesh;
+            default:
+                break;
+            }
+
+            return ShaderType::None;
+        }
+
+        static void ExtractShaderParameters( const spirv_cross::Compiler& compiler, ShaderParameterMap& outParameterMap )
+        {
+            ShaderType bindingStage = ResolveBindingStageFromExecutionModel( compiler.get_execution_model() );
+
+            auto AddParameter = [&]( const Resource& resource, ShaderParameterType parameterType )
+            {
+                uint32 bindPoint = compiler.get_decoration( resource.id, spv::DecorationBinding );
+                uint32 descriptorSet = compiler.get_decoration( resource.id, spv::DecorationDescriptorSet );
+
+                const SPIRType spirvType = compiler.get_type( resource.type_id );
+                uint32 parameterSize = 0;
+
+                if ( parameterType == ShaderParameterType::ConstantBuffer )
+                {
+                    parameterSize = compiler.get_declared_struct_size( spirvType );
+
+                    for ( size_t i = 0; i < spirvType.member_types.size(); ++i )
+                    {
+                        std::string_view paramName = compiler.get_member_name( resource.base_type_id, i );
+                        bool isBindlessParam = paramName.starts_with( BindlessIndexTag );
+                        if ( isBindlessParam )
+                        {
+                            paramName.remove_prefix( BindlessIndexTag.length() );
+                        }
+
+                        ShaderParameterType paramType = isBindlessParam ? ShaderParameterType::Bindless : ShaderParameterType::ConstantBufferValue;
+
+                        uint32 offset = compiler.type_struct_member_offset( spirvType, i );
+                        auto size = static_cast<uint32>( compiler.get_declared_struct_member_size( spirvType, i ) );
+
+                        outParameterMap.AddParameter( paramName.data(), bindingStage, paramType, bindPoint, descriptorSet, offset, size );
+                    }
+                }
+
+                const std::string& name = compiler.get_name( resource.id );
+                outParameterMap.AddParameter( name.c_str(), bindingStage, parameterType, bindPoint, descriptorSet, 0, parameterSize );
+            };
+
+            spirv_cross::ShaderResources shaderResources = compiler.get_shader_resources();
+
+            for ( const Resource& resource : shaderResources.uniform_buffers )
+            {
+                AddParameter( resource, ShaderParameterType::ConstantBuffer );
+            }
+
+            for ( const Resource& resource : shaderResources.storage_buffers )
+            {
+                const bool readOnly = compiler.has_decoration( resource.id, spv::DecorationNonWritable );
+                AddParameter( resource, readOnly ? ShaderParameterType::SRV : ShaderParameterType::UAV );
+            }
+
+            for ( const Resource& resource : shaderResources.storage_images )
+            {
+                const bool readOnly = compiler.has_decoration( resource.id, spv::DecorationNonWritable );
+                AddParameter( resource, readOnly ? ShaderParameterType::SRV : ShaderParameterType::UAV );
+            }
+
+            for ( const Resource& resource : shaderResources.separate_images )
+            {
+                AddParameter( resource, ShaderParameterType::SRV );
+            }
+
+            for ( const Resource& resource : shaderResources.separate_samplers )
+            {
+                AddParameter( resource, ShaderParameterType::Sampler );
+            }
+        }
+    };
+
     class Vulkan final : public IAgl
     {
     public:
@@ -59,6 +172,8 @@ namespace agl
 
         virtual bool SupportsWaveIntrinsics() const override;
 
+        uint32 FindMemoryType( uint32 typeFilter, VkMemoryPropertyFlags properties ) const;
+
         VkInstance GetVulkanInstance() const;
         VkPhysicalDevice GetVulkanPhysicalDevice() const;
         VkDevice GetVulkanDevice() const;
@@ -72,6 +187,7 @@ namespace agl
         VulkanFrameSyncContext GetVulkanFrameSyncContext() const;
 
         VulkanFrameResourceCollection& GetFrameResourceCollection();
+        VulkanResourceUploader& GetUploader();
 
         virtual ~Vulkan() override;
 
@@ -84,6 +200,8 @@ namespace agl
         VkInstance m_vkInstance = VK_NULL_HANDLE;
         VkPhysicalDevice m_vkPhysicalDevice = VK_NULL_HANDLE;
         VkDevice m_vkDevice = VK_NULL_HANDLE;
+
+        VkPhysicalDeviceMemoryProperties m_memoryProperties;
 
         VkQueue m_vkGraphicsQueue = VK_NULL_HANDLE;
         VkQueue m_vkPresentQueue = VK_NULL_HANDLE;
@@ -102,6 +220,8 @@ namespace agl
         VulkanCommandListResourcePool m_cmdListResourcePools[3];
 
         std::vector<VulkanFrameResourceCollection, InlineAllocator<VulkanFrameResourceCollection, 2>> m_frameResources;
+
+        VulkanResourceUploader m_uploader;
     };
 
     AglType Vulkan::GetType() const
@@ -169,6 +289,7 @@ namespace agl
             cmdPool.Prepare();
         }
 
+        m_uploader.Prepare();
         GetCommandList()->Prepare();
         GetComputeCommandList()->Prepare();
 
@@ -263,7 +384,21 @@ namespace agl
 
     bool Vulkan::BuildShaderMetaData( const BinaryChunk& byteCode, ShaderParameterMap& outParameterMap, ShaderParameterInfo& outParameterInfo ) const
     {
-        return false;
+        if ( byteCode.Size() % 4 != 0 )
+        {
+            assert( false && "Invalid SPIR-V size" );
+            return false;
+        }
+
+        auto ir = reinterpret_cast<const uint32*>( byteCode.Data() );
+        uint32 wordCount = byteCode.Size() / sizeof( uint32 );
+        spirv_cross::Compiler compiler( ir, wordCount );
+
+        VulkanShaderReflectionLibrary::ExtractShaderParameters( compiler, outParameterMap );
+
+        BuildShaderParameterInfo( outParameterMap.GetParameterMap(), outParameterInfo );
+
+        return true;
     }
 
     std::filesystem::path Vulkan::GetShaderCacheFilePath() const
@@ -299,6 +434,20 @@ namespace agl
     bool Vulkan::SupportsWaveIntrinsics() const
     {
         return false;
+    }
+
+    uint32 Vulkan::FindMemoryType( uint32 typeFilter, VkMemoryPropertyFlags properties ) const
+    {
+        for ( uint32 i = 0; i < m_memoryProperties.memoryTypeCount; ++i )
+        {
+            if ( ( typeFilter & ( 1 << i ) ) && ( ( m_memoryProperties.memoryTypes[i].propertyFlags & properties ) == properties ) )
+            {
+                return i;
+            }
+        }
+
+        assert( false );
+        return 0;
     }
 
     VkInstance Vulkan::GetVulkanInstance() const
@@ -360,6 +509,11 @@ namespace agl
     VulkanFrameResourceCollection& Vulkan::GetFrameResourceCollection()
     {
         return m_frameResources[m_frameIndex];
+    }
+
+    VulkanResourceUploader& Vulkan::GetUploader()
+    {
+        return m_uploader;
     }
 
     Vulkan::~Vulkan()
@@ -541,6 +695,8 @@ namespace agl
             commandList.Initialize();
         }
 
+        vkGetPhysicalDeviceMemoryProperties( m_vkPhysicalDevice, &m_memoryProperties );
+
         return true;
     }
 
@@ -679,6 +835,11 @@ namespace agl
         return *vulkanApi;
     }
 
+    uint32 FindVulkanMemoryType( uint32 typeFilter, VkMemoryPropertyFlags properties )
+    {
+        return GetVulkan().FindMemoryType( typeFilter, properties );
+    }
+
     VkInstance VulkanInstance()
     {
         return GetVulkan().GetVulkanInstance();
@@ -727,5 +888,10 @@ namespace agl
     VulkanFrameResourceCollection& VulkanFrameResources()
     {
         return GetVulkan().GetFrameResourceCollection();
+    }
+
+    VulkanResourceUploader& VulkanUploader()
+    {
+        return GetVulkan().GetUploader();
     }
 }

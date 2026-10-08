@@ -12,10 +12,17 @@ namespace agl
     public:
         void Prepare();
 
+        void RecordUploadCommand( VulkanBuffer& dest, const void* data, uint32 destOffset, uint32 numByte );
+
+        bool IsFinished() const;
+
         VulkanUploadContext* m_next = nullptr;
 
     private:
         friend VulkanResourceUploader;
+
+        VkCommandBuffer CommandBuffer() const;
+        VkFence Fence() const;
 
         RefHandle<Buffer> m_intermediateResource;
         RefHandle<GraphicsApiResource> m_destResource;
@@ -26,10 +33,14 @@ namespace agl
     class VulkanResourceUploader final
     {
     public:
-        void Upload( VulkanBuffer& dest, const void* data, uint32 dsetOffset = 0, uint32 numByte = 0 );
+        void Prepare();
+
+        void Upload( VulkanBuffer& dest, const void* data, uint32 destOffset = 0, uint32 numByte = 0 );
 
     private:
         FixedBlockMemoryPool<VulkanUploadContext> m_uploadContextPool;
+
+        VulkanUploadContext* m_pendingListForUpload = nullptr;
     };
 
 

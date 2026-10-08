@@ -57,9 +57,9 @@ namespace agl
         case ResourceFormat::R10G10B10A2_TYPELESS:
             break;
         case ResourceFormat::R10G10B10A2_UNORM:
-            break;
+            return VK_FORMAT_A2B10G10R10_UNORM_PACK32;
         case ResourceFormat::R10G10B10A2_UINT:
-            break;
+            return VK_FORMAT_A2B10G10R10_UINT_PACK32;
         case ResourceFormat::R11G11B10_FLOAT:
             break;
         case ResourceFormat::R8G8B8A8_TYPELESS:
@@ -77,7 +77,7 @@ namespace agl
         case ResourceFormat::R16G16_TYPELESS:
             break;
         case ResourceFormat::R16G16_FLOAT:
-            break;
+            return VK_FORMAT_R16G16_SFLOAT;
         case ResourceFormat::R16G16_UNORM:
             break;
         case ResourceFormat::R16G16_UINT:
@@ -91,7 +91,7 @@ namespace agl
         case ResourceFormat::D32_FLOAT:
             break;
         case ResourceFormat::R32_FLOAT:
-            break;
+            return VK_FORMAT_R32_SFLOAT;
         case ResourceFormat::R32_UINT:
             break;
         case ResourceFormat::R32_SINT:
@@ -824,24 +824,20 @@ namespace agl
 
     inline VkMemoryPropertyFlags ConvertToVkMemoryPropertyFlags( ResourceAccess resourceAccess )
     {
-        VkMemoryPropertyFlags flags = 0;
+        if ( HasAnyFlags( resourceAccess, ResourceAccess::CpuRead ) )
+        {
+            return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+                | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+                | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+        }
 
         if ( HasAnyFlags( resourceAccess, ResourceAccess::CpuWrite ) )
         {
-            flags |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-            flags |= VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-        }
-        else if ( HasAnyFlags( resourceAccess, ResourceAccess::CpuRead ) )
-        {
-            flags |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-            flags |= VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
-        }
-        else if ( HasAnyFlags( resourceAccess, ResourceAccess::Default ) )
-        {
-            flags |= VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+            return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+                | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
         }
 
-        return flags;
+        return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     }
 
     inline VkPipelineStageFlags2 ConvertToVkPipelineStageFlags2( ResourceState resourceState )
@@ -885,6 +881,21 @@ namespace agl
         if ( HasAnyFlags( resourceState, ResourceState::RenderTarget ) )
         {
             return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        }
+
+        if ( HasAnyFlags( resourceState, ResourceState::NonPixelShaderResource | ResourceState::PixelShaderResource ) )
+        {
+            return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        }
+
+        if ( HasAnyFlags( resourceState, ResourceState::CopySource ) )
+        {
+            return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        }
+
+        if ( HasAnyFlags( resourceState, ResourceState::CopyDest ) )
+        {
+            return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         }
 
         if ( HasAnyFlags( resourceState, ResourceState::Present ) )

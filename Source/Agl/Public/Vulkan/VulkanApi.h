@@ -9,6 +9,7 @@ namespace agl
 {
     class VulkanCommandListResourcePool;
     class VulkanFrameResourceCollection;
+    class VulkanResourceUploader;
 
     class VulkanFrameSyncContext
     {
@@ -23,6 +24,8 @@ namespace agl
 
     Owner<IAgl*> CreateVulkanGraphicsApi();
 
+    uint32 FindVulkanMemoryType( uint32 typeFilter, VkMemoryPropertyFlags properties );
+
     VkInstance VulkanInstance();
     VkPhysicalDevice VulkanPhysicalDevice();
     VkDevice VulkanDevice();
@@ -35,4 +38,5 @@ namespace agl
     VulkanCommandListResourcePool& VulkanCmdPool( CommandListType type );
     VulkanFrameSyncContext VulkanFrameSync();
     VulkanFrameResourceCollection& VulkanFrameResources();
+    VulkanResourceUploader& VulkanUploader();
 }

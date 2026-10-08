@@ -92,7 +92,7 @@ namespace agl
 		bool m_isInitialized = false;
 	};
 
-	enum class ResourceBindType : uint8
+	enum class ResourceBindType : uint16
 	{
 		// from D3D11
 		None = 0x00,
@@ -104,6 +104,10 @@ namespace agl
 		RenderTarget = 0x20,
 		DepthStencil = 0x40,
 		RandomAccess = 0x80,
+
+		// Custom
+		CopySource = 0x100,
+		CopyDest = 0x200,
 	};
 	ENUM_CLASS_FLAGS( ResourceBindType );
 
