@@ -28,7 +28,7 @@ namespace rendercore
 			.m_mipLevels = 1,
 			.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
 			.m_access = agl::ResourceAccess::Default,
-			.m_bindType = agl::ResourceBindType::RenderTarget,
+			.m_bindType = agl::ResourceBindType::RenderTarget | agl::ResourceBindType::CopySource,
 			.m_miscFlag = agl::ResourceMisc::None,
 			.m_clearValue = agl::ResourceClearValue{
 				.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
@@ -47,7 +47,7 @@ namespace rendercore
 			.m_mipLevels = 1,
 			.m_format = agl::ResourceFormat::R8G8B8A8_UNORM,
 			.m_access = agl::ResourceAccess::Readback,
-			.m_bindType = agl::ResourceBindType::None,
+			.m_bindType = agl::ResourceBindType::CopyDest,
 			.m_miscFlag = agl::ResourceMisc::None
 		};
 

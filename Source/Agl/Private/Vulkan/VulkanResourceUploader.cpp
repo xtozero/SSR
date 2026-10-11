@@ -31,7 +31,7 @@ namespace agl
             .m_stride = numByte,
             .m_count = 1,
             .m_access = ResourceAccess::Upload,
-            .m_bindType = ResourceBindType::None,
+            .m_bindType = ResourceBindType::CopySource,
             .m_miscFlag = ResourceMisc::Intermediate,
             .m_format = ResourceFormat::Unknown
         };

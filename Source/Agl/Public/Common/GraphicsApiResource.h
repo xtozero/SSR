@@ -105,7 +105,7 @@ namespace agl
 		DepthStencil = 0x40,
 		RandomAccess = 0x80,
 
-		// Custom
+		// Custom for Vulkan
 		CopySource = 0x100,
 		CopyDest = 0x200,
 	};

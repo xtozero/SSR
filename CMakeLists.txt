@@ -9,7 +9,7 @@ project (ScreenSpaceReflection LANGUAGES CXX)
 #   cmake .. -DENABLE_EDITOR=ON
 # Disable editor features:
 #   cmake .. -DENABLE_EDITOR=OFF
-option(ENABLE_EDITOR "Enable editor features (independent of build type)" OFF)
+option(ENABLE_EDITOR "Enable editor features (independent of build type)" ON)
 
 set(CMAKE_CXX_STANDARD 20)
 

@@ -94,7 +94,7 @@ namespace rendercore
             .m_stride = sizeof( uint32 ),
             .m_count = numSnapshots,
             .m_access = agl::ResourceAccess::Upload,
-            .m_bindType = agl::ResourceBindType::None,
+            .m_bindType = agl::ResourceBindType::CopySource,
             .m_miscFlag = agl::ResourceMisc::Intermediate,
             .m_format = agl::ResourceFormat::Unknown
         };
@@ -115,7 +115,7 @@ namespace rendercore
             .m_stride = sizeof( uint32 ),
             .m_count = numSnapshots,
             .m_access = agl::ResourceAccess::Default,
-            .m_bindType = agl::ResourceBindType::ShaderResource,
+            .m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::CopyDest,
             .m_miscFlag = agl::ResourceMisc::BufferStructured,
             .m_format = agl::ResourceFormat::Unknown
         };
@@ -595,7 +595,7 @@ namespace rendercore
             .m_stride = sizeof( uint32 ),
             .m_count = numElements,
             .m_access = agl::ResourceAccess::Upload,
-            .m_bindType = agl::ResourceBindType::None,
+            .m_bindType = agl::ResourceBindType::CopySource,
             .m_miscFlag = agl::ResourceMisc::None,
             .m_format = agl::ResourceFormat::Unknown
         };
@@ -613,7 +613,9 @@ namespace rendercore
             .m_stride = sizeof( uint32 ),
             .m_count = numElements,
             .m_access = agl::ResourceAccess::Default,
-            .m_bindType = agl::ResourceBindType::RandomAccess | agl::ResourceBindType::ShaderResource,
+            .m_bindType = agl::ResourceBindType::RandomAccess
+                        | agl::ResourceBindType::ShaderResource
+                        | agl::ResourceBindType::CopyDest,
             .m_miscFlag = agl::ResourceMisc::BufferStructured,
             .m_format = agl::ResourceFormat::Unknown
         };

@@ -166,7 +166,7 @@ namespace rendercore
 			.m_mipLevels = 1,
 			.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
 			.m_access = agl::ResourceAccess::Default,
-			.m_bindType = agl::ResourceBindType::ShaderResource,
+			.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::CopyDest,
 			.m_miscFlag = agl::ResourceMisc::None,
 		};
 
@@ -181,7 +181,7 @@ namespace rendercore
 			.m_mipLevels = 1,
 			.m_format = agl::ResourceFormat::R32G32B32A32_FLOAT,
 			.m_access = agl::ResourceAccess::Default,
-			.m_bindType = agl::ResourceBindType::ShaderResource,
+			.m_bindType = agl::ResourceBindType::ShaderResource | agl::ResourceBindType::CopyDest,
 			.m_miscFlag = agl::ResourceMisc::Texture3D,
 		};
 
@@ -331,7 +331,7 @@ namespace rendercore
 			.m_stride = sizeof( Vector4 ),
 			.m_count = RES_MU_S * RES_NU * RES_MU * RES_R,
 			.m_access = agl::ResourceAccess::Default,
-			.m_bindType = agl::ResourceBindType::RandomAccess,
+			.m_bindType = agl::ResourceBindType::RandomAccess | agl::ResourceBindType::CopySource,
 			.m_miscFlag = agl::ResourceMisc::BufferStructured,
 			.m_format = agl::ResourceFormat::Unknown
 		};
@@ -378,7 +378,7 @@ namespace rendercore
 			.m_stride = sizeof( Vector4 ),
 			.m_count = IRRADIANCE_W * IRRADIANCE_H,
 			.m_access = agl::ResourceAccess::Default,
-			.m_bindType = agl::ResourceBindType::RandomAccess,
+			.m_bindType = agl::ResourceBindType::RandomAccess | agl::ResourceBindType::CopySource,
 			.m_miscFlag = agl::ResourceMisc::BufferStructured,
 			.m_format = agl::ResourceFormat::Unknown
 		};
@@ -577,7 +577,7 @@ namespace rendercore
 				.m_stride = sizeof( Vector4 ),
 				.m_count = IRRADIANCE_W * IRRADIANCE_H,
 				.m_access = agl::ResourceAccess::Readback,
-				.m_bindType = agl::ResourceBindType::None,
+				.m_bindType = agl::ResourceBindType::CopyDest,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_format = agl::ResourceFormat::Unknown
 			};
@@ -625,7 +625,7 @@ namespace rendercore
 				.m_stride = sizeof( Vector4 ),
 				.m_count = RES_MU_S * RES_NU * RES_MU * RES_R,
 				.m_access = agl::ResourceAccess::Readback,
-				.m_bindType = agl::ResourceBindType::None,
+				.m_bindType = agl::ResourceBindType::CopyDest,
 				.m_miscFlag = agl::ResourceMisc::None,
 				.m_format = agl::ResourceFormat::Unknown
 			};

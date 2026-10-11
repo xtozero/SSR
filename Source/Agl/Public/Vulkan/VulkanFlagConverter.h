@@ -849,6 +849,16 @@ namespace agl
             vkPipelineStageFlags2 |= VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
         }
 
+        if ( HasAnyFlags( resourceState, ResourceState::CopySource ) )
+        {
+            vkPipelineStageFlags2 |= VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+        }
+
+        if ( HasAnyFlags( resourceState, ResourceState::CopyDest ) )
+        {
+            vkPipelineStageFlags2 |= VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+        }
+
         if ( HasAnyFlags( resourceState, ResourceState::Present ) )
         {
             return VK_PIPELINE_STAGE_2_NONE;
@@ -864,6 +874,16 @@ namespace agl
         if ( HasAnyFlags( resourceState, ResourceState::RenderTarget ) )
         {
             vkAccessFlags2 |= VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
+        }
+
+        if ( HasAnyFlags( resourceState, ResourceState::CopySource ) )
+        {
+            vkAccessFlags2 |= VK_ACCESS_2_TRANSFER_READ_BIT;
+        }
+
+        if ( HasAnyFlags( resourceState, ResourceState::CopyDest ) )
+        {
+            vkAccessFlags2 |= VK_ACCESS_2_TRANSFER_WRITE_BIT;
         }
 
         if ( HasAnyFlags( resourceState, ResourceState::Present ) )

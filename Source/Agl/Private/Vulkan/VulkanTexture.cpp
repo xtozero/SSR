@@ -36,16 +36,6 @@ namespace
         // bool bDownload = HasAnyFlags( m_desc.m_access, ResourceAccess::CpuRead ); // TODO maybe
         VkImageUsageFlags usage = 0;
 
-        if ( HasAnyFlags( desc.m_bindType, ResourceBindType::CopySource ) )
-        {
-            usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-        }
-
-        if ( HasAnyFlags( desc.m_bindType, ResourceBindType::CopyDest ) )
-        {
-            usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-        }
-
         if ( HasAnyFlags( desc.m_bindType, ResourceBindType::ShaderResource ) )
         {
             usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -64,6 +54,16 @@ namespace
         if ( HasAnyFlags( desc.m_bindType, ResourceBindType::RandomAccess ) )
         {
             usage |= VK_IMAGE_USAGE_STORAGE_BIT;
+        }
+
+        if ( HasAnyFlags( desc.m_bindType, ResourceBindType::CopySource ) )
+        {
+            usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        }
+
+        if ( HasAnyFlags( desc.m_bindType, ResourceBindType::CopyDest ) )
+        {
+            usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
         }
 
         return usage;

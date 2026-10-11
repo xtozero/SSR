@@ -172,7 +172,7 @@ namespace rendercore
 			.m_stride = sizeof( Vector ),
 			.m_count = 9,
 			.m_access = agl::ResourceAccess::Default,
-			.m_bindType = agl::ResourceBindType::RandomAccess,
+			.m_bindType = agl::ResourceBindType::RandomAccess | agl::ResourceBindType::CopySource,
 			.m_miscFlag = agl::ResourceMisc::BufferStructured,
 			.m_format = agl::ResourceFormat::Unknown
 		};
@@ -213,7 +213,7 @@ namespace rendercore
 			.m_stride = sizeof( Vector ),
 			.m_count = 9,
 			.m_access = agl::ResourceAccess::Readback,
-			.m_bindType = agl::ResourceBindType::None,
+			.m_bindType = agl::ResourceBindType::CopyDest,
 			.m_miscFlag = agl::ResourceMisc::None,
 			.m_format = agl::ResourceFormat::Unknown
 		};
@@ -223,7 +223,7 @@ namespace rendercore
 		auto rgReadbackBuffer = renderGraph.RegisterExternalResource( readbackBuffer.Get() );
 
 		BEGIN_RG_RESOURCE_STRUCT( CopySHPassResource )
-			DECLARE_RG_BUFFER_COPY_DEST ( readback )
+			DECLARE_RG_BUFFER_COPY_DEST( readback )
 			DECLARE_RG_BUFFER_COPY_SOURCE( coeffs )
 		END_RG_RESOURCE_STRUCT();
 

@@ -75,11 +75,16 @@ namespace rendercore
 			: ( agl::ResourceAccess::Default );
 
 		auto bindType = agl::ResourceBindType::IndexBuffer;
-		auto miscFlag = agl::ResourceMisc::None;
 		if ( DefaultRenderCore::SupportsVisibilityRendering() )
 		{
 			bindType |= agl::ResourceBindType::ShaderResource;
 		}
+		if ( ( m_isDynamic == false ) && ( initData != nullptr ) )
+		{
+			bindType |= agl::ResourceBindType::CopyDest;
+		}
+
+		auto miscFlag = agl::ResourceMisc::None;
 
 		agl::BufferDesc desc = {
 			.m_stride = m_isDWORD ? sizeof( uint32 ) : sizeof( uint16 ),

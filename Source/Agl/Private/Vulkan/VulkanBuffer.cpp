@@ -13,15 +13,6 @@ namespace
     VkBufferUsageFlags ConvertToVkBufferUsage( const BufferDesc& desc )
     {
         VkBufferUsageFlags usage = 0;
-        if ( HasAllFlags( desc.m_access, agl::ResourceAccess::Default ) )
-        {
-            usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-        }
-
-        if ( HasAllFlags( desc.m_access, agl::ResourceAccess::Upload ) )
-        {
-            usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-        }
 
         if ( HasAnyFlags( desc.m_bindType, ResourceBindType::VertexBuffer ) )
         {
@@ -36,6 +27,16 @@ namespace
         if ( HasAnyFlags( desc.m_bindType, ResourceBindType::ConstantBuffer ) )
         {
             usage |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+        }
+
+        if ( HasAnyFlags( desc.m_bindType, ResourceBindType::CopySource ) )
+        {
+            usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+        }
+
+        if ( HasAnyFlags( desc.m_bindType, ResourceBindType::CopyDest ) )
+        {
+            usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
         }
 
         if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::BufferStructured ) )

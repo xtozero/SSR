@@ -500,7 +500,7 @@ namespace rendercore
 					.m_stride = sizeof( uint32 ),
 					.m_count = 1,
 					.m_access = agl::ResourceAccess::Default,
-					.m_bindType = agl::ResourceBindType::RandomAccess,
+					.m_bindType = agl::ResourceBindType::RandomAccess | agl::ResourceBindType::CopySource,
 					.m_miscFlag = agl::ResourceMisc::BufferStructured,
 					.m_format = agl::ResourceFormat::Unknown
 				};
@@ -536,7 +536,7 @@ namespace rendercore
 					.m_stride = sizeof( uint32 ),
 					.m_count = 1,
 					.m_access = agl::ResourceAccess::Readback,
-					.m_bindType = agl::ResourceBindType::None,
+					.m_bindType = agl::ResourceBindType::CopyDest,
 					.m_miscFlag = agl::ResourceMisc::None,
 					.m_format = agl::ResourceFormat::Unknown
 				};

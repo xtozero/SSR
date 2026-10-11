@@ -234,7 +234,7 @@ namespace rendercore::renderthread
             .m_stride = sizeof( int32 ),
             .m_count = numElement,
             .m_access = agl::ResourceAccess::Default,
-            .m_bindType = agl::ResourceBindType::RandomAccess,
+            .m_bindType = agl::ResourceBindType::RandomAccess | agl::ResourceBindType::CopySource,
             .m_miscFlag = agl::ResourceMisc::BufferStructured,
             .m_format = agl::ResourceFormat::Unknown,
         };
@@ -283,7 +283,7 @@ namespace rendercore::renderthread
 
         agl::BufferDesc readbackDesc = gpuFeedback->GetDesc();
         readbackDesc.m_access = agl::ResourceAccess::Readback;
-        readbackDesc.m_bindType = agl::ResourceBindType::None;
+        readbackDesc.m_bindType = agl::ResourceBindType::CopyDest;
         readbackDesc.m_miscFlag = agl::ResourceMisc::None;
         readbackDesc.m_format = agl::ResourceFormat::Unknown;
 

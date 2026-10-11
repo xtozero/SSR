@@ -70,6 +70,11 @@ namespace rendercore
 			: agl::ResourceAccess::Default;
 
 		auto bindType = agl::ResourceBindType::VertexBuffer;
+		if ( ( m_isDynamic == false ) && ( initData != nullptr ) )
+		{
+			bindType |= agl::ResourceBindType::CopyDest;
+		}
+
 		auto miscFlag = agl::ResourceMisc::None;
 		if ( GetInterface<agl::IAgl>()->SupportsMeshShader() )
 		{
