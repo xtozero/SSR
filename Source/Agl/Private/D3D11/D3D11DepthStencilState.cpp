@@ -3,9 +3,7 @@
 #include "D3D11Api.h"
 #include "D3D11FlagConvertor.h"
 
-using ::agl::ConvertToComparisionFunc;
-using ::agl::ConvertToStencilOp;
-using ::agl::ConvertToDepthWriteMask;
+using ::agl::D3D11FlagConvertor;
 using ::agl::DepthStencilStateDesc;
 
 namespace
@@ -14,22 +12,22 @@ namespace
 	{
 		return D3D11_DEPTH_STENCIL_DESC{
 			.DepthEnable = desc.m_depthEnable,
-			.DepthWriteMask = ConvertToDepthWriteMask( desc.m_depthWriteMode ),
-			.DepthFunc = ConvertToComparisionFunc( desc.m_depthFunc ),
+			.DepthWriteMask = D3D11FlagConvertor::ConvertToDepthWriteMask( desc.m_depthWriteMode ),
+			.DepthFunc = D3D11FlagConvertor::ConvertToComparisionFunc( desc.m_depthFunc ),
 			.StencilEnable = desc.m_stencilEnable,
 			.StencilReadMask = desc.m_stencilReadMask,
 			.StencilWriteMask = desc.m_stencilWriteMask,
 			.FrontFace = {
-				.StencilFailOp = ConvertToStencilOp( desc.m_frontFace.m_failOp ),
-				.StencilDepthFailOp = ConvertToStencilOp( desc.m_frontFace.m_depthFailOp ),
-				.StencilPassOp = ConvertToStencilOp( desc.m_frontFace.m_passOp ),
-				.StencilFunc = ConvertToComparisionFunc( desc.m_frontFace.m_func )
+				.StencilFailOp = D3D11FlagConvertor::ConvertToStencilOp( desc.m_frontFace.m_failOp ),
+				.StencilDepthFailOp = D3D11FlagConvertor::ConvertToStencilOp( desc.m_frontFace.m_depthFailOp ),
+				.StencilPassOp = D3D11FlagConvertor::ConvertToStencilOp( desc.m_frontFace.m_passOp ),
+				.StencilFunc = D3D11FlagConvertor::ConvertToComparisionFunc( desc.m_frontFace.m_func )
 			},
 			.BackFace = {
-				.StencilFailOp = ConvertToStencilOp( desc.m_backFace.m_failOp ),
-				.StencilDepthFailOp = ConvertToStencilOp( desc.m_backFace.m_depthFailOp ),
-				.StencilPassOp = ConvertToStencilOp( desc.m_backFace.m_passOp ),
-				.StencilFunc = ConvertToComparisionFunc( desc.m_backFace.m_func )
+				.StencilFailOp = D3D11FlagConvertor::ConvertToStencilOp( desc.m_backFace.m_failOp ),
+				.StencilDepthFailOp = D3D11FlagConvertor::ConvertToStencilOp( desc.m_backFace.m_depthFailOp ),
+				.StencilPassOp = D3D11FlagConvertor::ConvertToStencilOp( desc.m_backFace.m_passOp ),
+				.StencilFunc = D3D11FlagConvertor::ConvertToComparisionFunc( desc.m_backFace.m_func )
 			}
 		};
 	}

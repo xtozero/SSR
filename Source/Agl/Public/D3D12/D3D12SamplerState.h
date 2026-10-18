@@ -15,7 +15,7 @@ namespace agl
 
 		const D3D12CpuDescriptorHandle& GetCpuHandle() const;
 
-		D3D12SamplerState( const SamplerStateDesc& desc );
+		explicit D3D12SamplerState( const SamplerStateDesc& desc );
 		D3D12SamplerState( const D3D12SamplerState& ) = default;
 		D3D12SamplerState( D3D12SamplerState&& ) = default;
 		D3D12SamplerState& operator=( const D3D12SamplerState& ) = default;

@@ -3,9 +3,7 @@
 #include "D3D12Api.h"
 #include "D3D12FlagConvertor.h"
 
-using ::agl::ConvertToComparisionFunc;
-using ::agl::ConvertToFilter;
-using ::agl::ConvertToTextureAddress;
+using ::agl::D3D12FlagConvertor;
 using ::agl::SamplerStateDesc;
 
 namespace
@@ -15,13 +13,13 @@ namespace
 		ColorF borderColor = desc.m_borderColor.ToColorF();
 
 		return D3D12_SAMPLER_DESC{
-			.Filter = ConvertToFilter( desc.m_filter ),
-			.AddressU = ConvertToTextureAddress( desc.m_addressU ),
-			.AddressV = ConvertToTextureAddress( desc.m_addressV ),
-			.AddressW = ConvertToTextureAddress( desc.m_addressW ),
+			.Filter = D3D12FlagConvertor::ConvertToFilter( desc.m_filter ),
+			.AddressU = D3D12FlagConvertor::ConvertToAddressMode( desc.m_addressU ),
+			.AddressV = D3D12FlagConvertor::ConvertToAddressMode( desc.m_addressV ),
+			.AddressW = D3D12FlagConvertor::ConvertToAddressMode( desc.m_addressW ),
 			.MipLODBias = desc.m_mipLODBias,
 			.MaxAnisotropy = desc.m_maxAnisotropy,
-			.ComparisonFunc = ConvertToComparisionFunc( desc.m_comparisonFunc ),
+			.ComparisonFunc = D3D12FlagConvertor::ConvertToComparisionFunc( desc.m_comparisonFunc ),
 			.BorderColor = {
 				borderColor[0],
 				borderColor[1],

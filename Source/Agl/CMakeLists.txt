@@ -62,6 +62,7 @@ set (D3D11_SOURCE
 	Public/D3D11/D3D11Api.h)
 	
 set (D3D11_UTILITY
+	Private/D3D11/D3D11FlagConvertor.cpp
 	Public/D3D11/D3D11FlagConvertor.h)
 
 set (D3D12_RENDER_RESOURCE_HEADER
@@ -190,7 +191,6 @@ set (VULKAN_RENDER_RESOURCE_HEADER
 	Public/Vulkan/VulkanBuffer.h
 	Public/Vulkan/VulkanCommandList.h
 	Public/Vulkan/VulkanDepthStencilState.h
-	Public/Vulkan/VulkanFlagConverter.h
 	Public/Vulkan/VulkanFrameResourceCollection.h
 	Public/Vulkan/VulkanPipelineState.h
 	Public/Vulkan/VulkanQuery.h
@@ -225,6 +225,10 @@ set (VULKAN_RENDER_RESOURCE_SOURCE
 	Private/Vulkan/VulkanVertexLayout.cpp
 	Private/Vulkan/VulkanViewport.cpp)
 
+set (VULKAN_UTILITY
+	Private/Vulkan/VulkanFlagConverter.cpp
+	Public/Vulkan/VulkanFlagConverter.h)
+
 source_group("Config" FILES ${CONFIG_HEADER} ${CONFIG_SOURCE})
 source_group("Direct11\\RenderResource" FILES ${D3D11_RENDER_RESOURCE_HEADER} ${D3D11_RENDER_RESOURCE_SOURCE})
 source_group("Direct11" FILES ${D3D11_SOURCE})	
@@ -238,6 +242,7 @@ source_group("RenderCommon" FILES ${COMMON_HEADER} ${COMMON_SOURCE})
 source_group("RenderResource" FILES ${RENDER_RESOURCE_HEADER} ${RENDER_RESOURCE_SOURCE})
 source_group("Vulkan" FILES ${VULKAN_SOURCE})
 source_group("Vulkan\\RenderResource" FILES ${VULKAN_RENDER_RESOURCE_HEADER} ${VULKAN_RENDER_RESOURCE_SOURCE})
+source_group("Vulkan\\Utility" FILES ${VULKAN_UTILITY})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -327,7 +332,8 @@ PUBLIC
 PRIVATE
 	${VULKAN_RENDER_RESOURCE_HEADER}
 	${VULKAN_RENDER_RESOURCE_SOURCE}
-	${VULKAN_SOURCE})
+	${VULKAN_SOURCE}
+	${VULKAN_UTILITY})
 
 target_include_directories(Agl
 PUBLIC

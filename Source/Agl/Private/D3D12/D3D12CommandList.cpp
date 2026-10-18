@@ -643,7 +643,7 @@ namespace agl
 			return false;
 		}
 
-		D3D12_RESOURCE_STATES resourceState = ConvertToResourceStates( texture->GetResourceState() );
+		D3D12_RESOURCE_STATES resourceState = D3D12FlagConvertor::ConvertToResourceStates( texture->GetResourceState() );
 
 		HRESULT hr = DirectX::CaptureTexture( &GetCommandQueue(), resource, isCubeMap, outResult, resourceState, resourceState );
 		return SUCCEEDED( hr );

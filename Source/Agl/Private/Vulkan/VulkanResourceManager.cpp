@@ -42,99 +42,95 @@ namespace agl
         return new VulkanVertexLayout();
     }
 
-    ComputeShader* VulkanResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+    ComputeShader* VulkanResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
     {
         // TODO
-        return new VulkanComputeShader( byteCode, byteCodeSize, paramInfo );
+        return new VulkanComputeShader( byteCode, byteCodeSize, entryPoint, paramInfo );
     }
 
-    VertexShader* VulkanResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+    VertexShader* VulkanResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
     {
         // TODO
-        return new VulkanVertexShader( byteCode, byteCodeSize, paramInfo );
+        return new VulkanVertexShader( byteCode, byteCodeSize, entryPoint, paramInfo );
     }
 
-    GeometryShader* VulkanResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+    GeometryShader* VulkanResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
     {
         // TODO
-        return new VulkanGeometryShader( byteCode, byteCodeSize, paramInfo );
+        return new VulkanGeometryShader( byteCode, byteCodeSize, entryPoint, paramInfo );
     }
 
-    PixelShader* VulkanResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+    PixelShader* VulkanResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
     {
         // TODO
-        return new VulkanPixelShader( byteCode, byteCodeSize, paramInfo );
+        return new VulkanPixelShader( byteCode, byteCodeSize, entryPoint, paramInfo );
     }
 
-    MeshShader* VulkanResourceManager::CreateMeshShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+    MeshShader* VulkanResourceManager::CreateMeshShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
     {
         // TODO
-        return new VulkanMeshShader( byteCode, byteCodeSize, paramInfo );
+        return new VulkanMeshShader( byteCode, byteCodeSize, entryPoint, paramInfo );
     }
 
-    AmplificationShader* VulkanResourceManager::CreateAmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+    AmplificationShader* VulkanResourceManager::CreateAmplificationShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
     {
         // TODO
-        return new VulkanAmplificationShader( byteCode, byteCodeSize, paramInfo );
+        return new VulkanAmplificationShader( byteCode, byteCodeSize, entryPoint, paramInfo );
     }
 
-    RayGenerationShader* VulkanResourceManager::CreateRayGenerationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
+    RayGenerationShader* VulkanResourceManager::CreateRayGenerationShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
     {
         // TODO
-        return new VulkanRayGenerationShader( byteCode, byteCodeSize, paramInfo, exportName );
+        return new VulkanRayGenerationShader( byteCode, byteCodeSize, entryPoint, paramInfo );
     }
 
-    IntersectionShader* VulkanResourceManager::CreateIntersectionShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
+    IntersectionShader* VulkanResourceManager::CreateIntersectionShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
     {
         // TODO
-        return new VulkanIntersectionShader( byteCode, byteCodeSize, paramInfo, exportName );
+        return new VulkanIntersectionShader( byteCode, byteCodeSize, entryPoint, paramInfo );
     }
 
-    AnyHitShader* VulkanResourceManager::CreateAnyHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
+    AnyHitShader* VulkanResourceManager::CreateAnyHitShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
     {
         // TODO
-        return new VulkanAnyHitShader( byteCode, byteCodeSize, paramInfo, exportName );
+        return new VulkanAnyHitShader( byteCode, byteCodeSize, entryPoint, paramInfo );
     }
 
-    ClosestHitShader* VulkanResourceManager::CreateClosestHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
+    ClosestHitShader* VulkanResourceManager::CreateClosestHitShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
     {
         // TODO
-        return new VulkanClosestHitShader( byteCode, byteCodeSize, paramInfo, exportName );
+        return new VulkanClosestHitShader( byteCode, byteCodeSize, entryPoint, paramInfo );
     }
 
-    MissShader* VulkanResourceManager::CreateMissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
+    MissShader* VulkanResourceManager::CreateMissShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
     {
         // TODO
-        return new VulkanMissShader( byteCode, byteCodeSize, paramInfo, exportName );
+        return new VulkanMissShader( byteCode, byteCodeSize, entryPoint, paramInfo );
     }
 
-    CallableShader* VulkanResourceManager::CreateCallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
+    CallableShader* VulkanResourceManager::CreateCallableShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
     {
         // TODO
-        return new VulkanCallableShader( byteCode, byteCodeSize, paramInfo, exportName );
+        return new VulkanCallableShader( byteCode, byteCodeSize, entryPoint, paramInfo );
     }
 
     BlendState* VulkanResourceManager::CreateBlendState( const BlendStateDesc& desc ) const
     {
-        // TODO
-        return new VulkanBlendState();
+        return new VulkanBlendState( desc );
     }
 
     DepthStencilState* VulkanResourceManager::CreateDepthStencilState( const DepthStencilStateDesc& desc ) const
     {
-        // TODO
-        return new VulkanDepthStencilState();
+        return new VulkanDepthStencilState( desc );
     }
 
     RasterizerState* VulkanResourceManager::CreateRasterizerState( const RasterizerStateDesc& desc ) const
     {
-        // TODO
-        return new VulkanRasterizerState();
+        return new VulkanRasterizerState( desc );
     }
 
     SamplerState* VulkanResourceManager::CreateSamplerState( const SamplerStateDesc& desc ) const
     {
-        // TODO
         return new VulkanSamplerState( desc );
     }
 
@@ -152,13 +148,13 @@ namespace agl
 
     Canvas* VulkanResourceManager::CreateCanvas( uint32 width, uint32 height, const engine::PlatformWindowContext& windowCtx, ResourceFormat format, const float4& clearColor ) const
     {
-        return new VulkanSwapchain( width, height, DefaultAgl::GetBufferCount(), windowCtx, ConvertToVkFormat( format ), clearColor );
+        return new VulkanSwapchain( width, height, DefaultAgl::GetBufferCount(), windowCtx, VulkanFlagConvertor::ConvertToFormat( format ), clearColor );
     }
 
     Viewport* VulkanResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) const
     {
         // ToDo
-        return new VulkanViewport( width, height, ConvertToVkFormat( format ), bgColor );
+        return new VulkanViewport( width, height, VulkanFlagConvertor::ConvertToFormat( format ), bgColor );
     }
 
     Viewport* VulkanResourceManager::CreateViewport( Canvas& canvas ) const

@@ -12,7 +12,7 @@ namespace agl
 		ID3D11SamplerState* Resource();
 		const ID3D11SamplerState* Resource() const;
 
-		D3D11SamplerState( const SamplerStateDesc& desc );
+		explicit D3D11SamplerState( const SamplerStateDesc& desc );
 		D3D11SamplerState( const D3D11SamplerState& ) = default;
 		D3D11SamplerState( D3D11SamplerState&& ) = default;
 		D3D11SamplerState& operator=( const D3D11SamplerState& ) = default;

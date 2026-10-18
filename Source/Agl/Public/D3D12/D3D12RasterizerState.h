@@ -14,7 +14,7 @@ namespace agl
 			return m_d3dDesc;
 		}
 
-		D3D12RasterizerState( const RasterizerStateDesc& desc );
+		explicit D3D12RasterizerState( const RasterizerStateDesc& desc );
 		D3D12RasterizerState( const D3D12RasterizerState& ) = default;
 		D3D12RasterizerState( D3D12RasterizerState&& ) = default;
 		D3D12RasterizerState& operator=( const D3D12RasterizerState& ) = default;

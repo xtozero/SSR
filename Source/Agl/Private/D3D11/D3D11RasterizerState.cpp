@@ -3,8 +3,7 @@
 #include "D3D11Api.h"
 #include "D3D11FlagConvertor.h"
 
-using ::agl::ConvertToCullMode;
-using ::agl::ConvertToFillMode;
+using ::agl::D3D11FlagConvertor;
 using ::agl::RasterizerStateDesc;
 
 namespace
@@ -12,8 +11,8 @@ namespace
 	D3D11_RASTERIZER_DESC ConvertToD3DDesc( const RasterizerStateDesc& desc )
 	{
 		return D3D11_RASTERIZER_DESC{
-			.FillMode = ConvertToFillMode( desc.m_fillMode ),
-			.CullMode = ConvertToCullMode( desc.m_cullMode ),
+			.FillMode = D3D11FlagConvertor::ConvertToFillMode( desc.m_fillMode ),
+			.CullMode = D3D11FlagConvertor::ConvertToCullMode( desc.m_cullMode ),
 			.FrontCounterClockwise = desc.m_frontCounterClockwise,
 			.DepthBias = desc.m_depthBias,
 			.DepthBiasClamp = desc.m_depthBiasClamp,

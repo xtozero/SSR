@@ -49,7 +49,8 @@ namespace agl
 		return m_sampleMask;
 	}
 
-	D3D11GraphicsPipelineState::D3D11GraphicsPipelineState( const GraphicsPipelineStateDesc& desc ) : m_primitiveTopology( ConvertPrimToD3D11Prim( desc.m_primitiveType ) )
+	D3D11GraphicsPipelineState::D3D11GraphicsPipelineState( const GraphicsPipelineStateDesc& desc )
+		: m_primitiveTopology( D3D11FlagConvertor::ConvertPrimToD3D11Prim( desc.m_primitiveType ) )
 	{
 		m_vertexShader =  static_cast<D3D11VertexShader*>( desc.m_vertexShader );
 		m_geometryShader = static_cast<D3D11GeometryShader*>( desc.m_geometryShader );

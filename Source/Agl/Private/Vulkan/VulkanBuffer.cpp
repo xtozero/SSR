@@ -178,7 +178,7 @@ namespace agl
         VkMemoryAllocateInfo allocInfo = {
             .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
             .allocationSize = memRequirements.size,
-            .memoryTypeIndex = FindVulkanMemoryType( memRequirements.memoryTypeBits, ConvertToVkMemoryPropertyFlags( m_desc.m_access ) )
+            .memoryTypeIndex = FindVulkanMemoryType( memRequirements.memoryTypeBits, VulkanFlagConvertor::ConvertToMemoryPropertyFlags( m_desc.m_access ) )
         };
 
         result = vkAllocateMemory( device, &allocInfo, nullptr, &m_deviceMemory );

@@ -4,8 +4,7 @@
 #include "D3D11FlagConvertor.h"
 
 using ::agl::BlendStateDesc;
-using ::agl::ConvertToBlend;
-using ::agl::ConvertToBlendOp;
+using ::agl::D3D11FlagConvertor;
 using ::agl::ConvertToColorWriteEnable;
 using ::agl::MaxRendertagets;
 
@@ -21,12 +20,12 @@ namespace
 		for ( uint32 i = 0; i < MaxRendertagets; ++i )
 		{
 			d3dDesc.RenderTarget[i].BlendEnable = desc.m_renderTarget[i].m_blendEnable;
-			d3dDesc.RenderTarget[i].SrcBlend = ConvertToBlend( desc.m_renderTarget[i].m_srcBlend );
-			d3dDesc.RenderTarget[i].DestBlend = ConvertToBlend( desc.m_renderTarget[i].m_destBlend );
-			d3dDesc.RenderTarget[i].BlendOp = ConvertToBlendOp( desc.m_renderTarget[i].m_blendOp );
-			d3dDesc.RenderTarget[i].SrcBlendAlpha = ConvertToBlend( desc.m_renderTarget[i].m_srcBlendAlpha );
-			d3dDesc.RenderTarget[i].DestBlendAlpha = ConvertToBlend( desc.m_renderTarget[i].m_destBlendAlpha );
-			d3dDesc.RenderTarget[i].BlendOpAlpha = ConvertToBlendOp( desc.m_renderTarget[i].m_blendOpAlpha );
+			d3dDesc.RenderTarget[i].SrcBlend = D3D11FlagConvertor::ConvertToBlend( desc.m_renderTarget[i].m_srcBlend );
+			d3dDesc.RenderTarget[i].DestBlend = D3D11FlagConvertor::ConvertToBlend( desc.m_renderTarget[i].m_destBlend );
+			d3dDesc.RenderTarget[i].BlendOp = D3D11FlagConvertor::ConvertToBlendOp( desc.m_renderTarget[i].m_blendOp );
+			d3dDesc.RenderTarget[i].SrcBlendAlpha = D3D11FlagConvertor::ConvertToBlend( desc.m_renderTarget[i].m_srcBlendAlpha );
+			d3dDesc.RenderTarget[i].DestBlendAlpha = D3D11FlagConvertor::ConvertToBlend( desc.m_renderTarget[i].m_destBlendAlpha );
+			d3dDesc.RenderTarget[i].BlendOpAlpha = D3D11FlagConvertor::ConvertToBlendOp( desc.m_renderTarget[i].m_blendOpAlpha );
 			d3dDesc.RenderTarget[i].RenderTargetWriteMask = ConvertToColorWriteEnable( desc.m_renderTarget[i].m_renderTargetWriteMask );
 		}
 

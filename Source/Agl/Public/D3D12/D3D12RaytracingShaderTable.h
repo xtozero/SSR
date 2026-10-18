@@ -28,7 +28,7 @@ namespace agl
         RefHandle<D3D12AnyHitShader> m_anyHit;
         RefHandle<D3D12ClosestHitShader> m_closestHit;
 
-        wchar_t m_wExportName[RaytracingShader::ExportNameBufferSize] = {};
+        wchar_t m_exportName[D3D12ShaderExportNameBufferSize] = {};
     };
 
     class D3D12RaytracingShaderTable : public RaytracingShaderTable

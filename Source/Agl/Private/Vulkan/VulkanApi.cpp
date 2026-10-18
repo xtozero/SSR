@@ -643,20 +643,24 @@ namespace agl
             .dynamicRendering = VK_TRUE,
         };
 
-        std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
-
-        VkPhysicalDeviceFeatures deviceFeatures = {
-            .geometryShader = VK_TRUE,
+        VkPhysicalDeviceFeatures2 deviceFeatures = {
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+            .pNext = &vulkan13Features,
+            .features = {
+                .geometryShader = VK_TRUE,
+                .samplerAnisotropy = VK_TRUE,
+            }
         };
+
+        std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
         VkDeviceCreateInfo createInfo = {
             .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-            .pNext = &vulkan13Features,
+            .pNext = &deviceFeatures,
             .queueCreateInfoCount = static_cast<uint32>( queueCreateInfos.size() ),
             .pQueueCreateInfos = queueCreateInfos.data(),
             .enabledExtensionCount = static_cast<uint32>( deviceExtensions.size() ),
             .ppEnabledExtensionNames = deviceExtensions.data(),
-            .pEnabledFeatures = &deviceFeatures,
         };
 
         result = vkCreateDevice( m_vkPhysicalDevice, &createInfo, nullptr, &m_vkDevice );

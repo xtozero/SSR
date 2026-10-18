@@ -115,9 +115,9 @@ namespace agl
 
 	void D3D11Viewport::CreateDedicateTexture()
 	{
-		ResourceFormat orignalFormat = ConvertDxgiFormatToFormat( m_format );
-		DXGI_FORMAT typelessDxgiFormat = ConvertDxgiFormatToDxgiTypelessFormat( m_format );
-		ResourceFormat typelessFormat = ConvertDxgiFormatToFormat( typelessDxgiFormat );
+		ResourceFormat orignalFormat = DxgiFlagConvertor::ConvertDxgiFormatToFormat( m_format );
+		DXGI_FORMAT typelessDxgiFormat = DxgiFlagConvertor::ConvertDxgiFormatToDxgiTypelessFormat( m_format );
+		ResourceFormat typelessFormat = DxgiFlagConvertor::ConvertDxgiFormatToFormat( typelessDxgiFormat );
 
 		TextureDesc frameBufferDesc = {
 			.m_width = m_width,

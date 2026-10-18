@@ -12,7 +12,7 @@
 #include "Multithread/TaskScheduler.h"
 
 using ::agl::BufferDesc;
-using ::agl::ConvertToHeapType;
+using ::agl::D3D12FlagConvertor;
 using ::agl::D3D12HeapProperties;
 using ::agl::ResourceAccess;
 using ::agl::ResourceBindType;
@@ -24,7 +24,7 @@ namespace
 	{
 		D3D12HeapProperties properties = {
 			.m_alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT,
-			.m_heapType = ConvertToHeapType( desc.m_access ),
+			.m_heapType = D3D12FlagConvertor::ConvertToHeapType( desc.m_access ),
 			.m_heapFlags = D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS
 		};
 
@@ -237,7 +237,7 @@ namespace agl
 	{
 		m_debugName = Name( debugName );
 		m_desc = desc;
-		m_format = ConvertFormatToDxgiFormat( m_desc.m_format );
+		m_format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( m_desc.m_format );
 
 		if ( initData != nullptr )
 		{
@@ -273,7 +273,7 @@ namespace agl
 		m_resourceInfo = allocator.AllocateResource(
 			properties,
 			m_d3dDesc,
-			ConvertToResourceStates( GetResourceState() )
+			D3D12FlagConvertor::ConvertToResourceStates( GetResourceState() )
 		);
 
 		SetDebugObjectName();

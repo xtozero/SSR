@@ -17,7 +17,7 @@ namespace agl
 
 	D3D12_PRIMITIVE_TOPOLOGY D3D12GraphicsPipelineState::GetPrimitiveTopology() const
 	{
-		return ConvertPrimToD3D12Prim( m_desc.m_primitiveType );
+		return D3D12FlagConvertor::ConvertPrimToD3D12Prim( m_desc.m_primitiveType );
 	}
 
 	D3D12GraphicsPipelineState::D3D12GraphicsPipelineState( const GraphicsPipelineStateDesc& desc )

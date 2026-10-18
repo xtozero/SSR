@@ -29,14 +29,14 @@ namespace agl
 
     const wchar_t* D3D12HitGroup::GetExportName() const
     {
-        return m_wExportName;
+        return m_exportName;
     }
 
     void D3D12HitGroup::InitResource()
     {
-        char exportName[RaytracingShader::ExportNameBufferSize] = {};
-        SPrintf( exportName, RaytracingShader::ExportNameBufferSize, "HitGroup_%llu", GetHash() );
-        ToWideChar( m_wExportName, RaytracingShader::ExportNameBufferSize, exportName );
+        char exportName[D3D12ShaderExportNameBufferSize] = {};
+        SPrintf( exportName, D3D12ShaderExportNameBufferSize, "HitGroup_%llu", GetHash() );
+        ToWideChar( m_exportName, D3D12ShaderExportNameBufferSize, exportName );
     }
 
     void D3D12HitGroup::FreeResource()

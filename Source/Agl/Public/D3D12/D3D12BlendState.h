@@ -23,7 +23,7 @@ namespace agl
 
 		void SetSampleMask( uint32 sampleMask );
 
-		D3D12BlendState( const BlendStateDesc& desc );
+		explicit D3D12BlendState( const BlendStateDesc& desc );
 		D3D12BlendState( const D3D12BlendState& ) = default;
 		D3D12BlendState( D3D12BlendState&& ) = default;
 		D3D12BlendState& operator=( const D3D12BlendState& ) = default;

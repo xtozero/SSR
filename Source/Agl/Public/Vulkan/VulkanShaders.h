@@ -47,18 +47,15 @@ namespace agl
 				.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
 				.stage = ConvertToShaderStage( shaderType ),
 				.module = m_shaderModule,
-				// .pName =
+				.pName = this->m_entryPoint.c_str(),
 			};
 
 			return info;
 		}
 
 	protected:
-		VulkanShaderBase( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: BaseClass( byteCode, byteCodeSize, paramInfo ) {}
-
-		VulkanShaderBase( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
-			: BaseClass( byteCode, byteCodeSize, paramInfo, exportName ) {}
+		VulkanShaderBase( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: BaseClass( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 
 		VkShaderModule m_shaderModule = VK_NULL_HANDLE;
 
@@ -67,8 +64,8 @@ namespace agl
 		{
 			VkShaderModuleCreateInfo createInfo = {
 				.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-				.codeSize = BaseClass::ByteCodeSize(),
-				.pCode = static_cast<const uint32*>( BaseClass::ByteCode() ),
+				.codeSize = this->ByteCodeSize(),
+				.pCode = static_cast<const uint32*>( this->ByteCode() ),
 			};
 
 			VkResult result = vkCreateShaderModule( VulkanDevice(), &createInfo, nullptr, &m_shaderModule );
@@ -87,8 +84,8 @@ namespace agl
 	class VulkanVertexShader final : public VulkanShaderBase<ShaderType::Vertex, VertexShader>
 	{
 	public:
-		VulkanVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: VulkanShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+		VulkanVertexShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: VulkanShaderBase( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		VulkanVertexShader( const VulkanVertexShader& ) = delete;
 		VulkanVertexShader( VulkanVertexShader&& ) = default;
 		VulkanVertexShader& operator=( const VulkanVertexShader& ) = delete;
@@ -99,8 +96,8 @@ namespace agl
 	class VulkanGeometryShader final : public VulkanShaderBase<ShaderType::Geometry, GeometryShader>
 	{
 	public:
-		VulkanGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: VulkanShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+		VulkanGeometryShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: VulkanShaderBase( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		VulkanGeometryShader( const VulkanGeometryShader& ) = delete;
 		VulkanGeometryShader( VulkanGeometryShader&& ) = default;
 		VulkanGeometryShader& operator=( const VulkanGeometryShader& ) = delete;
@@ -111,8 +108,8 @@ namespace agl
 	class VulkanPixelShader final : public VulkanShaderBase<ShaderType::Pixel, PixelShader>
 	{
 	public:
-		VulkanPixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: VulkanShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+		VulkanPixelShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: VulkanShaderBase( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		VulkanPixelShader( const VulkanPixelShader& ) = delete;
 		VulkanPixelShader( VulkanPixelShader&& ) = default;
 		VulkanPixelShader& operator=( const VulkanPixelShader& ) = delete;
@@ -123,8 +120,8 @@ namespace agl
 	class VulkanComputeShader final : public VulkanShaderBase<ShaderType::Compute, ComputeShader>
 	{
 	public:
-		VulkanComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: VulkanShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+		VulkanComputeShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: VulkanShaderBase( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		VulkanComputeShader( const VulkanComputeShader& ) = delete;
 		VulkanComputeShader( VulkanComputeShader&& ) = default;
 		VulkanComputeShader& operator=( const VulkanComputeShader& ) = delete;
@@ -135,8 +132,8 @@ namespace agl
 	class VulkanMeshShader final : public VulkanShaderBase<ShaderType::Mesh, MeshShader>
 	{
 	public:
-		VulkanMeshShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: VulkanShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+		VulkanMeshShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: VulkanShaderBase( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		VulkanMeshShader( const VulkanMeshShader& ) = delete;
 		VulkanMeshShader( VulkanMeshShader&& ) = default;
 		VulkanMeshShader& operator=( const VulkanMeshShader& ) = delete;
@@ -147,8 +144,8 @@ namespace agl
 	class VulkanAmplificationShader final : public VulkanShaderBase<ShaderType::Amplification, AmplificationShader>
 	{
 	public:
-		VulkanAmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: VulkanShaderBase( byteCode, byteCodeSize, paramInfo ) {}
+		VulkanAmplificationShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: VulkanShaderBase( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		VulkanAmplificationShader( const VulkanAmplificationShader& ) = delete;
 		VulkanAmplificationShader( VulkanAmplificationShader&& ) = default;
 		VulkanAmplificationShader& operator=( const VulkanAmplificationShader& ) = delete;
@@ -159,8 +156,8 @@ namespace agl
 	class VulkanRayGenerationShader final : public VulkanShaderBase<ShaderType::RayGen, RayGenerationShader>
 	{
 	public:
-		VulkanRayGenerationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
-			: VulkanShaderBase( byteCode, byteCodeSize, paramInfo, exportName ) {}
+		VulkanRayGenerationShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: VulkanShaderBase( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		VulkanRayGenerationShader( const VulkanRayGenerationShader& ) = delete;
 		VulkanRayGenerationShader( VulkanRayGenerationShader&& ) = default;
 		VulkanRayGenerationShader& operator=( const VulkanRayGenerationShader& ) = delete;
@@ -175,8 +172,8 @@ namespace agl
 	class VulkanIntersectionShader final : public VulkanShaderBase<ShaderType::Intersection, IntersectionShader>
 	{
 	public:
-		VulkanIntersectionShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
-			: VulkanShaderBase( byteCode, byteCodeSize, paramInfo, exportName ) {}
+		VulkanIntersectionShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: VulkanShaderBase( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		VulkanIntersectionShader( const VulkanIntersectionShader& ) = delete;
 		VulkanIntersectionShader( VulkanIntersectionShader&& ) = default;
 		VulkanIntersectionShader& operator=( const VulkanIntersectionShader& ) = delete;
@@ -191,8 +188,8 @@ namespace agl
 	class VulkanAnyHitShader final : public VulkanShaderBase<ShaderType::AnyHit, AnyHitShader>
 	{
 	public:
-		VulkanAnyHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
-			: VulkanShaderBase( byteCode, byteCodeSize, paramInfo, exportName ) {}
+		VulkanAnyHitShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: VulkanShaderBase( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		VulkanAnyHitShader( const VulkanAnyHitShader& ) = delete;
 		VulkanAnyHitShader( VulkanAnyHitShader&& ) = default;
 		VulkanAnyHitShader& operator=( const VulkanAnyHitShader& ) = delete;
@@ -207,8 +204,8 @@ namespace agl
 	class VulkanClosestHitShader final : public VulkanShaderBase<ShaderType::ClosestHit, ClosestHitShader>
 	{
 	public:
-		VulkanClosestHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
-			: VulkanShaderBase( byteCode, byteCodeSize, paramInfo, exportName ) {}
+		VulkanClosestHitShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: VulkanShaderBase( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		VulkanClosestHitShader( const VulkanClosestHitShader& ) = delete;
 		VulkanClosestHitShader( VulkanClosestHitShader&& ) = default;
 		VulkanClosestHitShader& operator=( const VulkanClosestHitShader& ) = delete;
@@ -223,8 +220,8 @@ namespace agl
 	class VulkanMissShader final : public VulkanShaderBase<ShaderType::Miss, MissShader>
 	{
 	public:
-		VulkanMissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
-			: VulkanShaderBase( byteCode, byteCodeSize, paramInfo, exportName ) {}
+		VulkanMissShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: VulkanShaderBase( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		VulkanMissShader( const VulkanMissShader& ) = delete;
 		VulkanMissShader( VulkanMissShader&& ) = default;
 		VulkanMissShader& operator=( const VulkanMissShader& ) = delete;
@@ -239,8 +236,8 @@ namespace agl
 	class VulkanCallableShader final : public VulkanShaderBase<ShaderType::Callable, CallableShader>
 	{
 	public:
-		VulkanCallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
-			: VulkanShaderBase( byteCode, byteCodeSize, paramInfo, exportName ) {}
+		VulkanCallableShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: VulkanShaderBase( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		VulkanCallableShader( const VulkanCallableShader& ) = delete;
 		VulkanCallableShader( VulkanCallableShader&& ) = default;
 		VulkanCallableShader& operator=( const VulkanCallableShader& ) = delete;

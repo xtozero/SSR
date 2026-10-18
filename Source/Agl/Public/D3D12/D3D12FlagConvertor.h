@@ -8,39 +8,43 @@
 
 namespace agl
 {
-	D3D12_HEAP_TYPE ConvertToHeapType( ResourceAccess resourceAccess );
+	class D3D12FlagConvertor
+	{
+	public:
+		static D3D12_HEAP_TYPE ConvertToHeapType( ResourceAccess resourceAccess );
 
-	ResourceAccess ConvertToResourceAccess( D3D12_HEAP_TYPE heapType );
+		static ResourceAccess ConvertToResourceAccess( D3D12_HEAP_TYPE heapType );
 
-	D3D12_PRIMITIVE_TOPOLOGY_TYPE ConvertPrimToD3D12PrimType( ResourcePrimitive primitive );
+		static D3D12_PRIMITIVE_TOPOLOGY_TYPE ConvertPrimToD3D12PrimType( ResourcePrimitive primitive );
 
-	D3D12_PRIMITIVE_TOPOLOGY ConvertPrimToD3D12Prim( ResourcePrimitive primitive );
+		static D3D12_PRIMITIVE_TOPOLOGY ConvertPrimToD3D12Prim( ResourcePrimitive primitive );
 
-	D3D12_DEPTH_WRITE_MASK ConvertToDepthWriteMask( DepthWriteMode depthWriteMode );
+		static D3D12_DEPTH_WRITE_MASK ConvertToDepthWriteMask( DepthWriteMode depthWriteMode );
 
-	D3D12_COMPARISON_FUNC ConvertToComparisionFunc( ComparisonFunc comparisonFunc );
+		static D3D12_COMPARISON_FUNC ConvertToComparisionFunc( ComparisonFunc comparisonFunc );
 
-	D3D12_STENCIL_OP ConvertToStencilOp( StencilOp stencilOp );
+		static D3D12_STENCIL_OP ConvertToStencilOp( StencilOp stencilOp );
 
-	D3D12_FILL_MODE ConvertToFillMode( FillMode fillMode );
+		static D3D12_FILL_MODE ConvertToFillMode( FillMode fillMode );
 
-	D3D12_CULL_MODE ConvertToCullMode( CullMode cullMode );
+		static D3D12_CULL_MODE ConvertToCullMode( CullMode cullMode );
 
-	D3D12_FILTER ConvertToFilter( TextureFilter filter );
+		static D3D12_FILTER ConvertToFilter( TextureFilter filter );
 
-	D3D12_TEXTURE_ADDRESS_MODE ConvertToTextureAddress( TextureAddressMode addressMode );
+		static D3D12_TEXTURE_ADDRESS_MODE ConvertToAddressMode( TextureAddressMode addressMode );
 
-	D3D12_BLEND ConvertToBlend( Blend blend );
+		static D3D12_BLEND ConvertToBlend( Blend blend );
 
-	D3D12_BLEND_OP ConvertToBlendOp( BlendOp blendOp );
+		static D3D12_BLEND_OP ConvertToBlendOp( BlendOp blendOp );
 
-	ResourceBindType ConvertResourceFlagsToBindType( D3D12_RESOURCE_FLAGS flags );
+		static ResourceBindType ConvertResourceFlagsToBindType( D3D12_RESOURCE_FLAGS flags );
 
-	D3D12_RESOURCE_STATES ConvertToResourceStates( ResourceState state );
+		static D3D12_RESOURCE_STATES ConvertToResourceStates( ResourceState state );
 
-	ResourceState ConvertToResourceStates( D3D12_RESOURCE_STATES state );
+		static ResourceState ConvertToResourceStates( D3D12_RESOURCE_STATES state );
 
-	D3D12_RESOURCE_BARRIER ConvertToResourceBarrier( const ResourceTransition& transition );
+		static D3D12_RESOURCE_BARRIER ConvertToResourceBarrier( const ResourceTransition& transition );
 
-	D3D12_INDIRECT_ARGUMENT_TYPE ConvertToIndirectArgumentType( IndirectCommandType commandType );
+		static D3D12_INDIRECT_ARGUMENT_TYPE ConvertToIndirectArgumentType( IndirectCommandType commandType );
+	};
 }

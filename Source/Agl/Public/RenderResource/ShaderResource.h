@@ -5,6 +5,8 @@
 #include "RefHandle.h"
 #include "SizedTypes.h"
 
+#include <string>
+
 namespace agl
 {
 	class ShaderParameterInfo;
@@ -56,8 +58,9 @@ namespace agl
 
 		AGL_DLL void UpdateByteCodeAndParameterInfo( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
 
-		Shader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
+		Shader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
 			: m_byteCodeSize( byteCodeSize )
+			, m_entryPoint( entryPoint )
 			, m_parameterInfo( &paramInfo )
 		{
 			m_byteCode = new uint8[m_byteCodeSize];
@@ -77,13 +80,14 @@ namespace agl
 	protected:
 		uint8* m_byteCode = nullptr;
 		size_t m_byteCodeSize = 0;
+		std::string m_entryPoint;
 		const ShaderParameterInfo* m_parameterInfo = nullptr;
 	};
 
 	class VertexShader : public Shader
 	{
 	public:
-		AGL_DLL static RefHandle<VertexShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+		AGL_DLL static RefHandle<VertexShader> Create( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo );
 
 		using Shader::Shader;
 	};
@@ -91,7 +95,7 @@ namespace agl
 	class GeometryShader : public Shader
 	{
 	public:
-		AGL_DLL static RefHandle<GeometryShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+		AGL_DLL static RefHandle<GeometryShader> Create( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo );
 
 		using Shader::Shader;
 	};
@@ -99,7 +103,7 @@ namespace agl
 	class PixelShader : public Shader
 	{
 	public:
-		AGL_DLL static RefHandle<PixelShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+		AGL_DLL static RefHandle<PixelShader> Create( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo );
 
 		using Shader::Shader;
 	};
@@ -107,7 +111,7 @@ namespace agl
 	class ComputeShader : public Shader
 	{
 	public:
-		AGL_DLL static RefHandle<ComputeShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+		AGL_DLL static RefHandle<ComputeShader> Create( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo );
 
 		using Shader::Shader;
 	};
@@ -115,7 +119,7 @@ namespace agl
 	class MeshShader : public Shader
 	{
 	public:
-		AGL_DLL static RefHandle<MeshShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+		AGL_DLL static RefHandle<MeshShader> Create( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo );
 
 		using Shader::Shader;
 	};
@@ -123,70 +127,57 @@ namespace agl
 	class AmplificationShader : public Shader
 	{
 	public:
-		AGL_DLL static RefHandle<AmplificationShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo );
+		AGL_DLL static RefHandle<AmplificationShader> Create( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo );
 
 		using Shader::Shader;
 	};
 
-	class RaytracingShader : public Shader
+	class RayGenerationShader : public Shader
 	{
 	public:
-		const wchar_t* GetExportName() const;
+		AGL_DLL static RefHandle<RayGenerationShader> Create( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo );
 
-		RaytracingShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName );
-
-		static constexpr int32 ExportNameBufferSize = 32;
-
-	protected:
-		wchar_t m_wExportName[ExportNameBufferSize] = {};
+		using Shader::Shader;
 	};
 
-	class RayGenerationShader : public RaytracingShader
+	class IntersectionShader : public Shader
 	{
 	public:
-		AGL_DLL static RefHandle<RayGenerationShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName );
+		AGL_DLL static RefHandle<IntersectionShader> Create( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo );
 
-		using RaytracingShader::RaytracingShader;
+		using Shader::Shader;
 	};
 
-	class IntersectionShader : public RaytracingShader
+	class AnyHitShader : public Shader
 	{
 	public:
-		AGL_DLL static RefHandle<IntersectionShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName );
+		AGL_DLL static RefHandle<AnyHitShader> Create( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo );
 
-		using RaytracingShader::RaytracingShader;
+		using Shader::Shader;
 	};
 
-	class AnyHitShader : public RaytracingShader
+	class ClosestHitShader : public Shader
 	{
 	public:
-		AGL_DLL static RefHandle<AnyHitShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName );
+		AGL_DLL static RefHandle<ClosestHitShader> Create( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo );
 
-		using RaytracingShader::RaytracingShader;
+		using Shader::Shader;
 	};
 
-	class ClosestHitShader : public RaytracingShader
+	class MissShader : public Shader
 	{
 	public:
-		AGL_DLL static RefHandle<ClosestHitShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName );
+		AGL_DLL static RefHandle<MissShader> Create( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo );
 
-		using RaytracingShader::RaytracingShader;
+		using Shader::Shader;
 	};
 
-	class MissShader : public RaytracingShader
+	class CallableShader : public Shader
 	{
 	public:
-		AGL_DLL static RefHandle<MissShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName );
+		AGL_DLL static RefHandle<CallableShader> Create( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo );
 
-		using RaytracingShader::RaytracingShader;
-	};
-
-	class CallableShader : public RaytracingShader
-	{
-	public:
-		AGL_DLL static RefHandle<CallableShader> Create( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName );
-
-		using RaytracingShader::RaytracingShader;
+		using Shader::Shader;
 	};
 
 	// bIdx: bindless index

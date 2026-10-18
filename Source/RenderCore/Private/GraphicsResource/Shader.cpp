@@ -210,7 +210,7 @@ namespace rendercore
 
 	void VertexShader::CreateShader()
 	{
-		m_shader = agl::VertexShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader = agl::VertexShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_entryPoint, m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
 	}
 
@@ -228,7 +228,7 @@ namespace rendercore
 
 	void GeometryShader::CreateShader()
 	{
-		m_shader = agl::GeometryShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader = agl::GeometryShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_entryPoint, m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
 	}
 
@@ -247,7 +247,7 @@ namespace rendercore
 
 	void PixelShader::CreateShader()
 	{
-		m_shader = agl::PixelShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader = agl::PixelShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_entryPoint, m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
 	}
 
@@ -265,7 +265,7 @@ namespace rendercore
 
 	void ComputeShader::CreateShader()
 	{
-		m_shader = agl::ComputeShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader = agl::ComputeShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_entryPoint, m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
 	}
 
@@ -292,7 +292,7 @@ namespace rendercore
 
 	void MeshShader::CreateShader()
 	{
-		m_shader = agl::MeshShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader = agl::MeshShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_entryPoint, m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
 	}
 
@@ -319,7 +319,7 @@ namespace rendercore
 
 	void AmplificationShader::CreateShader()
 	{
-		m_shader = agl::AmplificationShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo ).Get();
+		m_shader = agl::AmplificationShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_entryPoint, m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
 	}
 
@@ -331,7 +331,7 @@ namespace rendercore
 			return nullptr;
 		}
 
-		return RaytracingShaderBase::CompileShader( permutation );
+		return ShaderBase::CompileShader( permutation );
 	}
 
 	agl::RayGenerationShader* RayGenerationShader::Resource()
@@ -346,7 +346,7 @@ namespace rendercore
 
 	void RayGenerationShader::CreateShader()
 	{
-		m_shader = agl::RayGenerationShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
+		m_shader = agl::RayGenerationShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_entryPoint, m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
 	}
 
@@ -358,7 +358,7 @@ namespace rendercore
 			return nullptr;
 		}
 
-		return RaytracingShaderBase::CompileShader( permutation );
+		return ShaderBase::CompileShader( permutation );
 	}
 
 	agl::IntersectionShader* IntersectionShader::Resource()
@@ -373,7 +373,7 @@ namespace rendercore
 
 	void IntersectionShader::CreateShader()
 	{
-		m_shader = agl::IntersectionShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
+		m_shader = agl::IntersectionShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_entryPoint, m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
 	}
 
@@ -385,7 +385,7 @@ namespace rendercore
 			return nullptr;
 		}
 
-		return RaytracingShaderBase::CompileShader( permutation );
+		return ShaderBase::CompileShader( permutation );
 	}
 
 	agl::AnyHitShader* AnyHitShader::Resource()
@@ -400,7 +400,7 @@ namespace rendercore
 
 	void AnyHitShader::CreateShader()
 	{
-		m_shader = agl::AnyHitShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
+		m_shader = agl::AnyHitShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_entryPoint, m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
 	}
 
@@ -412,7 +412,7 @@ namespace rendercore
 			return nullptr;
 		}
 
-		return RaytracingShaderBase::CompileShader( permutation );
+		return ShaderBase::CompileShader( permutation );
 	}
 
 	agl::ClosestHitShader* ClosestHitShader::Resource()
@@ -427,7 +427,7 @@ namespace rendercore
 
 	void ClosestHitShader::CreateShader()
 	{
-		m_shader = agl::ClosestHitShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
+		m_shader = agl::ClosestHitShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_entryPoint, m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
 	}
 
@@ -439,7 +439,7 @@ namespace rendercore
 			return nullptr;
 		}
 
-		return RaytracingShaderBase::CompileShader( permutation );
+		return ShaderBase::CompileShader( permutation );
 	}
 
 	agl::MissShader* MissShader::Resource()
@@ -454,7 +454,7 @@ namespace rendercore
 
 	void MissShader::CreateShader()
 	{
-		m_shader = agl::MissShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
+		m_shader = agl::MissShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_entryPoint, m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
 	}
 
@@ -466,7 +466,7 @@ namespace rendercore
 			return nullptr;
 		}
 
-		return RaytracingShaderBase::CompileShader( permutation );
+		return ShaderBase::CompileShader( permutation );
 	}
 
 	agl::CallableShader* CallableShader::Resource()
@@ -481,7 +481,7 @@ namespace rendercore
 
 	void CallableShader::CreateShader()
 	{
-		m_shader = agl::CallableShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_parameterInfo, m_exportName ).Get();
+		m_shader = agl::CallableShader::Create( m_byteCode.Data(), m_byteCode.Size(), m_entryPoint, m_parameterInfo ).Get();
 		m_shader->SetHash( m_hash );
 	}
 }

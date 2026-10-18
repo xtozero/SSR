@@ -7,13 +7,9 @@
 #include "D3D12ResourceUploader.h"
 #include "D3D12ResourceViews.h"
 
-using ::agl::ConvertDxgiFormatForDSV;
-using ::agl::ConvertDxgiFormatForSRV;
-using ::agl::ConvertDxgiFormatToFormat;
-using ::agl::ConvertFormatToDxgiFormat;
-using ::agl::ConvertToResourceAccess;
-using ::agl::ConvertResourceFlagsToBindType;
+using ::agl::D3D12FlagConvertor;
 using ::agl::D3D12HeapProperties;
+using ::agl::DxgiFlagConvertor;
 using ::agl::ResourceAccess;
 using ::agl::ResourceBindType;
 using ::agl::ResourceClearValue;
@@ -72,7 +68,7 @@ namespace
 			.Height = desc.m_height,
 			.DepthOrArraySize = static_cast<uint16>( desc.m_depth ),
 			.MipLevels = static_cast<uint16>( desc.m_mipLevels ),
-			.Format = ConvertFormatToDxgiFormat( desc.m_format ),
+			.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( desc.m_format ),
 			.SampleDesc = {
 				.Count = desc.m_sampleCount,
 				.Quality = desc.m_sampleQuality
@@ -86,9 +82,9 @@ namespace
 
 	TextureDesc ConvertToTextureDesc( const D3D12_RESOURCE_DESC& desc, const D3D12_HEAP_PROPERTIES& heapProperties )
 	{
-		ResourceFormat format = ConvertDxgiFormatToFormat( desc.Format );
-		ResourceBindType bindType = ConvertResourceFlagsToBindType( desc.Flags );
-		ResourceAccess access = ConvertToResourceAccess( heapProperties.Type );
+		ResourceFormat format = DxgiFlagConvertor::ConvertDxgiFormatToFormat( desc.Format );
+		ResourceBindType bindType = D3D12FlagConvertor::ConvertResourceFlagsToBindType( desc.Flags );
+		ResourceAccess access = D3D12FlagConvertor::ConvertToResourceAccess( heapProperties.Type );
 
 		return TextureDesc{
 			.m_width = static_cast<uint32>( desc.Width ),
@@ -107,7 +103,8 @@ namespace
 	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertToNonMultiSampleSRVDesc( const TextureDesc& desc )
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv = {};
-		srv.Format = ConvertDxgiFormatForSRV( ConvertFormatToDxgiFormat( desc.m_format ) );
+		DXGI_FORMAT dxgiFormat = DxgiFlagConvertor::ConvertFormatToDxgiFormat( desc.m_format );
+		srv.Format = DxgiFlagConvertor::ConvertDxgiFormatForSRV( dxgiFormat );
 		srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 		if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Texture3D ) )
@@ -175,7 +172,8 @@ namespace
 	D3D12_SHADER_RESOURCE_VIEW_DESC ConvertToMultiSampleSRVDesc( const TextureDesc& desc )
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srv = {};
-		srv.Format = ConvertDxgiFormatForSRV( ConvertFormatToDxgiFormat( desc.m_format ) );
+		DXGI_FORMAT dxgiFormat = DxgiFlagConvertor::ConvertFormatToDxgiFormat( desc.m_format );
+		srv.Format = DxgiFlagConvertor::ConvertDxgiFormatForSRV( dxgiFormat );
 		srv.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 		assert( ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Texture3D ) == false )
@@ -215,7 +213,7 @@ namespace
 	D3D12_UNORDERED_ACCESS_VIEW_DESC ConvertToUAVDesc( const TextureDesc& desc, uint32 mipSlice )
 	{
 		D3D12_UNORDERED_ACCESS_VIEW_DESC uav = {
-			.Format = ConvertFormatToDxgiFormat( desc.m_format )
+			.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( desc.m_format )
 		};
 
 		if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Texture3D ) )
@@ -255,7 +253,7 @@ namespace
 	D3D12_RENDER_TARGET_VIEW_DESC ConvertToNonMultiSampleRTVDesc( const TextureDesc& desc )
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC rtv = {
-			.Format = ConvertFormatToDxgiFormat( desc.m_format )
+			.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( desc.m_format )
 		};
 
 		if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Texture3D ) )
@@ -295,7 +293,7 @@ namespace
 	D3D12_RENDER_TARGET_VIEW_DESC ConvertToMultiSampleRTVDesc( const TextureDesc& desc )
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC rtv = {
-			.Format = ConvertFormatToDxgiFormat( desc.m_format )
+			.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( desc.m_format )
 		};
 
 		assert( ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Texture3D ) == false )
@@ -334,8 +332,9 @@ namespace
 
 	D3D12_DEPTH_STENCIL_VIEW_DESC ConvertToNonMultiSampleDSVDesc( const TextureDesc& desc )
 	{
+		DXGI_FORMAT dxgiFormat = DxgiFlagConvertor::ConvertFormatToDxgiFormat( desc.m_format );
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {
-			.Format = ConvertDxgiFormatForDSV( ConvertFormatToDxgiFormat( desc.m_format ) )
+			.Format = DxgiFlagConvertor::ConvertDxgiFormatForDSV( dxgiFormat )
 		};
 
 		assert( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Texture3D ) == false );
@@ -361,8 +360,9 @@ namespace
 
 	D3D12_DEPTH_STENCIL_VIEW_DESC ConvertToMultiSampleDSVDesc( const TextureDesc& desc )
 	{
+		DXGI_FORMAT dxgiFormat = DxgiFlagConvertor::ConvertFormatToDxgiFormat( desc.m_format );
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {
-			.Format = ConvertDxgiFormatForDSV( ConvertFormatToDxgiFormat( desc.m_format ) )
+			.Format = DxgiFlagConvertor::ConvertDxgiFormatForDSV( dxgiFormat )
 		};
 
 		assert( ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Texture3D ) == false )
@@ -419,7 +419,7 @@ namespace
 
 		D3D12HeapProperties properties = {
 			.m_alignment = alignment,
-			.m_heapType = ConvertToHeapType( desc.m_access ),
+			.m_heapType = D3D12FlagConvertor::ConvertToHeapType( desc.m_access ),
 			.m_heapFlags = bDownload ? D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS : ConvertToTextureHeapFlags( desc.m_bindType )
 		};
 
@@ -437,11 +437,11 @@ namespace
 
 		D3D12_CLEAR_VALUE ret;
 		ResourceFormat clearFormat = ( clearValue.m_format == ResourceFormat::Unknown ) ? desc.m_format : clearValue.m_format;
-		ret.Format = IsTypeless( clearFormat ) ? DXGI_FORMAT_UNKNOWN : ConvertFormatToDxgiFormat( clearFormat );
+		ret.Format = IsTypeless( clearFormat ) ? DXGI_FORMAT_UNKNOWN : DxgiFlagConvertor::ConvertFormatToDxgiFormat( clearFormat );
 
 		if ( HasAnyFlags( desc.m_bindType, ResourceBindType::RenderTarget ) )
 		{
-			ret.Format = ConvertDxgiFormatForDSV( ret.Format );
+			ret.Format = DxgiFlagConvertor::ConvertDxgiFormatForDSV( ret.Format );
 			ret.Color[0] = clearValue.m_color[0];
 			ret.Color[1] = clearValue.m_color[1];
 			ret.Color[2] = clearValue.m_color[2];
@@ -451,7 +451,7 @@ namespace
 		}
 		else if ( HasAnyFlags( desc.m_bindType, ResourceBindType::DepthStencil ) )
 		{
-			ret.Format = ConvertDxgiFormatForDSV( ret.Format );
+			ret.Format = DxgiFlagConvertor::ConvertDxgiFormatForDSV( ret.Format );
 			ret.DepthStencil.Depth = clearValue.m_depthStencil.m_depth;
 			ret.DepthStencil.Stencil = clearValue.m_depthStencil.m_stencil;
 
@@ -529,7 +529,7 @@ namespace agl
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertToSRVDesc( m_desc );
 		if ( overrideFormat.has_value() )
 		{
-			srvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+			srvDesc.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( *overrideFormat );
 		}
 		m_srv = new D3D12ShaderResourceView( this, Resource(), srvDesc );
 		m_srv->Init();
@@ -543,7 +543,7 @@ namespace agl
 			D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertToUAVDesc( m_desc, mipSlice );
 			if ( overrideFormat.has_value() )
 			{
-				uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+				uavDesc.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( *overrideFormat );
 			}
 			m_uav[mipSlice] = new D3D12UnorderedAccessView( this, Resource(), uavDesc );
 			m_uav[mipSlice]->Init();
@@ -617,7 +617,7 @@ namespace agl
 		m_resourceInfo = D3D12Allocator().AllocateResource(
 			properties,
 			bDownload ? GetDescForDownload() : m_d3dDesc,
-			ConvertToResourceStates( GetResourceState() ),
+			D3D12FlagConvertor::ConvertToResourceStates( GetResourceState() ),
 			clearValue.Format == DXGI_FORMAT_UNKNOWN ? nullptr : &clearValue );
 
 		SetDebugObjectName();
@@ -724,7 +724,7 @@ namespace agl
 		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertToRTVDesc( m_desc );
 		if ( overrideFormat.has_value() )
 		{
-			rtvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+			rtvDesc.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( *overrideFormat );
 		}
 
 		ColorF clearColor = ColorF::Black;
@@ -742,7 +742,7 @@ namespace agl
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = ConvertToDSVDesc( m_desc );
 		if ( overrideFormat.has_value() )
 		{
-			dsvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+			dsvDesc.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( *overrideFormat );
 		}
 
 		float depthClearValue = 0;
@@ -762,7 +762,7 @@ namespace agl
 		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertToRTVDesc( m_desc );
 		if ( overrideFormat.has_value() )
 		{
-			rtvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+			rtvDesc.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( *overrideFormat );
 		}
 
 		ColorF clearColor = ColorF::Black;

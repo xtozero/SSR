@@ -14,7 +14,7 @@ namespace agl
 			return m_d3dDesc;
 		}
 
-		D3D12DepthStencilState( const DepthStencilStateDesc& desc );
+		explicit D3D12DepthStencilState( const DepthStencilStateDesc& desc );
 		D3D12DepthStencilState( const D3D12DepthStencilState& ) = default;
 		D3D12DepthStencilState( D3D12DepthStencilState&& ) = default;
 		D3D12DepthStencilState& operator=( const D3D12DepthStencilState& ) = default;

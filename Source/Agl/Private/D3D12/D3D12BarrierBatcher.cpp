@@ -12,7 +12,7 @@ namespace agl
 
 		if ( beforeState != afterState )
 		{
-			m_barriers.emplace_back( ConvertToResourceBarrier( transition ) );
+			m_barriers.emplace_back( D3D12FlagConvertor::ConvertToResourceBarrier( transition ) );
 			transition.m_pTransitionable->SetResourceState( afterState );
 		}
 	}

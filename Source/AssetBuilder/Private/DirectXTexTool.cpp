@@ -37,7 +37,7 @@ rendercore::DDSTextureDesc ConvertToBCTextureDesc( const DirectX::ScratchImage& 
 	desc.m_isCubeMap = meta.IsCubemap();
 	desc.m_demension = ConvertToBCTextureDemension( meta.dimension );
 
-	desc.m_format = agl::ConvertDxgiFormatToFormat( meta.format );
+	desc.m_format = agl::DxgiFlagConvertor::ConvertDxgiFormatToFormat( meta.format );
 
 	desc.m_size = static_cast<uint32>( image.GetPixelsSize() );
 	desc.m_memory = image.GetPixels();

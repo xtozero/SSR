@@ -2,7 +2,7 @@
 
 namespace agl
 {
-	D3D12_HEAP_TYPE ConvertToHeapType( ResourceAccess resourceAccess )
+	D3D12_HEAP_TYPE D3D12FlagConvertor::ConvertToHeapType( ResourceAccess resourceAccess )
 	{
 		if ( HasAnyFlags( resourceAccess, ResourceAccess::CpuRead ) )
 		{
@@ -18,7 +18,7 @@ namespace agl
 		}
 	}
 
-	ResourceAccess ConvertToResourceAccess( D3D12_HEAP_TYPE heapType )
+	ResourceAccess D3D12FlagConvertor::ConvertToResourceAccess( D3D12_HEAP_TYPE heapType )
 	{
 		switch ( heapType )
 		{
@@ -34,7 +34,7 @@ namespace agl
 		}
 	}
 
-	D3D12_PRIMITIVE_TOPOLOGY_TYPE ConvertPrimToD3D12PrimType( ResourcePrimitive primitive )
+	D3D12_PRIMITIVE_TOPOLOGY_TYPE D3D12FlagConvertor::ConvertPrimToD3D12PrimType( ResourcePrimitive primitive )
 	{
 		switch ( primitive )
 		{
@@ -128,7 +128,7 @@ namespace agl
 		return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
 	}
 
-	D3D12_PRIMITIVE_TOPOLOGY ConvertPrimToD3D12Prim( ResourcePrimitive primitive )
+	D3D12_PRIMITIVE_TOPOLOGY D3D12FlagConvertor::ConvertPrimToD3D12Prim( ResourcePrimitive primitive )
 	{
 		switch ( primitive )
 		{
@@ -222,7 +222,7 @@ namespace agl
 		}
 	}
 
-	D3D12_DEPTH_WRITE_MASK ConvertToDepthWriteMask( DepthWriteMode depthWriteMode )
+	D3D12_DEPTH_WRITE_MASK D3D12FlagConvertor::ConvertToDepthWriteMask( DepthWriteMode depthWriteMode )
 	{
 		switch ( depthWriteMode )
 		{
@@ -236,7 +236,7 @@ namespace agl
 		}
 	}
 
-	D3D12_COMPARISON_FUNC ConvertToComparisionFunc( ComparisonFunc comparisonFunc )
+	D3D12_COMPARISON_FUNC D3D12FlagConvertor::ConvertToComparisionFunc( ComparisonFunc comparisonFunc )
 	{
 		switch ( comparisonFunc )
 		{
@@ -262,7 +262,7 @@ namespace agl
 		}
 	}
 
-	D3D12_STENCIL_OP ConvertToStencilOp( StencilOp stencilOp )
+	D3D12_STENCIL_OP D3D12FlagConvertor::ConvertToStencilOp( StencilOp stencilOp )
 	{
 		switch ( stencilOp )
 		{
@@ -288,7 +288,7 @@ namespace agl
 		}
 	}
 
-	D3D12_FILL_MODE ConvertToFillMode( FillMode fillMode )
+	D3D12_FILL_MODE D3D12FlagConvertor::ConvertToFillMode( FillMode fillMode )
 	{
 		switch ( fillMode )
 		{
@@ -302,7 +302,7 @@ namespace agl
 		}
 	}
 
-	D3D12_CULL_MODE ConvertToCullMode( CullMode cullMode )
+	D3D12_CULL_MODE D3D12FlagConvertor::ConvertToCullMode( CullMode cullMode )
 	{
 		switch ( cullMode )
 		{
@@ -318,12 +318,12 @@ namespace agl
 		}
 	}
 
-	D3D12_FILTER ConvertToFilter( TextureFilter filter )
+	D3D12_FILTER D3D12FlagConvertor::ConvertToFilter( TextureFilter filter )
 	{
 		return static_cast<D3D12_FILTER>( filter );
 	}
 
-	D3D12_TEXTURE_ADDRESS_MODE ConvertToTextureAddress( TextureAddressMode addressMode )
+	D3D12_TEXTURE_ADDRESS_MODE D3D12FlagConvertor::ConvertToAddressMode( TextureAddressMode addressMode )
 	{
 		switch ( addressMode )
 		{
@@ -343,7 +343,7 @@ namespace agl
 		}
 	}
 
-	D3D12_BLEND ConvertToBlend( Blend blend )
+	D3D12_BLEND D3D12FlagConvertor::ConvertToBlend( Blend blend )
 	{
 		switch ( blend )
 		{
@@ -387,7 +387,7 @@ namespace agl
 		}
 	}
 
-	D3D12_BLEND_OP ConvertToBlendOp( BlendOp blendOp )
+	D3D12_BLEND_OP D3D12FlagConvertor::ConvertToBlendOp( BlendOp blendOp )
 	{
 		switch ( blendOp )
 		{
@@ -407,7 +407,7 @@ namespace agl
 		}
 	}
 
-	ResourceBindType ConvertResourceFlagsToBindType( D3D12_RESOURCE_FLAGS flags )
+	ResourceBindType D3D12FlagConvertor::ConvertResourceFlagsToBindType( D3D12_RESOURCE_FLAGS flags )
 	{
 		ResourceBindType bindType = ResourceBindType::None;
 
@@ -434,7 +434,7 @@ namespace agl
 		return bindType;
 	}
 
-	D3D12_RESOURCE_STATES ConvertToResourceStates( ResourceState state )
+	D3D12_RESOURCE_STATES D3D12FlagConvertor::ConvertToResourceStates( ResourceState state )
 	{
 		D3D12_RESOURCE_STATES d3d12ResourceState = D3D12_RESOURCE_STATE_COMMON;
 
@@ -561,7 +561,7 @@ namespace agl
 		return d3d12ResourceState;
 	}
 
-	ResourceState ConvertToResourceStates( D3D12_RESOURCE_STATES state )
+	ResourceState D3D12FlagConvertor::ConvertToResourceStates( D3D12_RESOURCE_STATES state )
 	{
 		ResourceState resourceState = ResourceState::Common;
 
@@ -688,7 +688,7 @@ namespace agl
 		return resourceState;
 	}
 
-	D3D12_RESOURCE_BARRIER ConvertToResourceBarrier( const ResourceTransition& transition )
+	D3D12_RESOURCE_BARRIER D3D12FlagConvertor::ConvertToResourceBarrier( const ResourceTransition& transition )
 	{
 		D3D12_RESOURCE_BARRIER barrier = {
 			.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION,
@@ -711,7 +711,7 @@ namespace agl
 		return barrier;
 	}
 
-	D3D12_INDIRECT_ARGUMENT_TYPE ConvertToIndirectArgumentType( IndirectCommandType commandType )
+	D3D12_INDIRECT_ARGUMENT_TYPE D3D12FlagConvertor::ConvertToIndirectArgumentType( IndirectCommandType commandType )
 	{
 		switch ( commandType )
 		{

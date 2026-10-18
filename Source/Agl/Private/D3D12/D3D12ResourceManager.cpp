@@ -87,64 +87,64 @@ namespace agl
 		return new D3D12VertexLayout( layoutData, size );
 	}
 
-	ComputeShader* D3D12ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	ComputeShader* D3D12ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
 	{
-		return new D3D12ComputeShader( byteCode, byteCodeSize, paramInfo );
+		return new D3D12ComputeShader( byteCode, byteCodeSize, entryPoint, paramInfo );
 	}
 
-	VertexShader* D3D12ResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	VertexShader* D3D12ResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
 	{
-		return new D3D12VertexShader( byteCode, byteCodeSize, paramInfo );
+		return new D3D12VertexShader( byteCode, byteCodeSize, entryPoint, paramInfo );
 	}
 
-	GeometryShader* D3D12ResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	GeometryShader* D3D12ResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
 	{
-		return new D3D12GeometryShader( byteCode, byteCodeSize, paramInfo );
+		return new D3D12GeometryShader( byteCode, byteCodeSize, entryPoint, paramInfo );
 	}
 
-	PixelShader* D3D12ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	PixelShader* D3D12ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
 	{
-		return new D3D12PixelShader( byteCode, byteCodeSize, paramInfo );
+		return new D3D12PixelShader( byteCode, byteCodeSize, entryPoint, paramInfo );
 	}
 
-	MeshShader* D3D12ResourceManager::CreateMeshShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	MeshShader* D3D12ResourceManager::CreateMeshShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
 	{
-		return new D3D12MeshShader( byteCode, byteCodeSize, paramInfo );
+		return new D3D12MeshShader( byteCode, byteCodeSize, entryPoint, paramInfo );
 	}
 
-	AmplificationShader* D3D12ResourceManager::CreateAmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	AmplificationShader* D3D12ResourceManager::CreateAmplificationShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
 	{
-		return new D3D12AmplificationShader( byteCode, byteCodeSize, paramInfo );
+		return new D3D12AmplificationShader( byteCode, byteCodeSize, entryPoint, paramInfo );
 	}
 
-	RayGenerationShader* D3D12ResourceManager::CreateRayGenerationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
+	RayGenerationShader* D3D12ResourceManager::CreateRayGenerationShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
 	{
-		return new D3D12RayGenerationShader( byteCode, byteCodeSize, paramInfo, exportName );
+		return new D3D12RayGenerationShader( byteCode, byteCodeSize, entryPoint, paramInfo );
 	}
 
-	IntersectionShader* D3D12ResourceManager::CreateIntersectionShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
+	IntersectionShader* D3D12ResourceManager::CreateIntersectionShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
 	{
-		return new D3D12IntersectionShader( byteCode, byteCodeSize, paramInfo, exportName );
+		return new D3D12IntersectionShader( byteCode, byteCodeSize, entryPoint, paramInfo );
 	}
 
-	AnyHitShader* D3D12ResourceManager::CreateAnyHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
+	AnyHitShader* D3D12ResourceManager::CreateAnyHitShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
 	{
-		return new D3D12AnyHitShader( byteCode, byteCodeSize, paramInfo, exportName );
+		return new D3D12AnyHitShader( byteCode, byteCodeSize, entryPoint, paramInfo );
 	}
 
-	ClosestHitShader* D3D12ResourceManager::CreateClosestHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
+	ClosestHitShader* D3D12ResourceManager::CreateClosestHitShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
 	{
-		return new D3D12ClosestHitShader( byteCode, byteCodeSize, paramInfo, exportName );
+		return new D3D12ClosestHitShader( byteCode, byteCodeSize, entryPoint, paramInfo );
 	}
 
-	MissShader* D3D12ResourceManager::CreateMissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
+	MissShader* D3D12ResourceManager::CreateMissShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
 	{
-		return new D3D12MissShader( byteCode, byteCodeSize, paramInfo, exportName );
+		return new D3D12MissShader( byteCode, byteCodeSize, entryPoint, paramInfo );
 	}
 
-	CallableShader* D3D12ResourceManager::CreateCallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName ) const
+	CallableShader* D3D12ResourceManager::CreateCallableShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
 	{
-		return new D3D12CallableShader( byteCode, byteCodeSize, paramInfo, exportName );
+		return new D3D12CallableShader( byteCode, byteCodeSize, entryPoint, paramInfo );
 	}
 
 	BlendState* D3D12ResourceManager::CreateBlendState( const BlendStateDesc& desc ) const
@@ -209,12 +209,12 @@ namespace agl
 
 	Canvas* D3D12ResourceManager::CreateCanvas( uint32 width, uint32 height, const engine::PlatformWindowContext& windowCtx, ResourceFormat format, const float4& clearColor ) const
 	{
-		return new DxgiSwapchain<AglType::D3D12>( D3D12DirectCommandQueue(), D3D12Factory(), width, height, DefaultAgl::GetBufferCount(), windowCtx.m_nativeWindow, ConvertFormatToDxgiFormat( format ), clearColor );
+		return new DxgiSwapchain<AglType::D3D12>( D3D12DirectCommandQueue(), D3D12Factory(), width, height, DefaultAgl::GetBufferCount(), windowCtx.m_nativeWindow, DxgiFlagConvertor::ConvertFormatToDxgiFormat( format ), clearColor );
 	}
 
 	Viewport* D3D12ResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) const
 	{
-		return new D3D12Viewport( width, height, ConvertFormatToDxgiFormat( format ), bgColor );
+		return new D3D12Viewport( width, height, DxgiFlagConvertor::ConvertFormatToDxgiFormat( format ), bgColor );
 	}
 
 	Viewport* D3D12ResourceManager::CreateViewport( Canvas& canvas ) const
@@ -587,7 +587,7 @@ namespace agl
 												.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS
 											},
 										},
-					.PrimitiveTopologyType = ConvertPrimToD3D12PrimType( desc.m_primitiveType ),
+					.PrimitiveTopologyType = D3D12FlagConvertor::ConvertPrimToD3D12PrimType( desc.m_primitiveType ),
 					.NumRenderTargets = D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT,
 					.RTVFormats =
 					{
@@ -706,7 +706,7 @@ namespace agl
 						.NumElements = desc.m_vertexLayout.Get() ? static_cast<uint32>( desc.m_vertexLayout->GetD3DDescs().size() ) : 0
 					},
 					.IBStripCutValue = D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED,
-					.PrimitiveTopologyType = ConvertPrimToD3D12PrimType( desc.m_primitiveType ),
+					.PrimitiveTopologyType = D3D12FlagConvertor::ConvertPrimToD3D12PrimType( desc.m_primitiveType ),
 					.NumRenderTargets = D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT,
 					.RTVFormats =
 					{
@@ -785,7 +785,7 @@ namespace agl
 		}
 
 		D3D12_INDIRECT_ARGUMENT_DESC argumentDesc = {
-			.Type = ConvertToIndirectArgumentType( type ),
+			.Type = D3D12FlagConvertor::ConvertToIndirectArgumentType( type ),
 		};
 
 		D3D12_COMMAND_SIGNATURE_DESC desc = {

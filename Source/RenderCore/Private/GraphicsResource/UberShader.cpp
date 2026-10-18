@@ -51,40 +51,40 @@ namespace rendercore
 		switch ( m_type )
 		{
 		case agl::ShaderType::Vertex:
-			shader = new VertexShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId() );
+			shader = new VertexShader( std::move( byteCode ), m_entryPoint, shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::Geometry:
-			shader = new GeometryShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId() );
+			shader = new GeometryShader( std::move( byteCode ), m_entryPoint, shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::Pixel:
-			shader = new PixelShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId() );
+			shader = new PixelShader( std::move( byteCode ), m_entryPoint, shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::Compute:
-			shader = new ComputeShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId() );
+			shader = new ComputeShader( std::move( byteCode ), m_entryPoint, shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::Mesh:
-			shader = new MeshShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId() );
+			shader = new MeshShader( std::move( byteCode ), m_entryPoint, shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::Amplification:
-			shader = new AmplificationShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId() );
+			shader = new AmplificationShader( std::move( byteCode ), m_entryPoint, shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::RayGen:
-			shader = new RayGenerationShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId(), Name( m_entryPoint ) );
+			shader = new RayGenerationShader( std::move( byteCode ), m_entryPoint, shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::Intersection:
-			shader = new IntersectionShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId(), Name( m_entryPoint ) );
+			shader = new IntersectionShader( std::move( byteCode ), m_entryPoint, shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::AnyHit:
-			shader = new AnyHitShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId(), Name( m_entryPoint ) );
+			shader = new AnyHitShader( std::move( byteCode ), m_entryPoint, shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::ClosestHit:
-			shader = new ClosestHitShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId(), Name( m_entryPoint ) );
+			shader = new ClosestHitShader( std::move( byteCode ), m_entryPoint, shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::Miss:
-			shader = new MissShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId(), Name( m_entryPoint ) );
+			shader = new MissShader( std::move( byteCode ), m_entryPoint, shaderHash, permutation.GetPermutationId() );
 			break;
 		case agl::ShaderType::Callable:
-			shader = new CallableShader( std::move( byteCode ), shaderHash, permutation.GetPermutationId(), Name( m_entryPoint ) );
+			shader = new CallableShader( std::move( byteCode ), m_entryPoint, shaderHash, permutation.GetPermutationId() );
 			break;
 		default:
 			assert( false && "Invalid shader type" );

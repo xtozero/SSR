@@ -2,20 +2,21 @@
 
 #include "D3D11FlagConvertor.h"
 #include "D3D11ResourceViews.h"
+#include "DxgiFlagConvertor.h"
 
 namespace agl
 {
 	D3D11_TEXTURE2D_DESC ConvertToTex2DDesc( const TextureDesc& desc )
 	{
-		DXGI_FORMAT format = ConvertFormatToDxgiFormat( desc.m_format );
+		DXGI_FORMAT format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( desc.m_format );
 		DXGI_SAMPLE_DESC SampleDesc = {
 			.Count = desc.m_sampleCount,
 			.Quality = desc.m_sampleQuality
 		};
-		D3D11_USAGE usage = ConvertToUsage( desc.m_access );
-		uint32 bindFlag = ConvertTypeToBind( desc.m_bindType );
-		uint32 cpuAccessFlag = ConvertToCpuFlag( desc.m_access );
-		uint32 miscFlags = ConvertMicsToDXMisc( desc.m_miscFlag );
+		D3D11_USAGE usage = D3D11FlagConvertor::ConvertToUsage( desc.m_access );
+		uint32 bindFlag = D3D11FlagConvertor::ConvertTypeToBind( desc.m_bindType );
+		uint32 cpuAccessFlag = D3D11FlagConvertor::ConvertToCpuFlag( desc.m_access );
+		uint32 miscFlags = D3D11FlagConvertor::ConvertMicsToDXMisc( desc.m_miscFlag );
 
 		if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Intermediate ) )
 		{
@@ -38,11 +39,11 @@ namespace agl
 
 	D3D11_TEXTURE3D_DESC ConvertToTex3DDesc( const TextureDesc& desc )
 	{
-		DXGI_FORMAT format = ConvertFormatToDxgiFormat( desc.m_format );
-		D3D11_USAGE usage = ConvertToUsage( desc.m_access );
-		uint32 bindFlag = ConvertTypeToBind( desc.m_bindType );
-		uint32 cpuAccessFlag = ConvertToCpuFlag( desc.m_access );
-		uint32 miscFlags = ConvertMicsToDXMisc( desc.m_miscFlag );
+		DXGI_FORMAT format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( desc.m_format );
+		D3D11_USAGE usage = D3D11FlagConvertor::ConvertToUsage( desc.m_access );
+		uint32 bindFlag = D3D11FlagConvertor::ConvertTypeToBind( desc.m_bindType );
+		uint32 cpuAccessFlag = D3D11FlagConvertor::ConvertToCpuFlag( desc.m_access );
+		uint32 miscFlags = D3D11FlagConvertor::ConvertMicsToDXMisc( desc.m_miscFlag );
 
 		if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Intermediate ) )
 		{
@@ -64,10 +65,10 @@ namespace agl
 
 	TextureDesc ConvertToTextureDesc( const D3D11_TEXTURE2D_DESC& desc )
 	{
-		ResourceFormat format = ConvertDxgiFormatToFormat( desc.Format );
-		ResourceAccess access = ConvertToResourceAccess( desc.Usage );
-		ResourceBindType bindType = ConvertBindToType( desc.BindFlags );
-		ResourceMisc miscFlag = ConvertDXMiscToMisc( desc.MiscFlags );
+		ResourceFormat format = DxgiFlagConvertor::ConvertDxgiFormatToFormat( desc.Format );
+		ResourceAccess access = D3D11FlagConvertor::ConvertToResourceAccess( desc.Usage );
+		ResourceBindType bindType = D3D11FlagConvertor::ConvertBindToType( desc.BindFlags );
+		ResourceMisc miscFlag = D3D11FlagConvertor::ConvertDXMiscToMisc( desc.MiscFlags );
 
 		return TextureDesc{
 			.m_width = desc.Width,
@@ -87,7 +88,7 @@ namespace agl
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
 
-		srv.Format = ConvertDxgiFormatForSRV( desc.Format );
+		srv.Format = DxgiFlagConvertor::ConvertDxgiFormatForSRV( desc.Format );
 
 		if ( desc.ArraySize % 6 == 0 )
 		{
@@ -138,7 +139,7 @@ namespace agl
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
 
-		srv.Format = ConvertDxgiFormatForSRV( desc.Format );
+		srv.Format = DxgiFlagConvertor::ConvertDxgiFormatForSRV( desc.Format );
 		srv.ViewDimension = D3D_SRV_DIMENSION_TEXTURE3D;
 		srv.Texture3D.MipLevels = desc.MipLevels;
 
@@ -239,7 +240,7 @@ namespace agl
 	{
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsv = {};
 
-		dsv.Format = ConvertDxgiFormatForDSV( desc.Format );
+		dsv.Format = DxgiFlagConvertor::ConvertDxgiFormatForDSV( desc.Format );
 
 		if ( desc.ArraySize > 1 )
 		{
@@ -274,7 +275,7 @@ namespace agl
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertToSRVDesc( m_d3dDesc );
 		if ( overrideFormat.has_value() )
 		{
-			srvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+			srvDesc.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( *overrideFormat );
 		}
 		m_srv = new D3D11ShaderResourceView( this, m_texture, srvDesc );
 		m_srv->Init();
@@ -288,7 +289,7 @@ namespace agl
 			D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertToUAVDesc( m_d3dDesc, mipSlice );
 			if ( overrideFormat.has_value() )
 			{
-				uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+				uavDesc.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( *overrideFormat );
 			}
 
 			m_uav[mipSlice] = new D3D11UnorderedAccessView( this, m_texture, uavDesc );
@@ -301,7 +302,7 @@ namespace agl
 		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertToRTVDesc( m_d3dDesc );
 		if ( overrideFormat.has_value() )
 		{
-			rtvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+			rtvDesc.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( *overrideFormat );
 		}
 
 		ColorF clearColor = ColorF::Black;
@@ -319,7 +320,7 @@ namespace agl
 		D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = ConvertToDSVDesc( m_d3dDesc );
 		if ( overrideFormat.has_value() )
 		{
-			dsvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+			dsvDesc.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( *overrideFormat );
 		}
 
 		float depthClearValue = 0;
@@ -398,7 +399,7 @@ namespace agl
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = ConvertToSRVDesc( m_d3dDesc );
 		if ( overrideFormat.has_value() )
 		{
-			srvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+			srvDesc.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( *overrideFormat );
 		}
 		m_srv = new D3D11ShaderResourceView( this, m_texture, srvDesc );
 		m_srv->Init();
@@ -412,7 +413,7 @@ namespace agl
 			D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = ConvertToUAVDesc( m_d3dDesc, mipSlice );
 			if ( overrideFormat.has_value() )
 			{
-				uavDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+				uavDesc.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( *overrideFormat );
 			}
 
 			m_uav[mipSlice] = new D3D11UnorderedAccessView( this, m_texture, uavDesc );
@@ -425,7 +426,7 @@ namespace agl
 		D3D11_RENDER_TARGET_VIEW_DESC rtvDesc = ConvertToRTVDesc( m_d3dDesc );
 		if ( overrideFormat.has_value() )
 		{
-			rtvDesc.Format = ConvertFormatToDxgiFormat( *overrideFormat );
+			rtvDesc.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( *overrideFormat );
 		}
 
 		ColorF clearColor = ColorF::Black;

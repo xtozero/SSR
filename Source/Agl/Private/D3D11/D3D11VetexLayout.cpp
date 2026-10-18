@@ -3,8 +3,9 @@
 #include "D3D11Api.h"
 #include "D3D11FlagConvertor.h"
 #include "D3D11Shaders.h"
+#include "DxgiFlagConvertor.h"
 
-using ::agl::ConvertFormatToDxgiFormat;
+using ::agl::DxgiFlagConvertor;
 using ::agl::VertexLayoutData;
 
 namespace
@@ -19,7 +20,7 @@ namespace
 
 			desc.SemanticName = layoutData[i].m_name.Str().data();
 			desc.SemanticIndex = layoutData[i].m_index;
-			desc.Format = ConvertFormatToDxgiFormat( layoutData[i].m_format );
+			desc.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( layoutData[i].m_format );
 			desc.InputSlot = layoutData[i].m_slot;
 			desc.AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 			desc.InputSlotClass = layoutData[i].m_isInstanceData ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;

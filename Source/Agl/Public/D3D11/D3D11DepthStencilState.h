@@ -16,7 +16,7 @@ namespace agl
 		uint32 GetStencilRef() const;
 		void SetStencilRef( uint32 stencilRef );
 
-		D3D11DepthStencilState( const DepthStencilStateDesc& desc );
+		explicit D3D11DepthStencilState( const DepthStencilStateDesc& desc );
 		D3D11DepthStencilState( const D3D11DepthStencilState& ) = delete;
 		D3D11DepthStencilState( D3D11DepthStencilState&& ) = default;
 		D3D11DepthStencilState& operator=( const D3D11DepthStencilState& ) = delete;

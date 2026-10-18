@@ -13,8 +13,8 @@ namespace agl
 	public:
 		ID3D11VertexShader* Resource() { return m_pResource; }
 
-		D3D11VertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: VertexShader( byteCode, byteCodeSize, paramInfo ) {}
+		D3D11VertexShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: VertexShader( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		D3D11VertexShader( const D3D11VertexShader& ) = delete;
 		D3D11VertexShader( D3D11VertexShader&& ) = default;
 		D3D11VertexShader& operator=( const D3D11VertexShader& ) = delete;
@@ -33,8 +33,8 @@ namespace agl
 	public:
 		ID3D11GeometryShader* Resource() { return m_pResource; }
 
-		D3D11GeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: GeometryShader( byteCode, byteCodeSize, paramInfo ) {}
+		D3D11GeometryShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: GeometryShader( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		D3D11GeometryShader( const D3D11GeometryShader& ) = delete;
 		D3D11GeometryShader( D3D11GeometryShader&& ) = default;
 		D3D11GeometryShader& operator=( const D3D11GeometryShader& ) = delete;
@@ -53,8 +53,8 @@ namespace agl
 	public:
 		ID3D11PixelShader* Resource() { return m_pResource; }
 
-		D3D11PixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: PixelShader( byteCode, byteCodeSize, paramInfo ) {}
+		D3D11PixelShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: PixelShader( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		D3D11PixelShader( const D3D11PixelShader& ) = delete;
 		D3D11PixelShader( D3D11PixelShader&& ) = default;
 		D3D11PixelShader& operator=( const D3D11PixelShader& ) = delete;
@@ -73,8 +73,8 @@ namespace agl
 	public:
 		ID3D11ComputeShader* Resource() { return m_pResource; }
 
-		D3D11ComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: ComputeShader( byteCode, byteCodeSize, paramInfo ) {}
+		D3D11ComputeShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: ComputeShader( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		D3D11ComputeShader( const D3D11ComputeShader& ) = delete;
 		D3D11ComputeShader( D3D11ComputeShader&& ) = default;
 		D3D11ComputeShader& operator=( const D3D11ComputeShader& ) = delete;

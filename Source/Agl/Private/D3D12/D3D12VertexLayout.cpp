@@ -2,7 +2,7 @@
 
 #include "D3D12FlagConvertor.h"
 
-using ::agl::ConvertFormatToDxgiFormat;
+using ::agl::DxgiFlagConvertor;
 using ::agl::VertexLayoutData;
 
 namespace
@@ -17,7 +17,7 @@ namespace
 
 			desc.SemanticName = layoutData[i].m_name.Str().data();
 			desc.SemanticIndex = layoutData[i].m_index;
-			desc.Format = ConvertFormatToDxgiFormat( layoutData[i].m_format );
+			desc.Format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( layoutData[i].m_format );
 			desc.InputSlot = layoutData[i].m_slot;
 			desc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 			desc.InputSlotClass = layoutData[i].m_isInstanceData ? D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA : D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;

@@ -105,7 +105,7 @@ namespace agl
             .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
             .flags = ConvertToVkImageCreateFlags( m_desc ),
             .imageType = vkImageType,
-            .format = ConvertToVkFormat( m_desc.m_format ),
+            .format = VulkanFlagConvertor::ConvertToFormat( m_desc.m_format ),
             .extent = {
                 .width = m_desc.m_width,
                 .height = m_desc.m_height,
@@ -129,7 +129,7 @@ namespace agl
         VkMemoryAllocateInfo allocInfo = {
             .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
             .allocationSize = memRequirements.size,
-            .memoryTypeIndex = FindVulkanMemoryType( memRequirements.memoryTypeBits, ConvertToVkMemoryPropertyFlags( m_desc.m_access ) ),
+            .memoryTypeIndex = FindVulkanMemoryType( memRequirements.memoryTypeBits, VulkanFlagConvertor::ConvertToMemoryPropertyFlags( m_desc.m_access ) ),
         };
 
         result = vkAllocateMemory( VulkanDevice(), &allocInfo, nullptr, &m_deviceMemory );

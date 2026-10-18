@@ -124,7 +124,7 @@ namespace agl
 			DXGI_FORMAT format = m_format;
 			if constexpr ( Backend != AglType::D3D11 )
 			{
-				format = ConvertToDxgiLinearFormat( m_format );
+				format = DxgiFlagConvertor::ConvertToDxgiLinearFormat( m_format );
 			}
 
 			HRESULT hr = m_pSwapChain->ResizeBuffers( m_bufferCount, m_width, m_height, format, GetSwapChainFlags() );
@@ -215,7 +215,7 @@ namespace agl
 			DXGI_FORMAT format = m_format;
 			if constexpr ( Backend != AglType::D3D11 )
 			{
-				format = ConvertToDxgiLinearFormat( m_format );
+				format = DxgiFlagConvertor::ConvertToDxgiLinearFormat( m_format );
 			}
 
 			DXGI_SWAP_CHAIN_DESC dxgiSwapchainDesc = {

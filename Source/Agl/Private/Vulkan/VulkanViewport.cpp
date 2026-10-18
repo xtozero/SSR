@@ -92,7 +92,7 @@ namespace agl
 
     void VulkanViewport::CreateDedicateTexture()
     {
-        ResourceFormat orignalFormat = ConvertVkFormatToFormat( m_format );
+        ResourceFormat orignalFormat = VulkanFlagConvertor::ConvertToResourceFormat( m_format );
 
         TextureDesc frameBufferDesc = {
             .m_width = m_width,

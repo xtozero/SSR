@@ -3,12 +3,10 @@
 #include "D3D11Api.h"
 #include "D3D11FlagConvertor.h"
 #include "D3D11ResourceViews.h"
+#include "DxgiFlagConvertor.h"
 
 using ::agl::BufferDesc;
-using ::agl::ConvertToCpuFlag;
-using ::agl::ConvertToUsage;
-using ::agl::ConvertMicsToDXMisc;
-using ::agl::ConvertTypeToBind;
+using ::agl::D3D11FlagConvertor;
 using ::agl::ResourceMisc;
 
 namespace
@@ -21,10 +19,10 @@ namespace
 			byteWidth = CalcAlignment<uint32>( byteWidth, sizeof( int32 ) );
 		}
 
-		D3D11_USAGE usage = ConvertToUsage( desc.m_access );
-		uint32 bindFlag = ConvertTypeToBind( desc.m_bindType );
-		uint32 cpuAccessFlag = ConvertToCpuFlag( desc.m_access );
-		uint32 miscFlags = ConvertMicsToDXMisc( desc.m_miscFlag );
+		D3D11_USAGE usage = D3D11FlagConvertor::ConvertToUsage( desc.m_access );
+		uint32 bindFlag = D3D11FlagConvertor::ConvertTypeToBind( desc.m_bindType );
+		uint32 cpuAccessFlag = D3D11FlagConvertor::ConvertToCpuFlag( desc.m_access );
+		uint32 miscFlags = D3D11FlagConvertor::ConvertMicsToDXMisc( desc.m_miscFlag );
 		uint32 structureByteStride = desc.m_stride;
 
 		if ( HasAnyFlags( desc.m_miscFlag, ResourceMisc::Intermediate ) )
@@ -122,7 +120,7 @@ namespace agl
 	{
 		m_debugName = Name( debugName );
 		m_desc = desc;
-		m_format = ConvertFormatToDxgiFormat( m_desc.m_format );
+		m_format = DxgiFlagConvertor::ConvertFormatToDxgiFormat( m_desc.m_format );
 
 		if ( initData != nullptr )
 		{

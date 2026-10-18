@@ -312,7 +312,7 @@ namespace agl
 		auto d3d11buffer = static_cast<D3D11Buffer*>( buffer );
 		D3D11_MAPPED_SUBRESOURCE resource;
 
-		HRESULT hr = m_pd3d11DeviceContext->Map( d3d11buffer->Resource(), subResource, ConvertLockFlagToD3D11Map( lockFlag ), 0, &resource );
+		HRESULT hr = m_pd3d11DeviceContext->Map( d3d11buffer->Resource(), subResource, D3D11FlagConvertor::ConvertToD3D11Map( lockFlag ), 0, &resource );
 		if ( FAILED( hr ) )
 		{
 			__debugbreak();
@@ -347,7 +347,7 @@ namespace agl
 
 		D3D11_MAPPED_SUBRESOURCE resource;
 
-		HRESULT hr = m_pd3d11DeviceContext->Map( static_cast<ID3D11Resource*>( texture->Resource() ), subResource, ConvertLockFlagToD3D11Map( lockFlag ), 0, &resource );
+		HRESULT hr = m_pd3d11DeviceContext->Map( static_cast<ID3D11Resource*>( texture->Resource() ), subResource, D3D11FlagConvertor::ConvertToD3D11Map( lockFlag ), 0, &resource );
 		if ( FAILED( hr ) )
 		{
 			__debugbreak();

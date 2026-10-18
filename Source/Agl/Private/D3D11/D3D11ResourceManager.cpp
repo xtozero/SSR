@@ -64,77 +64,77 @@ namespace agl
 		return newVertexLayout;
 	}
 
-	ComputeShader * D3D11ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	ComputeShader * D3D11ResourceManager::CreateComputeShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
 	{
-		auto newShader = new D3D11ComputeShader( byteCode, byteCodeSize, paramInfo );
+		auto newShader = new D3D11ComputeShader( byteCode, byteCodeSize, entryPoint, paramInfo );
 
 		return newShader;
 	}
 
-	VertexShader* D3D11ResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	VertexShader* D3D11ResourceManager::CreateVertexShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
 	{
-		auto newShader = new D3D11VertexShader( byteCode, byteCodeSize, paramInfo );
+		auto newShader = new D3D11VertexShader( byteCode, byteCodeSize, entryPoint, paramInfo );
 
 		return newShader;
 	}
 
-	GeometryShader* D3D11ResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	GeometryShader* D3D11ResourceManager::CreateGeometryShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
 	{
-		auto newShader = new D3D11GeometryShader( byteCode, byteCodeSize, paramInfo );
+		auto newShader = new D3D11GeometryShader( byteCode, byteCodeSize, entryPoint, paramInfo );
 
 		return newShader;
 	}
 
-	PixelShader* D3D11ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo ) const
+	PixelShader* D3D11ResourceManager::CreatePixelShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo ) const
 	{
-		auto newShader = new D3D11PixelShader( byteCode, byteCodeSize, paramInfo );
+		auto newShader = new D3D11PixelShader( byteCode, byteCodeSize, entryPoint, paramInfo );
 
 		return newShader;
 	}
 
-	MeshShader* D3D11ResourceManager::CreateMeshShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
+	MeshShader* D3D11ResourceManager::CreateMeshShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const std::string& entryPoint, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
 	{
 		// Mesh Shader is not supported in direct3D 11
 		return nullptr;
 	}
 
-	AmplificationShader* D3D11ResourceManager::CreateAmplificationShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
+	AmplificationShader* D3D11ResourceManager::CreateAmplificationShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const std::string& entryPoint, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
 	{
 		// Amplification Shader is not supported in direct3D 11
 		return nullptr;
 	}
 
-	RayGenerationShader* D3D11ResourceManager::CreateRayGenerationShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo, [[maybe_unused]] Name exportName ) const
+	RayGenerationShader* D3D11ResourceManager::CreateRayGenerationShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const std::string& entryPoint, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
 	{
 		// DXR is not supported in direct3D 11
 		return nullptr;
 	}
 
-	IntersectionShader* D3D11ResourceManager::CreateIntersectionShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo, [[maybe_unused]] Name exportName ) const
+	IntersectionShader* D3D11ResourceManager::CreateIntersectionShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const std::string& entryPoint, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
 	{
 		// DXR is not supported in direct3D 11
 		return nullptr;
 	}
 
-	AnyHitShader* D3D11ResourceManager::CreateAnyHitShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo, [[maybe_unused]] Name exportName ) const
+	AnyHitShader* D3D11ResourceManager::CreateAnyHitShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const std::string& entryPoint, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
 	{
 		// DXR is not supported in direct3D 11
 		return nullptr;
 	}
 
-	ClosestHitShader* D3D11ResourceManager::CreateClosestHitShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo, [[maybe_unused]] Name exportName ) const
+	ClosestHitShader* D3D11ResourceManager::CreateClosestHitShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const std::string& entryPoint, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
 	{
 		// DXR is not supported in direct3D 11
 		return nullptr;
 	}
 
-	MissShader* D3D11ResourceManager::CreateMissShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo, [[maybe_unused]] Name exportName ) const
+	MissShader* D3D11ResourceManager::CreateMissShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const std::string& entryPoint, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
 	{
 		// DXR is not supported in direct3D 11
 		return nullptr;
 	}
 
-	CallableShader* D3D11ResourceManager::CreateCallableShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const ShaderParameterInfo& paramInfo, [[maybe_unused]] Name exportName ) const
+	CallableShader* D3D11ResourceManager::CreateCallableShader( [[maybe_unused]] const void* byteCode, [[maybe_unused]] size_t byteCodeSize, [[maybe_unused]] const std::string& entryPoint, [[maybe_unused]] const ShaderParameterInfo& paramInfo ) const
 	{
 		// DXR is not supported in direct3D 11
 		return nullptr;
@@ -142,30 +142,22 @@ namespace agl
 
 	BlendState* D3D11ResourceManager::CreateBlendState( const BlendStateDesc& desc ) const
 	{
-		auto blendState = new D3D11BlendState( desc );
-
-		return blendState;
+		return new D3D11BlendState( desc );
 	}
 
 	DepthStencilState* D3D11ResourceManager::CreateDepthStencilState( const DepthStencilStateDesc& desc ) const
 	{
-		auto depthStencilState = new D3D11DepthStencilState( desc );
-
-		return depthStencilState;
+		return new D3D11DepthStencilState( desc );
 	}
 
 	RasterizerState* D3D11ResourceManager::CreateRasterizerState( const RasterizerStateDesc& desc ) const
 	{
-		auto rasterizerState = new D3D11RasterizerState( desc );
-
-		return rasterizerState;
+		return new D3D11RasterizerState( desc );
 	}
 
 	SamplerState* D3D11ResourceManager::CreateSamplerState( const SamplerStateDesc& desc ) const
 	{
-		auto samplerState = new D3D11SamplerState( desc );
-
-		return samplerState;
+		return new D3D11SamplerState( desc );
 	}
 
 	GraphicsPipelineState* D3D11ResourceManager::CreatePipelineState( const GraphicsPipelineStateDesc& desc )
@@ -198,12 +190,12 @@ namespace agl
 
 	Canvas* D3D11ResourceManager::CreateCanvas( uint32 width, uint32 height, const engine::PlatformWindowContext& windowCtx, ResourceFormat format, const float4& clearColor ) const
 	{
-		return new DxgiSwapchain<AglType::D3D11>( D3D11Device(), D3D11Factory(), width, height, 1, windowCtx.m_nativeWindow, ConvertFormatToDxgiFormat( format ), clearColor );
+		return new DxgiSwapchain<AglType::D3D11>( D3D11Device(), D3D11Factory(), width, height, 1, windowCtx.m_nativeWindow, DxgiFlagConvertor::ConvertFormatToDxgiFormat( format ), clearColor );
 	}
 
 	Viewport* D3D11ResourceManager::CreateViewport( uint32 width, uint32 height, ResourceFormat format, const float4& bgColor ) const
 	{
-		auto viewport = new D3D11Viewport( width, height, ConvertFormatToDxgiFormat( format ), bgColor );
+		auto viewport = new D3D11Viewport( width, height, DxgiFlagConvertor::ConvertFormatToDxgiFormat( format ), bgColor );
 
 		return viewport;
 	}

@@ -83,8 +83,9 @@ namespace rendercore
 		void SetParent( const std::shared_ptr<ShaderAsset>& parent );
 		void SetPermutationCreateFunc( ShaderPermutationCreateFunc createFunc );
 
-		ShaderBase( BinaryChunk&& byteCode, size_t hash, uint32 permutationId )
+		ShaderBase( BinaryChunk&& byteCode, const std::string& entryPoint, size_t hash, uint32 permutationId )
 			: m_byteCode( std::move( byteCode ) )
+			, m_entryPoint( entryPoint )
 			, m_hash( hash )
 			, m_permutationId( permutationId )
 		{}
@@ -101,6 +102,9 @@ namespace rendercore
 
 		PROPERTY( byteCode )
 		BinaryChunk m_byteCode { 0 };
+
+		PROPERTY( entryPoint )
+		std::string m_entryPoint;
 
 		PROPERTY( parameterMap )
 		agl::ShaderParameterMap m_parameterMap;
@@ -129,8 +133,8 @@ namespace rendercore
 	public:
 		static constexpr agl::ShaderType Type = agl::ShaderType::Vertex;
 
-		VertexShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId )
-			: ShaderBase( std::move( byteCode ), hash, permutationId ) {}
+		VertexShader( BinaryChunk&& byteCode, const std::string& entryPoint, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), entryPoint, hash, permutationId ) {}
 		VertexShader() = default;
 
 		agl::VertexShader* Resource();
@@ -147,8 +151,8 @@ namespace rendercore
 	public:
 		static constexpr agl::ShaderType Type = agl::ShaderType::Geometry;
 
-		GeometryShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId )
-			: ShaderBase( std::move( byteCode ), hash, permutationId ) {}
+		GeometryShader( BinaryChunk&& byteCode, const std::string& entryPoint, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), entryPoint, hash, permutationId ) {}
 		GeometryShader() = default;
 
 		agl::GeometryShader* Resource();
@@ -165,8 +169,8 @@ namespace rendercore
 	public:
 		static constexpr agl::ShaderType Type = agl::ShaderType::Pixel;
 
-		PixelShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId )
-			: ShaderBase( std::move( byteCode ), hash, permutationId ) {}
+		PixelShader( BinaryChunk&& byteCode, const std::string& entryPoint, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), entryPoint, hash, permutationId ) {}
 		PixelShader() = default;
 
 		agl::PixelShader* Resource();
@@ -183,8 +187,8 @@ namespace rendercore
 	public:
 		static constexpr agl::ShaderType Type = agl::ShaderType::Compute;
 
-		ComputeShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId )
-			: ShaderBase( std::move( byteCode ), hash, permutationId ) {}
+		ComputeShader( BinaryChunk&& byteCode, const std::string& entryPoint, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), entryPoint, hash, permutationId ) {}
 		ComputeShader() = default;
 
 		agl::ComputeShader* Resource();
@@ -203,8 +207,8 @@ namespace rendercore
 
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 
-		MeshShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId )
-			: ShaderBase( std::move( byteCode ), hash, permutationId ) {}
+		MeshShader( BinaryChunk&& byteCode, const std::string& entryPoint, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), entryPoint, hash, permutationId ) {}
 		MeshShader() = default;
 
 		agl::MeshShader* Resource();
@@ -223,8 +227,8 @@ namespace rendercore
 
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 
-		AmplificationShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId )
-			: ShaderBase( std::move( byteCode ), hash, permutationId ) {}
+		AmplificationShader( BinaryChunk&& byteCode, const std::string& entryPoint, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), entryPoint, hash, permutationId ) {}
 		AmplificationShader() = default;
 
 		agl::AmplificationShader* Resource();
@@ -233,22 +237,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void CreateShader() override;
 	};
 
-	class RaytracingShaderBase : public ShaderBase
-	{
-		GENERATE_CLASS_TYPE_INFO( RaytracingShaderBase );
-
-	public:
-		RaytracingShaderBase( BinaryChunk&& byteCode, size_t hash, uint32 permutationId, Name exportName )
-			: ShaderBase( std::move( byteCode ), hash, permutationId )
-			, m_exportName( exportName ) {}
-		RaytracingShaderBase() = default;
-
-	protected:
-		PROPERTY( exportName )
-		Name m_exportName;
-	};
-
-	class RayGenerationShader final : public RaytracingShaderBase
+	class RayGenerationShader final : public ShaderBase
 	{
 		GENERATE_CLASS_TYPE_INFO( RayGenerationShader );
 		DECLARE_ASSET( RENDERCORE, RayGenerationShader );
@@ -258,8 +247,8 @@ namespace rendercore
 
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 
-		RayGenerationShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId, Name exportName )
-			: RaytracingShaderBase( std::move( byteCode ), hash, permutationId, exportName ) {}
+		RayGenerationShader( BinaryChunk&& byteCode, const std::string& entryPoint, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), entryPoint, hash, permutationId ) {}
 		RayGenerationShader() = default;
 
 		agl::RayGenerationShader* Resource();
@@ -268,7 +257,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void CreateShader() override;
 	};
 
-	class IntersectionShader final : public RaytracingShaderBase
+	class IntersectionShader final : public ShaderBase
 	{
 		GENERATE_CLASS_TYPE_INFO( IntersectionShader );
 		DECLARE_ASSET( RENDERCORE, IntersectionShader );
@@ -278,8 +267,8 @@ namespace rendercore
 
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 
-		IntersectionShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId, Name exportName )
-			: RaytracingShaderBase( std::move( byteCode ), hash, permutationId, exportName ) {}
+		IntersectionShader( BinaryChunk&& byteCode, const std::string& entryPoint, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), entryPoint, hash, permutationId ) {}
 		IntersectionShader() = default;
 
 		agl::IntersectionShader* Resource();
@@ -288,7 +277,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void CreateShader() override;
 	};
 
-	class AnyHitShader final : public RaytracingShaderBase
+	class AnyHitShader final : public ShaderBase
 	{
 		GENERATE_CLASS_TYPE_INFO( AnyHitShader );
 		DECLARE_ASSET( RENDERCORE, AnyHitShader );
@@ -298,8 +287,8 @@ namespace rendercore
 
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 
-		AnyHitShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId, Name exportName )
-			: RaytracingShaderBase( std::move( byteCode ), hash, permutationId, exportName ) {}
+		AnyHitShader( BinaryChunk&& byteCode, const std::string& entryPoint, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), entryPoint, hash, permutationId ) {}
 		AnyHitShader() = default;
 
 		agl::AnyHitShader* Resource();
@@ -308,7 +297,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void CreateShader() override;
 	};
 
-	class ClosestHitShader final : public RaytracingShaderBase
+	class ClosestHitShader final : public ShaderBase
 	{
 		GENERATE_CLASS_TYPE_INFO( ClosestHitShader );
 		DECLARE_ASSET( RENDERCORE, ClosestHitShader );
@@ -318,8 +307,8 @@ namespace rendercore
 
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 
-		ClosestHitShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId, Name exportName )
-			: RaytracingShaderBase( std::move( byteCode ), hash, permutationId, exportName ) {}
+		ClosestHitShader( BinaryChunk&& byteCode, const std::string& entryPoint, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), entryPoint, hash, permutationId ) {}
 		ClosestHitShader() = default;
 
 		agl::ClosestHitShader* Resource();
@@ -328,7 +317,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void CreateShader() override;
 	};
 
-	class MissShader final : public RaytracingShaderBase
+	class MissShader final : public ShaderBase
 	{
 		GENERATE_CLASS_TYPE_INFO( MissShader );
 		DECLARE_ASSET( RENDERCORE, MissShader );
@@ -338,8 +327,8 @@ namespace rendercore
 
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 
-		MissShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId, Name exportName )
-			: RaytracingShaderBase( std::move( byteCode ), hash, permutationId, exportName ) {}
+		MissShader( BinaryChunk&& byteCode, const std::string& entryPoint, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), entryPoint, hash, permutationId ) {}
 		MissShader() = default;
 
 		agl::MissShader* Resource();
@@ -348,7 +337,7 @@ namespace rendercore
 		RENDERCORE_DLL virtual void CreateShader() override;
 	};
 
-	class CallableShader final : public RaytracingShaderBase
+	class CallableShader final : public ShaderBase
 	{
 		GENERATE_CLASS_TYPE_INFO( CallableShader );
 		DECLARE_ASSET( RENDERCORE, CallableShader );
@@ -358,8 +347,8 @@ namespace rendercore
 
 		RENDERCORE_DLL virtual ShaderBase* CompileShader( const IShaderPermutation& permutation ) override;
 
-		CallableShader( BinaryChunk&& byteCode, size_t hash, uint32 permutationId, Name exportName )
-			: RaytracingShaderBase( std::move( byteCode ), hash, permutationId, exportName ) {}
+		CallableShader( BinaryChunk&& byteCode, const std::string& entryPoint, size_t hash, uint32 permutationId )
+			: ShaderBase( std::move( byteCode ), entryPoint, hash, permutationId ) {}
 		CallableShader() = default;
 
 		agl::CallableShader* Resource();

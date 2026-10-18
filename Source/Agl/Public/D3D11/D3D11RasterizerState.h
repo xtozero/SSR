@@ -12,7 +12,7 @@ namespace agl
 		ID3D11RasterizerState* Resource();
 		const ID3D11RasterizerState* Resource() const;
 
-		D3D11RasterizerState( const RasterizerStateDesc& desc );
+		explicit D3D11RasterizerState( const RasterizerStateDesc& desc );
 		D3D11RasterizerState( const D3D11RasterizerState& ) = delete;
 		D3D11RasterizerState( D3D11RasterizerState&& ) = default;
 		D3D11RasterizerState& operator=( const D3D11RasterizerState& ) = delete;

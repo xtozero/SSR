@@ -218,7 +218,7 @@ namespace agl
 
         m_backBuffers.resize( numSwapchainImages );
 
-        auto resourceFormat = ConvertVkFormatToFormat( m_format );
+        auto resourceFormat = VulkanFlagConvertor::ConvertToResourceFormat( m_format );
         TextureDesc desc = {
             .m_width = m_width,
             .m_height = m_height,

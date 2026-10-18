@@ -6,11 +6,13 @@
 
 namespace agl
 {
+	constexpr int32 D3D12ShaderExportNameBufferSize = 32;
+
 	class D3D12VertexShader final : public VertexShader
 	{
 	public:
-		D3D12VertexShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: VertexShader( byteCode, byteCodeSize, paramInfo ) {}
+		D3D12VertexShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: VertexShader( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		D3D12VertexShader( const D3D12VertexShader& ) = delete;
 		D3D12VertexShader( D3D12VertexShader&& ) = default;
 		D3D12VertexShader& operator=( const D3D12VertexShader& ) = delete;
@@ -25,8 +27,8 @@ namespace agl
 	class D3D12GeometryShader final : public GeometryShader
 	{
 	public:
-		D3D12GeometryShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: GeometryShader( byteCode, byteCodeSize, paramInfo ) {}
+		D3D12GeometryShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: GeometryShader( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		D3D12GeometryShader( const D3D12GeometryShader& ) = delete;
 		D3D12GeometryShader( D3D12GeometryShader&& ) = default;
 		D3D12GeometryShader& operator=( const D3D12GeometryShader& ) = delete;
@@ -41,8 +43,8 @@ namespace agl
 	class D3D12PixelShader final : public PixelShader
 	{
 	public:
-		D3D12PixelShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: PixelShader( byteCode, byteCodeSize, paramInfo ) {}
+		D3D12PixelShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: PixelShader( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		D3D12PixelShader( const D3D12PixelShader& ) = delete;
 		D3D12PixelShader( D3D12PixelShader&& ) = default;
 		D3D12PixelShader& operator=( const D3D12PixelShader& ) = delete;
@@ -57,8 +59,8 @@ namespace agl
 	class D3D12ComputeShader final : public ComputeShader
 	{
 	public:
-		D3D12ComputeShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: ComputeShader( byteCode, byteCodeSize, paramInfo ) {}
+		D3D12ComputeShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: ComputeShader( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		D3D12ComputeShader( const D3D12ComputeShader& ) = delete;
 		D3D12ComputeShader( D3D12ComputeShader&& ) = default;
 		D3D12ComputeShader& operator=( const D3D12ComputeShader& ) = delete;
@@ -73,8 +75,8 @@ namespace agl
 	class D3D12MeshShader final : public MeshShader
 	{
 	public:
-		D3D12MeshShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: MeshShader( byteCode, byteCodeSize, paramInfo ) {}
+		D3D12MeshShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: MeshShader( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		D3D12MeshShader( const D3D12MeshShader& ) = delete;
 		D3D12MeshShader( D3D12MeshShader&& ) = default;
 		D3D12MeshShader& operator=( const D3D12MeshShader& ) = delete;
@@ -89,8 +91,8 @@ namespace agl
 	class D3D12AmplificationShader final : public AmplificationShader
 	{
 	public:
-		D3D12AmplificationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo )
-			: AmplificationShader( byteCode, byteCodeSize, paramInfo ) {}
+		D3D12AmplificationShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: AmplificationShader( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		D3D12AmplificationShader( const D3D12AmplificationShader& ) = delete;
 		D3D12AmplificationShader( D3D12AmplificationShader&& ) = default;
 		D3D12AmplificationShader& operator=( const D3D12AmplificationShader& ) = delete;
@@ -102,11 +104,31 @@ namespace agl
 		virtual void FreeResource() override {}
 	};
 
-	class D3D12RayGenerationShader final : public RayGenerationShader
+	template <typename BaseClass>
+	class D3D12RaytracingShader : public BaseClass
 	{
 	public:
-		D3D12RayGenerationShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
-			: RayGenerationShader( byteCode, byteCodeSize, paramInfo, exportName ) {}
+		const wchar_t* GetExportName() const
+		{
+			return m_exportName;
+		}
+
+		D3D12RaytracingShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: BaseClass( byteCode, byteCodeSize, entryPoint, paramInfo )
+		{
+			assert( entryPoint.size() < D3D12ShaderExportNameBufferSize );
+			ToWideChar( m_exportName, D3D12ShaderExportNameBufferSize, entryPoint.c_str() );
+		}
+
+	protected:
+		wchar_t m_exportName[D3D12ShaderExportNameBufferSize] = {};
+	};
+
+	class D3D12RayGenerationShader final : public D3D12RaytracingShader<RayGenerationShader>
+	{
+	public:
+		D3D12RayGenerationShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: D3D12RaytracingShader( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		D3D12RayGenerationShader( const D3D12RayGenerationShader& ) = delete;
 		D3D12RayGenerationShader( D3D12RayGenerationShader&& ) = default;
 		D3D12RayGenerationShader& operator=( const D3D12RayGenerationShader& ) = delete;
@@ -118,11 +140,11 @@ namespace agl
 		virtual void FreeResource() override {}
 	};
 
-	class D3D12IntersectionShader final : public IntersectionShader
+	class D3D12IntersectionShader final : public D3D12RaytracingShader<IntersectionShader>
 	{
 	public:
-		D3D12IntersectionShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
-			: IntersectionShader( byteCode, byteCodeSize, paramInfo, exportName ) {}
+		D3D12IntersectionShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: D3D12RaytracingShader( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		D3D12IntersectionShader( const D3D12IntersectionShader& ) = delete;
 		D3D12IntersectionShader( D3D12IntersectionShader&& ) = default;
 		D3D12IntersectionShader& operator=( const D3D12IntersectionShader& ) = delete;
@@ -134,11 +156,11 @@ namespace agl
 		virtual void FreeResource() override {}
 	};
 
-	class D3D12AnyHitShader final : public AnyHitShader
+	class D3D12AnyHitShader final : public D3D12RaytracingShader<AnyHitShader>
 	{
 	public:
-		D3D12AnyHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
-			: AnyHitShader( byteCode, byteCodeSize, paramInfo, exportName ) {}
+		D3D12AnyHitShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: D3D12RaytracingShader( byteCode, byteCodeSize, entryPoint, paramInfo ) {}
 		D3D12AnyHitShader( const D3D12AnyHitShader& ) = delete;
 		D3D12AnyHitShader( D3D12AnyHitShader&& ) = default;
 		D3D12AnyHitShader& operator=( const D3D12AnyHitShader& ) = delete;
@@ -150,11 +172,11 @@ namespace agl
 		virtual void FreeResource() override {}
 	};
 
-	class D3D12ClosestHitShader final : public ClosestHitShader
+	class D3D12ClosestHitShader final : public D3D12RaytracingShader<ClosestHitShader>
 	{
 	public:
-		D3D12ClosestHitShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
-			: ClosestHitShader( byteCode, byteCodeSize, paramInfo, exportName ) {
+		D3D12ClosestHitShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: D3D12RaytracingShader( byteCode, byteCodeSize, entryPoint, paramInfo ) {
 		}
 		D3D12ClosestHitShader( const D3D12ClosestHitShader& ) = delete;
 		D3D12ClosestHitShader( D3D12ClosestHitShader&& ) = default;
@@ -167,11 +189,11 @@ namespace agl
 		virtual void FreeResource() override {}
 	};
 
-	class D3D12MissShader final : public MissShader
+	class D3D12MissShader final : public D3D12RaytracingShader<MissShader>
 	{
 	public:
-		D3D12MissShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
-			: MissShader( byteCode, byteCodeSize, paramInfo, exportName ) {
+		D3D12MissShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: D3D12RaytracingShader( byteCode, byteCodeSize, entryPoint, paramInfo ) {
 		}
 		D3D12MissShader( const D3D12MissShader& ) = delete;
 		D3D12MissShader( D3D12MissShader&& ) = default;
@@ -184,11 +206,11 @@ namespace agl
 		virtual void FreeResource() override {}
 	};
 
-	class D3D12CallableShader final : public CallableShader
+	class D3D12CallableShader final : public D3D12RaytracingShader<CallableShader>
 	{
 	public:
-		D3D12CallableShader( const void* byteCode, size_t byteCodeSize, const ShaderParameterInfo& paramInfo, Name exportName )
-			: CallableShader( byteCode, byteCodeSize, paramInfo, exportName ) {
+		D3D12CallableShader( const void* byteCode, size_t byteCodeSize, const std::string& entryPoint, const ShaderParameterInfo& paramInfo )
+			: D3D12RaytracingShader( byteCode, byteCodeSize, entryPoint, paramInfo ) {
 		}
 		D3D12CallableShader( const D3D12CallableShader& ) = delete;
 		D3D12CallableShader( D3D12CallableShader&& ) = default;

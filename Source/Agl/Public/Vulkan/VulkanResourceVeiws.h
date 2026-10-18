@@ -1,6 +1,7 @@
 #pragma once
 
 #include "VulkanApi.h"
+#include "VulkanFlagConverter.h"
 #include "VulkanTexture.h"
 
 namespace agl
@@ -83,7 +84,7 @@ namespace agl
                 .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
                 .image = static_cast<VkImage>( m_owner->Resource() ),
                 .viewType = viewType,
-                .format = ConvertToVkFormat( desc.m_format ),
+                .format = VulkanFlagConvertor::ConvertToFormat( desc.m_format ),
                 .components = {
                     .r = VK_COMPONENT_SWIZZLE_IDENTITY,
                     .g = VK_COMPONENT_SWIZZLE_IDENTITY,
