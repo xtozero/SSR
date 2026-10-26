@@ -627,6 +627,44 @@ namespace agl
 		OnCommandRecorded();
 	}
 
+	void D3D12CommandListImpl::BeginRenderPass( const RasterOutputAttachments& attachments )
+	{
+		m_barrierBatcher.Commit( *this );
+
+		for ( const RenderTargetAttachment& rtAttachment : attachments.m_rtAttachments )
+		{
+			if ( rtAttachment.m_loadAction == RasterOutputLoadAction::Clear )
+			{
+				auto d3d12RTV = static_cast<D3D12RenderTargetView*>( rtAttachment.m_view );
+				if ( d3d12RTV == nullptr )
+				{
+					continue;
+				}
+
+				D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12RTV->GetCpuHandle().At();
+				ColorF clearValue = d3d12RTV->GetClearColor();
+
+				CommandList().ClearRenderTargetView( handle, clearValue.RGBA(), 0, nullptr);
+
+				OnCommandRecorded();
+			}
+		}
+
+		if ( attachments.m_dsAttachment.m_loadAction == RasterOutputLoadAction::Clear )
+		{
+			if ( auto d3d12DSV = static_cast<D3D12DepthStencilView*>( attachments.m_dsAttachment.m_view ) )
+			{
+				D3D12_CPU_DESCRIPTOR_HANDLE handle = d3d12DSV->GetCpuHandle().At();
+				float depthClearValue = d3d12DSV->GetDepthClearValue();
+				uint8 stencilClearValue = d3d12DSV->GetStencilClearValue();
+
+				CommandList().ClearDepthStencilView( handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, depthClearValue, stencilClearValue, 0, nullptr );
+
+				OnCommandRecorded();
+			}
+		}
+	}
+
 	bool D3D12CommandListImpl::CaptureTexture( const Texture* texture, DirectX::ScratchImage& outResult ) const
 	{
 		if ( texture == nullptr )
@@ -966,6 +1004,15 @@ namespace agl
 		m_impl.ClearDepthStencil( depthStencil );
 	}
 
+	void D3D12CommandList::BeginRenderPass( const RasterOutputAttachments& attachments )
+	{
+		m_impl.BeginRenderPass( attachments );
+	}
+
+	void D3D12CommandList::EndRenderPass()
+	{
+	}
+
 	bool D3D12CommandList::CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult )
 	{
 		return m_impl.CaptureTexture( texture, outResult );
@@ -1169,6 +1216,15 @@ namespace agl
 	void D3D12ParallelCommandList::ClearDepthStencil( DepthStencilView* depthStencil )
 	{
 		m_impl.ClearDepthStencil( depthStencil );
+	}
+
+	void D3D12ParallelCommandList::BeginRenderPass( const RasterOutputAttachments& attachments )
+	{
+		m_impl.BeginRenderPass( attachments );
+	}
+
+	void D3D12ParallelCommandList::EndRenderPass()
+	{
 	}
 
 	bool D3D12ParallelCommandList::CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult )

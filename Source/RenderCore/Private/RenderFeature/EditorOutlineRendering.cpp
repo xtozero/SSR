@@ -173,7 +173,7 @@ namespace rendercore
 		auto rgOutlineMask = renderGraph.CreateTexture( outlineMaskDesc, "EditorOutlineMask" );
 
 		RasterOutput rasterOutput;
-		rasterOutput.SetRenderTarget( 0, rgOutlineMask, RasterOutputLoadAction::Clear );
+		rasterOutput.SetRenderTarget( 0, rgOutlineMask, agl::RasterOutputLoadAction::Clear );
 		rasterOutput.SetViewport( width, height );
 		rasterOutput.SetScissorRect( width, height );
 

@@ -452,10 +452,10 @@ namespace rendercore
 		auto [width, height] = renderViewGroup.GetViewport().Size();
 
 		RasterOutput rasterOutput;
-		rasterOutput.SetRenderTarget( 0, rgRenderTarget, RasterOutputLoadAction::Clear );
-		rasterOutput.SetRenderTarget( 1, rgWorldNormal, RasterOutputLoadAction::Clear );
-		rasterOutput.SetRenderTarget( 2, rgVelocity, RasterOutputLoadAction::Clear );
-		rasterOutput.SetDepthStencil( rgDepthStencil, false, RasterOutputLoadAction::Clear );
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget, agl::RasterOutputLoadAction::Clear );
+		rasterOutput.SetRenderTarget( 1, rgWorldNormal, agl::RasterOutputLoadAction::Clear );
+		rasterOutput.SetRenderTarget( 2, rgVelocity, agl::RasterOutputLoadAction::Clear );
+		rasterOutput.SetDepthStencil( rgDepthStencil, false, agl::RasterOutputLoadAction::Clear );
 		rasterOutput.SetViewport( width, height );
 		rasterOutput.SetScissorRect( width, height );
 
@@ -857,7 +857,7 @@ namespace rendercore
 		auto rgSceneColor = renderGraph.RegisterExternalResource( m_renderTargets.GetSceneColor() );
 
 		RasterOutput rasterOutput;
-		rasterOutput.SetRenderTarget( 0, rgSceneColor, RasterOutputLoadAction::Clear );
+		rasterOutput.SetRenderTarget( 0, rgSceneColor, agl::RasterOutputLoadAction::Clear );
 
 		renderGraph.AddPass(
 			rasterOutput,

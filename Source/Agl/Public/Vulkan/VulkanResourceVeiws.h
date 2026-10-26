@@ -152,8 +152,16 @@ namespace agl
         using BaseClass = VulkanImageViewBase<DepthStencilView>;
 
     public:
-        using BaseClass::VulkanImageViewBase;
         using BaseClass::operator=;
+
+        VulkanImageDepthStencilView( VulkanTexture* owner, float depthValue, uint8 stencilValue ) noexcept;
+
+        float GetDepthClearValue() const;
+        uint8 GetStencilClearValue() const;
+
+    private:
+        float m_depthClearValue = 0.f;
+        uint8 m_stencilClearValue = 0;
     };
 
     template <typename BaseClass>

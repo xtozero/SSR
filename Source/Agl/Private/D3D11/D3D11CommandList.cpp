@@ -447,6 +447,40 @@ namespace agl
 		D3D11Context().ClearDepthStencilView( d3d11DSV->Resource(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthClearValue, stencilClearValue );
 	}
 
+	void D3D11CommandList::BeginRenderPass( const RasterOutputAttachments& attachments )
+	{
+		for ( const RenderTargetAttachment& rtAttachment : attachments.m_rtAttachments )
+		{
+			if ( rtAttachment.m_loadAction == RasterOutputLoadAction::Clear )
+			{
+				auto d3d11RTV = static_cast<D3D11RenderTargetView*>( rtAttachment.m_view );
+				if ( d3d11RTV == nullptr || d3d11RTV->Resource() == nullptr )
+				{
+					continue;
+				}
+
+				ColorF clearValue = d3d11RTV->GetClearColor();
+				D3D11Context().ClearRenderTargetView( d3d11RTV->Resource(), clearValue.RGBA() );
+			}
+		}
+
+		if ( attachments.m_dsAttachment.m_loadAction == RasterOutputLoadAction::Clear )
+		{
+			auto d3d11DSV = static_cast<D3D11DepthStencilView*>( attachments.m_dsAttachment.m_view );
+			if ( d3d11DSV && d3d11DSV->Resource() )
+			{
+				float depthClearValue = d3d11DSV->GetDepthClearValue();
+				uint8 stencilClearValue = d3d11DSV->GetStencilClearValue();
+
+				D3D11Context().ClearDepthStencilView( d3d11DSV->Resource(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthClearValue, stencilClearValue );
+			}
+		}
+	}
+
+	void D3D11CommandList::EndRenderPass()
+	{
+	}
+
 	bool D3D11CommandList::CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult )
 	{
 		if ( texture == nullptr )
@@ -786,6 +820,40 @@ namespace agl
 		uint8 stencilClearValue = d3d11DSV->GetStencilClearValue();
 
 		m_pContext->ClearDepthStencilView( d3d11DSV->Resource(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthClearValue, stencilClearValue );
+	}
+
+	void D3D11ParallelCommandList::BeginRenderPass( const RasterOutputAttachments& attachments )
+	{
+		for ( const RenderTargetAttachment& rtAttachment : attachments.m_rtAttachments )
+		{
+			if ( rtAttachment.m_loadAction == RasterOutputLoadAction::Clear )
+			{
+				auto d3d11RTV = static_cast<D3D11RenderTargetView*>( rtAttachment.m_view );
+				if ( d3d11RTV == nullptr || d3d11RTV->Resource() == nullptr )
+				{
+					continue;
+				}
+
+				ColorF clearValue = d3d11RTV->GetClearColor();
+				m_pContext->ClearRenderTargetView( d3d11RTV->Resource(), clearValue.RGBA() );
+			}
+		}
+
+		if ( attachments.m_dsAttachment.m_loadAction == RasterOutputLoadAction::Clear )
+		{
+			auto d3d11DSV = static_cast<D3D11DepthStencilView*>( attachments.m_dsAttachment.m_view );
+			if ( d3d11DSV && d3d11DSV->Resource() )
+			{
+				float depthClearValue = d3d11DSV->GetDepthClearValue();
+				uint8 stencilClearValue = d3d11DSV->GetStencilClearValue();
+
+				m_pContext->ClearDepthStencilView( d3d11DSV->Resource(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, depthClearValue, stencilClearValue );
+			}
+		}
+	}
+
+	void D3D11ParallelCommandList::EndRenderPass()
+	{
 	}
 
 	bool D3D11ParallelCommandList::CaptureTexture( [[maybe_unused]] Texture* texture, [[maybe_unused]]  DirectX::ScratchImage& outResult )

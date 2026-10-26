@@ -213,7 +213,15 @@ namespace agl
 
     void VulkanTexture2D::CreateDepthStencil( std::optional<ResourceFormat> overrideFormat )
     {
-        m_dsv = new VulkanImageDepthStencilView( this );
+        float depthClearValue = 0;
+        uint8 stencilClearValue = 0;
+        if ( m_desc.m_clearValue )
+        {
+            depthClearValue = m_desc.m_clearValue->m_depthStencil.m_depth;
+            stencilClearValue = m_desc.m_clearValue->m_depthStencil.m_stencil;
+        }
+
+        m_dsv = new VulkanImageDepthStencilView( this, depthClearValue, stencilClearValue );
         m_dsv->Init();
     }
 

@@ -121,7 +121,7 @@ namespace rendercore
 		auto rgIrrdianceMap = renderGraph.RegisterExternalResource( irradianceMap.Get() );
 
 		RasterOutput rasterOutput;
-		rasterOutput.SetRenderTarget( 0, rgIrrdianceMap, RasterOutputLoadAction::Clear );
+		rasterOutput.SetRenderTarget( 0, rgIrrdianceMap, agl::RasterOutputLoadAction::Clear );
 		rasterOutput.SetViewport( desc.m_width, desc.m_height );
 		rasterOutput.SetScissorRect( desc.m_width, desc.m_height );
 

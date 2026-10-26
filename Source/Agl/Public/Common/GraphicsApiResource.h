@@ -635,6 +635,12 @@ namespace agl
 	};
 	ENUM_CLASS_FLAGS( ResourceState );
 
+	enum class RasterOutputLoadAction : uint8
+	{
+		NoAction = 0,
+		Clear,
+	};
+
 	constexpr uint32 AllSubResource = 0xffffffff;
 
 	class ITransitionable

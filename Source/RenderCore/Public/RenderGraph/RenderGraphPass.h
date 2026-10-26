@@ -113,12 +113,12 @@ namespace rendercore
 				LoadRasterOutput( concreteCommandList );
 			}
 
-			if constexpr ( std::is_same_v<CommandListType, CommandList> )
-			{
-				m_rasterOutput->Bind( concreteCommandList );
-			}
-
 			m_passBody( concreteCommandList );
+
+			if constexpr ( std::is_base_of_v<CommandList, CommandListType> )
+			{
+				concreteCommandList.EndRenderPass();
+			}
 		}
 
 		explicit LambdaRenderGraphPass( Lambda&& passBody ) : m_passBody( std::forward<Lambda>( passBody ) ) {}

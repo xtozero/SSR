@@ -328,6 +328,112 @@ namespace agl
 
         vkCmdBeginRendering( m_cmdListResource.m_commandBuffer, &renderingInfo );
         vkCmdEndRendering( m_cmdListResource.m_commandBuffer );
+
+        OnCommandRecorded();
+    }
+
+    void VulkanCommandListImpl::BeginRenderPass( const RasterOutputAttachments& attachments )
+    {
+        m_barrierBatcher.Commit( *this );
+
+        auto width = std::numeric_limits<uint32>::max();
+        auto height = std::numeric_limits<uint32>::max();
+        auto depth = std::numeric_limits<uint32>::max();
+        uint32 numAttachments = 0;
+
+        auto CollectRenderArea = [&width, &height, &depth](VulkanTexture* texture)
+        {
+            const auto& textureDesc = texture->GetDesc();
+            width = std::min( width, textureDesc.m_width );
+            height = std::min( height, textureDesc.m_height );
+            depth = std::min( depth, textureDesc.m_depth );
+        };
+
+        VkRenderingAttachmentInfo colorAttachments[MaxRendertagets] = {};
+        for ( auto& rtAttachment : attachments.m_rtAttachments )
+        {
+            auto vulkanRTV = static_cast<VulkanImageRenderTargetView*>( rtAttachment.m_view );
+            if ( vulkanRTV == nullptr )
+            {
+                continue;
+            }
+
+            const ColorF& clearValue = vulkanRTV->GetClearColor();
+
+            VkClearValue vkClearValue = {
+                .color = { clearValue.R(), clearValue.G(), clearValue.B(), clearValue.A() },
+            };
+
+            colorAttachments[numAttachments] = {
+                .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+                .imageView = vulkanRTV->GetImageView(),
+                .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                .resolveMode = VK_RESOLVE_MODE_NONE,
+                .resolveImageView = VK_NULL_HANDLE,
+                .resolveImageLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                .loadOp = ( rtAttachment.m_loadAction == RasterOutputLoadAction::Clear ) ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+                .clearValue = vkClearValue,
+            };
+
+            CollectRenderArea( vulkanRTV->GetOwner() );
+
+            ++numAttachments;
+        }
+
+        VkRenderingAttachmentInfo depthStencilAttachment;
+        bool hasDSV = ( attachments.m_dsAttachment.m_view != nullptr );
+        if ( hasDSV )
+        {
+            auto vulkanDSV = static_cast<VulkanImageDepthStencilView*>( attachments.m_dsAttachment.m_view );
+            VkClearValue vkClearValue = {
+                .depthStencil = {
+                    .depth = vulkanDSV->GetDepthClearValue(),
+                    .stencil = vulkanDSV->GetStencilClearValue(),
+                }
+            };
+
+            depthStencilAttachment = {
+                .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+                .imageView = vulkanDSV->GetImageView(),
+                .imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+                .loadOp = ( attachments.m_dsAttachment.m_loadAction == RasterOutputLoadAction::Clear ) ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+                .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+                .clearValue = vkClearValue,
+            };
+
+            CollectRenderArea( vulkanDSV->GetOwner() );
+        }
+
+        VkRenderingInfo renderingInfo = {
+            .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
+            .renderArea = {
+                .offset = {
+                    .x = 0,
+                    .y = 0,
+                },
+                .extent = {
+                    .width = width,
+                    .height = height,
+                },
+            },
+            .layerCount = depth,
+            .colorAttachmentCount = numAttachments,
+            .pColorAttachments = colorAttachments,
+            .pDepthAttachment = hasDSV ? &depthStencilAttachment : nullptr,
+            .pStencilAttachment = hasDSV ? &depthStencilAttachment : nullptr,
+        };
+
+        vkCmdBeginRendering( m_cmdListResource.m_commandBuffer, &renderingInfo );
+
+        OnCommandRecorded();
+    }
+
+    void VulkanCommandListImpl::EndRenderPass()
+    {
+        vkCmdEndRendering( m_cmdListResource.m_commandBuffer );
+
+        OnCommandRecorded();
     }
 
     void VulkanComputeCommandList::Prepare()
@@ -595,6 +701,16 @@ namespace agl
 
     void VulkanCommandList::ClearDepthStencil( DepthStencilView* depthStencil )
     {
+    }
+
+    void VulkanCommandList::BeginRenderPass( const RasterOutputAttachments& attachments )
+    {
+        m_impl.BeginRenderPass( attachments );
+    }
+
+    void VulkanCommandList::EndRenderPass()
+    {
+        m_impl.EndRenderPass();
     }
 
     bool VulkanCommandList::CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult )

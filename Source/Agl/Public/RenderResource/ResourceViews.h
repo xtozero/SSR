@@ -2,6 +2,8 @@
 
 #include "GraphicsApiResource.h"
 
+#include <span>
+
 namespace agl
 {
 	class ShaderResourceView : public GraphicsApiResource
@@ -18,6 +20,22 @@ namespace agl
 
 	class DepthStencilView : public GraphicsApiResource
 	{
+	};
+
+	template<typename ViewType>
+	struct RasterOutputAttachment
+	{
+		ViewType* m_view = nullptr;
+		RasterOutputLoadAction m_loadAction = RasterOutputLoadAction::NoAction;
+	};
+
+	using RenderTargetAttachment = RasterOutputAttachment<RenderTargetView>;
+	using DepthStencilAttachment = RasterOutputAttachment<DepthStencilView>;
+
+	struct RasterOutputAttachments
+	{
+		std::span<RenderTargetAttachment> m_rtAttachments;
+		DepthStencilAttachment m_dsAttachment;
 	};
 
 	class IResourceViews

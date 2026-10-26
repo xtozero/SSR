@@ -179,13 +179,13 @@ namespace rendercore
 		}
 	}
 
-	void RasterOutput::SetRenderTarget( int32 index, RenderGraphTexture* renderTarget, RasterOutputLoadAction loadAction )
+	void RasterOutput::SetRenderTarget( int32 index, RenderGraphTexture* renderTarget, agl::RasterOutputLoadAction loadAction )
 	{
 		m_renderTargets[index].m_texture = renderTarget;
 		m_renderTargets[index].m_loadAction = loadAction;
 	}
 
-	void RasterOutput::SetDepthStencil( RenderGraphTexture* depthStencil, bool readOnly, RasterOutputLoadAction loadAction )
+	void RasterOutput::SetDepthStencil( RenderGraphTexture* depthStencil, bool readOnly, agl::RasterOutputLoadAction loadAction )
 	{
 		m_depthStencil.m_texture = depthStencil;
 		m_depthStencil.m_loadAction = loadAction;
@@ -887,10 +887,10 @@ namespace rendercore
 			for ( int32 i = 0; i < shadowMap.m_shadowMaps.size(); ++i )
 			{
 				auto rgShadowMap = renderGraph.RegisterExternalResource( shadowMap.m_shadowMaps[i].Get() );
-				rasterOutput.SetRenderTarget( i, rgShadowMap, RasterOutputLoadAction::Clear );
+				rasterOutput.SetRenderTarget( i, rgShadowMap, agl::RasterOutputLoadAction::Clear );
 			}
 			auto rgShadowMapDepth = renderGraph.RegisterExternalResource( shadowMap.m_shadowMapDepth.Get() );
-			rasterOutput.SetDepthStencil( rgShadowMapDepth, false, RasterOutputLoadAction::Clear );
+			rasterOutput.SetDepthStencil( rgShadowMapDepth, false, agl::RasterOutputLoadAction::Clear );
 			rasterOutput.SetViewport( width, height );
 			rasterOutput.SetScissorRect( width, height );
 
@@ -1550,8 +1550,8 @@ namespace rendercore
 		auto rgDepthStencil = renderGraph.RegisterExternalResource( depthStencil.Get() );
 
 		RasterOutput rasterOutput;
-		rasterOutput.SetRenderTarget( 0, rgRenderTarget, RasterOutputLoadAction::Clear );
-		rasterOutput.SetDepthStencil( rgDepthStencil, false, RasterOutputLoadAction::Clear );
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget, agl::RasterOutputLoadAction::Clear );
+		rasterOutput.SetDepthStencil( rgDepthStencil, false, agl::RasterOutputLoadAction::Clear );
 		rasterOutput.SetViewport( width, height );
 		rasterOutput.SetScissorRect( width, height );
 

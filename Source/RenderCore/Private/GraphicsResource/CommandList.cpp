@@ -179,6 +179,16 @@ namespace rendercore
 		GetImpl().ClearDepthStencil( depthStencil );
 	}
 
+	void CommandList::BeginRenderPass( agl::RasterOutputAttachments& attachments ) const
+	{
+		GetImpl().BeginRenderPass( attachments );
+	}
+
+	void CommandList::EndRenderPass() const
+	{
+		GetImpl().EndRenderPass();
+	}
+
 	bool CommandList::CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult ) const
 	{
 		return GetImpl().CaptureTexture( texture, outResult );

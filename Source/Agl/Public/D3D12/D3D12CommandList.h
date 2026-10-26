@@ -151,6 +151,8 @@ namespace agl
 		void ClearRenderTarget( RenderTargetView* renderTarget );
 		void ClearDepthStencil( DepthStencilView* depthStencil );
 
+		void BeginRenderPass( const RasterOutputAttachments& attachments );
+
 		bool CaptureTexture( const Texture* texture, DirectX::ScratchImage& outResult ) const;
 
 		D3D12CommandListImpl() : D3D12ComputeCommandListImpl( D3D12_COMMAND_LIST_TYPE_DIRECT ) {}
@@ -263,6 +265,9 @@ namespace agl
 		virtual void ClearRenderTarget( RenderTargetView* renderTarget ) override;
 		virtual void ClearDepthStencil( DepthStencilView* depthStencil ) override;
 
+		virtual void BeginRenderPass( const RasterOutputAttachments& attachments ) override;
+		virtual void EndRenderPass() override;
+
 		virtual bool CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult ) override;
 
 		virtual void ResolveQueryData( void* queryHeap, D3D12_QUERY_TYPE type, uint32 offset, uint32 numQueries ) override;
@@ -334,6 +339,9 @@ namespace agl
 
 		virtual void ClearRenderTarget( RenderTargetView* renderTarget ) override;
 		virtual void ClearDepthStencil( DepthStencilView* depthStencil ) override;
+
+		virtual void BeginRenderPass( const RasterOutputAttachments& attachments ) override;
+		virtual void EndRenderPass() override;
 
 		virtual bool CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult ) override;
 

@@ -21,7 +21,6 @@
 #include "VisibilityRendering.h"
 
 #include <array>
-#include <string>
 
 namespace agl
 {
@@ -97,17 +96,11 @@ namespace rendercore
 		std::vector<const ShaderArguments*> m_argumentsList;
 	};
 
-	enum class RasterOutputLoadAction : uint8
-	{
-		NoAction = 0,
-		Clear,
-	};
-
 	class RasterOutput final
 	{
 	public:
-		void SetRenderTarget( int32 index, RenderGraphTexture* renderTarget, RasterOutputLoadAction loadAction = RasterOutputLoadAction::NoAction );
-		void SetDepthStencil( RenderGraphTexture* depthStencil, bool readOnly = false, RasterOutputLoadAction loadAction = RasterOutputLoadAction::NoAction );
+		void SetRenderTarget( int32 index, RenderGraphTexture* renderTarget, agl::RasterOutputLoadAction loadAction = agl::RasterOutputLoadAction::NoAction );
+		void SetDepthStencil( RenderGraphTexture* depthStencil, bool readOnly = false, agl::RasterOutputLoadAction loadAction = agl::RasterOutputLoadAction::NoAction );
 
 		void SetViewport( int32 left, int32 top, int32 right, int32 bottom, int32 front, int32 back );
 		void SetViewport( int32 width, int32 height );
@@ -123,10 +116,10 @@ namespace rendercore
 		struct RasterOutputInfo
 		{
 			RenderGraphTexture* m_texture = nullptr;
-			RasterOutputLoadAction m_loadAction = RasterOutputLoadAction::NoAction;
+			agl::RasterOutputLoadAction m_loadAction = agl::RasterOutputLoadAction::NoAction;
 		};
-		RasterOutputInfo m_renderTargets[agl::MaxRendertagets] = {};
 
+		RasterOutputInfo m_renderTargets[agl::MaxRendertagets] = {};
 		RasterOutputInfo m_depthStencil;
 		bool m_depthStencilReadOnly = false;
 

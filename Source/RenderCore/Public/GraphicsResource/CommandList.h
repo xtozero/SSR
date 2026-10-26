@@ -87,6 +87,9 @@ namespace rendercore
 		void ClearRenderTarget( agl::RenderTargetView* renderTarget ) const;
 		void ClearDepthStencil( agl::DepthStencilView* depthStencil ) const;
 
+		void BeginRenderPass( agl::RasterOutputAttachments& attachments ) const;
+		void EndRenderPass() const;
+
 		RENDERCORE_DLL bool CaptureTexture( agl::Texture* texture, DirectX::ScratchImage& outResult ) const;
 
 		explicit CommandList( agl::ICommandList& impl )

@@ -132,21 +132,38 @@ namespace rendercore
 	{
 		if ( m_rasterOutput )
 		{
+			int32 numRTV = 0;
+			agl::RenderTargetAttachment rtAttachments[agl::MaxRendertagets] = {};
+
 			for ( auto& renderTarget : m_rasterOutput->m_renderTargets )
 			{
-				if ( renderTarget.m_texture && ( renderTarget.m_loadAction == RasterOutputLoadAction::Clear ) )
+				if ( renderTarget.m_texture == nullptr )
 				{
-					commandList.ClearRenderTarget( renderTarget.m_texture->Get()->RTV() );
+					continue;
+				}
+
+				if ( agl::Texture* texture = renderTarget.m_texture->Get() )
+				{
+					rtAttachments[numRTV].m_view = texture->RTV();
+					rtAttachments[numRTV].m_loadAction = renderTarget.m_loadAction;
+					++numRTV;
 				}
 			}
 
+			agl::RasterOutputAttachments attachments;
+			attachments.m_rtAttachments = std::span( rtAttachments, numRTV );
+
 			if ( m_rasterOutput->m_depthStencil.m_texture )
 			{
-				if ( m_rasterOutput->m_depthStencil.m_loadAction == RasterOutputLoadAction::Clear )
-				{
-					commandList.ClearDepthStencil( m_rasterOutput->m_depthStencil.m_texture->Get()->DSV() );
-				}
+				agl::Texture* texture = m_rasterOutput->m_depthStencil.m_texture->Get();
+
+				attachments.m_dsAttachment.m_view = texture->DSV();
+				attachments.m_dsAttachment.m_loadAction = m_rasterOutput->m_depthStencil.m_loadAction;
 			}
+
+			commandList.BeginRenderPass( attachments );
+
+			m_rasterOutput->Bind( commandList );
 		}
 	}
 

@@ -28,6 +28,8 @@ namespace agl
 	class UnorderedAccessView;
 	class VertexShader;
 
+	struct RasterOutputAttachments;
+
 	enum CommandListType : uint8
 	{
 		General,
@@ -102,6 +104,9 @@ namespace agl
 
 		virtual void ClearRenderTarget( RenderTargetView* renderTarget ) = 0;
 		virtual void ClearDepthStencil( DepthStencilView* depthStencil ) = 0;
+
+		virtual void BeginRenderPass( const RasterOutputAttachments& attachments ) = 0;
+		virtual void EndRenderPass() = 0;
 
 		virtual bool CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult ) = 0;
 	};

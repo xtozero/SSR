@@ -190,7 +190,7 @@ namespace rendercore
 		int32 height = sceneTex->GetDesc().m_height;
 
 		RasterOutput rasterOutput;
-		rasterOutput.SetRenderTarget( 0, rgResolveTex, RasterOutputLoadAction::Clear );
+		rasterOutput.SetRenderTarget( 0, rgResolveTex, agl::RasterOutputLoadAction::Clear );
 		rasterOutput.SetViewport( width, height);
 		rasterOutput.SetScissorRect( width, height );
 

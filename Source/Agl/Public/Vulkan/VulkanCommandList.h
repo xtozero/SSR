@@ -101,6 +101,9 @@ namespace agl
     public:
         void ClearRenderTarget( RenderTargetView* renderTarget );
 
+        void BeginRenderPass( const RasterOutputAttachments& attachments );
+        void EndRenderPass();
+
         VulkanCommandListImpl() : VulkanComputeCommandListImpl( CommandListType::General ) {}
     };
 
@@ -192,6 +195,9 @@ namespace agl
 
         virtual void ClearRenderTarget( RenderTargetView* renderTarget ) override;
         virtual void ClearDepthStencil( DepthStencilView* depthStencil ) override;
+
+        virtual void BeginRenderPass( const RasterOutputAttachments& attachments ) override;
+        virtual void EndRenderPass() override;
 
         virtual bool CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult ) override;
 

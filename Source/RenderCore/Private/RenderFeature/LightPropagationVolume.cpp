@@ -385,7 +385,7 @@ namespace rendercore
 		auto [width, height] = renderTarget->Size();
 
 		RasterOutput rasterOutput;
-		rasterOutput.SetRenderTarget( 0, rgRenderTarget, RasterOutputLoadAction::Clear );
+		rasterOutput.SetRenderTarget( 0, rgRenderTarget, agl::RasterOutputLoadAction::Clear );
 		rasterOutput.SetViewport( width, height );
 		rasterOutput.SetScissorRect( width, height );
 
@@ -544,10 +544,10 @@ namespace rendercore
 		if ( agl::DefaultAgl::GetType() == agl::AglType::D3D12 )
 		{
 			RasterOutput rasterOutput;
-			rasterOutput.SetRenderTarget( 0, rgCoeffR, RasterOutputLoadAction::Clear );
-			rasterOutput.SetRenderTarget( 1, rgCoeffG, RasterOutputLoadAction::Clear );
-			rasterOutput.SetRenderTarget( 2, rgCoeffB, RasterOutputLoadAction::Clear );
-			rasterOutput.SetRenderTarget( 3, rgCoeffOcclusion, RasterOutputLoadAction::Clear );
+			rasterOutput.SetRenderTarget( 0, rgCoeffR, agl::RasterOutputLoadAction::Clear );
+			rasterOutput.SetRenderTarget( 1, rgCoeffG, agl::RasterOutputLoadAction::Clear );
+			rasterOutput.SetRenderTarget( 2, rgCoeffB, agl::RasterOutputLoadAction::Clear );
+			rasterOutput.SetRenderTarget( 3, rgCoeffOcclusion, agl::RasterOutputLoadAction::Clear );
 
 			renderGraph.AddPass(
 				rasterOutput,

@@ -157,7 +157,7 @@ namespace rendercore
         auto [width, height] = renderViewGroup.GetViewport().Size();
 
         RasterOutput rasterOutput;
-        rasterOutput.SetRenderTarget( 0, param.m_visibility, RasterOutputLoadAction::Clear );
+        rasterOutput.SetRenderTarget( 0, param.m_visibility, agl::RasterOutputLoadAction::Clear );
         rasterOutput.SetDepthStencil( rgDepthStencil, true );
         rasterOutput.SetViewport( width, height );
         rasterOutput.SetScissorRect( width, height );

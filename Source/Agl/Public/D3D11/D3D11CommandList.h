@@ -59,6 +59,9 @@ namespace agl
 		virtual void ClearRenderTarget( RenderTargetView* renderTarget ) override;
 		virtual void ClearDepthStencil( DepthStencilView* depthStencil ) override;
 
+		virtual void BeginRenderPass( const RasterOutputAttachments& attachments ) override;
+		virtual void EndRenderPass() override;
+
 		virtual bool CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult ) override;
 
 		void Initialize();
@@ -127,6 +130,9 @@ namespace agl
 
 		virtual void ClearRenderTarget( RenderTargetView* renderTarget ) override;
 		virtual void ClearDepthStencil( DepthStencilView* depthStencil ) override;
+
+		virtual void BeginRenderPass( const RasterOutputAttachments& attachments ) override;
+		virtual void EndRenderPass() override;
 
 		virtual bool CaptureTexture( Texture* texture, DirectX::ScratchImage& outResult ) override;
 
